@@ -112,9 +112,6 @@ func propagate(cell_index: Vector3) -> void:
 						#add neighbour to modifiedStack if not already in the stack
 						if not modified_stack.has(neighbour_index):
 							modified_stack.push_back(neighbour_index)
-				#TODO: remove the assert
-				if new_neighbours.size() == 0:
-					print("FAILED")
 				grid[neighbour_index.x][neighbour_index.y][neighbour_index.z] = new_neighbours
 				#if a cell is empty then backstep
 				if new_neighbours.size() == 0:
@@ -181,9 +178,9 @@ func restore_propogation(history_item: Array) -> void:
 	if modified_stack.size() > 0 and index == modified_stack[-1]:
 		modified_stack.pop_back()
 	#restore in cell
-	var name = history_item[0]
+	var history_name = history_item[0]
 	for item in CellItem.definitions:
-		if item.item_name == name:
+		if item.item_name == history_name:
 			grid[index.x][index.y][index.z].push_back(item.clone())
 
 

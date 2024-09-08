@@ -14,7 +14,7 @@ size = Vector3(19.5869, 1, 16.4502)
 transform = Transform3D(0.804168, 0.423317, -0.417272, 0, 0.702004, 0.712173, 0.594402, -0.572707, 0.564529, 0, 7.02775, 0)
 
 [node name="Player" parent="." instance=ExtResource("1_tpetr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.93546, 9.06986, 23.4252)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.78728, 9.01462, 23.4622)
 
 [node name="wfc" type="Node3D" parent="."]
 script = ExtResource("2_ebfmb")
