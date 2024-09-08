@@ -9,3 +9,4 @@ func _ready():
 	add_child(wfc)
 	wfc.collapse_all()
 	wfc.spawn_items()
+	print("test")
