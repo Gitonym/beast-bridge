@@ -20,7 +20,6 @@ assets/
 *.import
 *.png
 *.glb
-*.tscn
 *.fbx
 *.tres
 *.tmp
