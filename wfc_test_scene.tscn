@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://bp045uran4rix"]
+[gd_scene load_steps=4 format=3 uid="uid://bp045uran4rix"]
 
 [ext_resource type="PackedScene" uid="uid://dreebj84dlmv7" path="res://assets/player/player.tscn" id="1_tpetr"]
 [ext_resource type="Script" path="res://wfc.gd" id="2_ebfmb"]
+[ext_resource type="PackedScene" uid="uid://dqhf3v6gf8dpq" path="res://wfc/items/models/gate.glb" id="3_aw3h5"]
 
 [node name="Node3D" type="Node3D"]
 
@@ -14,12 +15,15 @@ size = Vector3(19.5869, 1, 16.4502)
 transform = Transform3D(0.804168, 0.423317, -0.417272, 0, 0.702004, 0.712173, 0.594402, -0.572707, 0.564529, 0, 7.02775, 0)
 
 [node name="Player" parent="." instance=ExtResource("1_tpetr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.68775, 9.49059, 24.1965)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.35, 20, 50)
 
 [node name="wfc" type="Node3D" parent="."]
 script = ExtResource("2_ebfmb")
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.55184, 8.4004, 24.1577)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.214, 18.8188, 50)
 use_collision = true
 size = Vector3(6.55316, 1.26074, 3.13818)
+
+[node name="gate" parent="." instance=ExtResource("3_aw3h5")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4, 0, 0)

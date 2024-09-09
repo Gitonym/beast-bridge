@@ -19,7 +19,7 @@ func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItem
 	y_size = _y_size
 	z_size = _z_size
 	cellSize = _cellSize
-	cellItems = _cellItems.duplicate()
+	cellItems = _cellItems
 	init_grid()
 
 
@@ -31,7 +31,7 @@ func init_grid() -> void:
 		for y in range(y_size):
 			grid[x].append([])
 			for z in range(z_size):
-				grid[x][y].append(cellItems.duplicate())
+				grid[x][y].append(cellItems)
 	
 	#set the lowest y value to "ground" CellItems
 	for x in range(x_size):
@@ -68,13 +68,13 @@ func is_collapsed() -> bool:
 
 #removes all cellItems from the given index except one random cellItem
 #adds the chosen item and removed items to the history in this format:
-#[&"assumption", index: Vector3, chosen: StringName, removed1: StringName, removed2: StringName, ...]
+#[&"assumption", index: Vector3, chosen: CellItem, removed1: CellItem, removed2: CellItem, ...]
 func collapse_cell(cell_index: Vector3) -> void:
 	var assumption: Array = []
 	grid[cell_index.x][cell_index.y][cell_index.z].shuffle()
 	while grid[cell_index.x][cell_index.y][cell_index.z].size() > 1:
-		assumption.push_back(grid[cell_index.x][cell_index.y][cell_index.z].pop_back().item_name)
-	assumption.push_front(grid[cell_index.x][cell_index.y][cell_index.z][0].item_name)
+		assumption.push_back(grid[cell_index.x][cell_index.y][cell_index.z].pop_back())
+	assumption.push_front(grid[cell_index.x][cell_index.y][cell_index.z][0])
 	assumption.push_front(cell_index)
 	assumption.push_front(&"assumption")
 	history.push_back(assumption)
@@ -86,19 +86,19 @@ func propagate(cell_index: Vector3) -> void:
 	while modified_stack.size() > 0:
 		var current_index: Vector3 = modified_stack.pop_back()
 		var directions: Array[Vector3] = [
-			Vector3(1, 0, 0),
-			Vector3(-1, 0, 0),
-			Vector3(0, 1, 0),
-			Vector3(0, -1, 0),
-			Vector3(0, 0, 1),
-			Vector3(0, 0, -1),
+			Vector3.RIGHT,
+			Vector3.LEFT,
+			Vector3.UP,
+			Vector3.DOWN,
+			Vector3.BACK,
+			Vector3.FORWARD,
 		]
 		for direction: Vector3 in directions:
 			#find all valid neighbours of the current cell
 			var neighbour_index: Vector3 = current_index + direction
 			var allowed_neighbours: Array[StringName] = []
 			for current_item: CellItem in grid[current_index.x][current_index.y][current_index.z]:
-				allowed_neighbours.append_array(current_item.get_valid_neighbours_for_direction(direction))
+				allowed_neighbours.append_array(current_item.valid_neighbours[direction])
 			
 			#remove any invalid neigbour
 			#TODO: can be moved further up to improve performance
@@ -108,8 +108,8 @@ func propagate(cell_index: Vector3) -> void:
 					if not allowed_neighbours.has(current_neighbour.item_name):
 						new_neighbours.erase(current_neighbour)
 						#add removed neighbour to history in this format:
-						#[&"propogation", index Vector3, name: StringName]
-						history.push_back([&"propogation", neighbour_index, current_neighbour.item_name])
+						#[&"propogation", index Vector3, name: CellItem]
+						history.push_back([&"propogation", neighbour_index, current_neighbour])
 						#add neighbour to modifiedStack if not already in the stack
 						if not modified_stack.has(neighbour_index):
 							modified_stack.push_back(neighbour_index)
@@ -131,7 +131,6 @@ func collapse_all() -> void:
 
 #spawns the map after the grid has been collapsed
 func spawn_items() -> void:
-	var loaded_items: Dictionary 
 	if is_collapsed():
 		var current_item: CellItem
 		for x in range(x_size):
@@ -139,10 +138,17 @@ func spawn_items() -> void:
 				for z in range(z_size):
 					current_item = grid[x][y][z][0]
 					if current_item.item_name != &"air":
-						if not loaded_items.has(current_item.model_path):
-							loaded_items[current_item.item_name] = load(current_item.model_path)
-						var instance = loaded_items[current_item.item_name].instantiate()
+						var instance = load(current_item.model_path).instantiate()
 						instance.position = Vector3(x * cellSize, y * cellSize, z * cellSize)
+						if current_item.rotation == Vector3.FORWARD:
+							instance.rotate(Vector3.UP, deg_to_rad(90))
+							instance.position += Vector3(1, 0, 0) * cellSize
+						elif current_item.rotation == Vector3.LEFT:
+							instance.rotate(Vector3.UP, deg_to_rad(180))
+							instance.position += Vector3(1, 0, -1) * cellSize
+						elif current_item.rotation == Vector3.BACK:
+							instance.rotate(Vector3.UP, deg_to_rad(-90))
+							instance.position += Vector3(0, 0, -1) * cellSize
 						add_child(instance)
 
 
@@ -179,15 +185,13 @@ func restore_propogation(history_item: Array) -> void:
 	if modified_stack.size() > 0 and index == modified_stack[-1]:
 		modified_stack.pop_back()
 	#restore in cell
-	var history_name = history_item[0]
-	for item in CellItem.definitions:
-		if item.item_name == history_name:
-			grid[index.x][index.y][index.z].push_back(item.clone())
+	var history_cell_item = history_item[0]
+	grid[index.x][index.y][index.z].push_back(history_cell_item)
 
 
 func restore_assumption(history_item: Array) -> void:
 	var index: Vector3 = history_item.pop_front()
-	var choice: StringName = history_item.pop_front()
+	var choice: CellItem = history_item.pop_front()
 	var discarded: Array = history_item
 	#remove old decision
 	#the old discarded decision push on history as propagation
@@ -195,6 +199,4 @@ func restore_assumption(history_item: Array) -> void:
 	history.push_back([&"propogation", index, choice])
 	#restore the removed items
 	for discarded_item in discarded:
-		for item in CellItem.definitions:
-			if item.item_name == discarded_item:
-				grid[index.x][index.y][index.z].push_back(item.clone())
+		grid[index.x][index.y][index.z].push_back(discarded_item)
