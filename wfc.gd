@@ -12,7 +12,7 @@ func _ready():
 			Vector3.RIGHT:   [&"air", &"ground", &"tree", &"gate"],
 			Vector3.LEFT:    [&"air", &"ground", &"tree", &"gate"],
 			Vector3.UP:      [&"air"],
-			Vector3.DOWN:    [&"air", &"ground", &"tree", &"gate"],
+			Vector3.DOWN:    [&"air", &"ground", &"tree", &"gate", &"water"],
 			Vector3.BACK:    [&"air", &"ground", &"tree", &"gate"],
 			Vector3.FORWARD: [&"air", &"ground", &"tree", &"gate"]
 		}
@@ -22,12 +22,12 @@ func _ready():
 		&"ground",
 		"res://wfc/items/models/cube.glb",
 		{
-			Vector3.RIGHT:   [&"air", &"ground", &"tree", &"gate"],
-			Vector3.LEFT:    [&"air", &"ground", &"tree", &"gate"],
-			Vector3.UP:      [&"air", &"ground", &"tree", &"gate"],
+			Vector3.RIGHT:   [&"air", &"ground", &"tree", &"gate", &"water"],
+			Vector3.LEFT:    [&"air", &"ground", &"tree", &"gate", &"water"],
+			Vector3.UP:      [&"air", &"ground", &"tree", &"gate", &"water"],
 			Vector3.DOWN:    [&"ground"],
-			Vector3.BACK:    [&"air", &"ground", &"tree", &"gate"],
-			Vector3.FORWARD: [&"air", &"ground", &"tree", &"gate"]
+			Vector3.BACK:    [&"air", &"ground", &"tree", &"gate", &"water"],
+			Vector3.FORWARD: [&"air", &"ground", &"tree", &"gate", &"water"]
 		}
 	).track()
 	
@@ -57,7 +57,20 @@ func _ready():
 		}
 	).track().generate_rotations()
 	
-	wfc = WaveFunctionCollapseGrid.new(10, 5, 10, 4, CellItem.definitions)
+	CellItem.new(
+		&"water",
+		"res://wfc/items/models/water.glb",
+		{
+			Vector3.RIGHT:   [&"ground", &"water"],
+			Vector3.LEFT:    [&"ground", &"water"],
+			Vector3.UP:      [&"air"],
+			Vector3.DOWN:    [&"ground"],
+			Vector3.BACK:    [&"ground", &"water"],
+			Vector3.FORWARD: [&"ground", &"water"]
+		}
+	).track()
+	
+	wfc = WaveFunctionCollapseGrid.new(15, 5, 15, 4, CellItem.definitions)
 	add_child(wfc)
 	wfc.collapse_all()
 	wfc.spawn_items()
