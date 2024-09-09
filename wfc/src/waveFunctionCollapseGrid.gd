@@ -131,7 +131,6 @@ func collapse_all() -> void:
 
 #spawns the map after the grid has been collapsed
 func spawn_items() -> void:
-	var loaded_items: Dictionary 
 	if is_collapsed():
 		var current_item: CellItem
 		for x in range(x_size):
@@ -139,9 +138,7 @@ func spawn_items() -> void:
 				for z in range(z_size):
 					current_item = grid[x][y][z][0]
 					if current_item.item_name != &"air":
-						if not loaded_items.has(current_item.model_path):
-							loaded_items[current_item.item_name] = load(current_item.model_path)
-						var instance = loaded_items[current_item.item_name].instantiate()
+						var instance = load(current_item.model_path).instantiate()
 						instance.position = Vector3(x * cellSize, y * cellSize, z * cellSize)
 						add_child(instance)
 
