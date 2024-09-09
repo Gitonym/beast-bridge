@@ -50,7 +50,7 @@ func _ready():
 		{
 			Vector3.RIGHT:   [&"ground"],
 			Vector3.LEFT:    [&"ground"],
-			Vector3.UP:      [&"air", &"ground"],
+			Vector3.UP:      [&"air"],
 			Vector3.DOWN:    [&"ground"],
 			Vector3.BACK:    [&"air"],
 			Vector3.FORWARD: [&"air"]
