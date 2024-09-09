@@ -143,10 +143,10 @@ func spawn_items() -> void:
 						if current_item.rotation == Vector3.FORWARD:
 							instance.rotate(Vector3.UP, deg_to_rad(90))
 							instance.position += Vector3(1, 0, 0) * cellSize
-						if current_item.rotation == Vector3.LEFT:
+						elif current_item.rotation == Vector3.LEFT:
 							instance.rotate(Vector3.UP, deg_to_rad(180))
 							instance.position += Vector3(1, 0, -1) * cellSize
-						if current_item.rotation == Vector3.BACK:
+						elif current_item.rotation == Vector3.BACK:
 							instance.rotate(Vector3.UP, deg_to_rad(-90))
 							instance.position += Vector3(0, 0, -1) * cellSize
 						add_child(instance)
