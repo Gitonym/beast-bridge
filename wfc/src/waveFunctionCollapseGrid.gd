@@ -19,7 +19,7 @@ func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItem
 	y_size = _y_size
 	z_size = _z_size
 	cellSize = _cellSize
-	cellItems = _cellItems.duplicate()
+	cellItems = _cellItems
 	init_grid()
 
 
@@ -31,7 +31,7 @@ func init_grid() -> void:
 		for y in range(y_size):
 			grid[x].append([])
 			for z in range(z_size):
-				grid[x][y].append(cellItems.duplicate())
+				grid[x][y].append(cellItems)
 	
 	#set the lowest y value to "ground" CellItems
 	for x in range(x_size):
@@ -86,19 +86,19 @@ func propagate(cell_index: Vector3) -> void:
 	while modified_stack.size() > 0:
 		var current_index: Vector3 = modified_stack.pop_back()
 		var directions: Array[Vector3] = [
-			Vector3(1, 0, 0),
-			Vector3(-1, 0, 0),
-			Vector3(0, 1, 0),
-			Vector3(0, -1, 0),
-			Vector3(0, 0, 1),
-			Vector3(0, 0, -1),
+			Vector3.RIGHT,
+			Vector3.LEFT,
+			Vector3.UP,
+			Vector3.DOWN,
+			Vector3.BACK,
+			Vector3.FORWARD,
 		]
 		for direction: Vector3 in directions:
 			#find all valid neighbours of the current cell
 			var neighbour_index: Vector3 = current_index + direction
 			var allowed_neighbours: Array[StringName] = []
 			for current_item: CellItem in grid[current_index.x][current_index.y][current_index.z]:
-				allowed_neighbours.append_array(current_item.get_valid_neighbours_for_direction(direction))
+				allowed_neighbours.append_array(current_item.valid_neighbours[direction])
 			
 			#remove any invalid neigbour
 			#TODO: can be moved further up to improve performance
@@ -182,7 +182,7 @@ func restore_propogation(history_item: Array) -> void:
 	var history_name = history_item[0]
 	for item in CellItem.definitions:
 		if item.item_name == history_name:
-			grid[index.x][index.y][index.z].push_back(item.clone())
+			grid[index.x][index.y][index.z].push_back(item)
 
 
 func restore_assumption(history_item: Array) -> void:
@@ -197,4 +197,4 @@ func restore_assumption(history_item: Array) -> void:
 	for discarded_item in discarded:
 		for item in CellItem.definitions:
 			if item.item_name == discarded_item:
-				grid[index.x][index.y][index.z].push_back(item.clone())
+				grid[index.x][index.y][index.z].push_back(item)
