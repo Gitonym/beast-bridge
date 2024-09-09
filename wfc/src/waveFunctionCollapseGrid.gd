@@ -101,6 +101,7 @@ func propagate(cell_index: Vector3) -> void:
 				allowed_neighbours.append_array(current_item.get_valid_neighbours_for_direction(direction))
 			
 			#remove any invalid neigbour
+			#TODO: can be moved further up to improve performance
 			if is_valid_index(neighbour_index):
 				var new_neighbours: Array = grid[neighbour_index.x][neighbour_index.y][neighbour_index.z].duplicate()
 				for current_neighbour: CellItem in grid[neighbour_index.x][neighbour_index.y][neighbour_index.z]:
