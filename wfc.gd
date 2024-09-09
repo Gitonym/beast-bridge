@@ -55,7 +55,7 @@ func _ready():
 			Vector3.BACK:    [&"air"],
 			Vector3.FORWARD: [&"air"]
 		}
-	).track()
+	).track()#.generate_rotations()
 	
 	wfc = WaveFunctionCollapseGrid.new(10, 5, 10, 4, CellItem.definitions)
 	add_child(wfc)
