@@ -68,13 +68,13 @@ func is_collapsed() -> bool:
 
 #removes all cellItems from the given index except one random cellItem
 #adds the chosen item and removed items to the history in this format:
-#[&"assumption", index: Vector3, chosen: StringName, removed1: StringName, removed2: StringName, ...]
+#[&"assumption", index: Vector3, chosen: CellItem, removed1: CellItem, removed2: CellItem, ...]
 func collapse_cell(cell_index: Vector3) -> void:
 	var assumption: Array = []
 	grid[cell_index.x][cell_index.y][cell_index.z].shuffle()
 	while grid[cell_index.x][cell_index.y][cell_index.z].size() > 1:
-		assumption.push_back(grid[cell_index.x][cell_index.y][cell_index.z].pop_back().item_name)
-	assumption.push_front(grid[cell_index.x][cell_index.y][cell_index.z][0].item_name)
+		assumption.push_back(grid[cell_index.x][cell_index.y][cell_index.z].pop_back())
+	assumption.push_front(grid[cell_index.x][cell_index.y][cell_index.z][0])
 	assumption.push_front(cell_index)
 	assumption.push_front(&"assumption")
 	history.push_back(assumption)
@@ -108,8 +108,8 @@ func propagate(cell_index: Vector3) -> void:
 					if not allowed_neighbours.has(current_neighbour.item_name):
 						new_neighbours.erase(current_neighbour)
 						#add removed neighbour to history in this format:
-						#[&"propogation", index Vector3, name: StringName]
-						history.push_back([&"propogation", neighbour_index, current_neighbour.item_name])
+						#[&"propogation", index Vector3, name: CellItem]
+						history.push_back([&"propogation", neighbour_index, current_neighbour])
 						#add neighbour to modifiedStack if not already in the stack
 						if not modified_stack.has(neighbour_index):
 							modified_stack.push_back(neighbour_index)
@@ -179,15 +179,13 @@ func restore_propogation(history_item: Array) -> void:
 	if modified_stack.size() > 0 and index == modified_stack[-1]:
 		modified_stack.pop_back()
 	#restore in cell
-	var history_name = history_item[0]
-	for item in CellItem.definitions:
-		if item.item_name == history_name:
-			grid[index.x][index.y][index.z].push_back(item)
+	var history_cell_item = history_item[0]
+	grid[index.x][index.y][index.z].push_back(history_cell_item)
 
 
 func restore_assumption(history_item: Array) -> void:
 	var index: Vector3 = history_item.pop_front()
-	var choice: StringName = history_item.pop_front()
+	var choice: CellItem = history_item.pop_front()
 	var discarded: Array = history_item
 	#remove old decision
 	#the old discarded decision push on history as propagation
@@ -195,6 +193,4 @@ func restore_assumption(history_item: Array) -> void:
 	history.push_back([&"propogation", index, choice])
 	#restore the removed items
 	for discarded_item in discarded:
-		for item in CellItem.definitions:
-			if item.item_name == discarded_item:
-				grid[index.x][index.y][index.z].push_back(item)
+		grid[index.x][index.y][index.z].push_back(discarded_item)
