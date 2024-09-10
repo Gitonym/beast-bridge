@@ -23,7 +23,7 @@ func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItem
 	init_grid()
 
 
-#inits a 3d array with all cellItems
+# inits a 3d array with all cellItems
 func init_grid() -> void:
 	grid = []
 	for x in range(x_size):
@@ -52,7 +52,7 @@ func init_grid() -> void:
 				set_cell(Vector3(x, 0, z), [cellItems[7]])
 
 
-#return the cell index with the lowest entropy that is not collapsed yet
+# return the cell index with the lowest entropy that is not collapsed yet
 func get_min_entropy() -> Vector3:
 	var min_entropy: Vector3 = Vector3(-1, -1, -1)
 	var min_amount: int = -1
@@ -69,7 +69,7 @@ func get_min_entropy() -> Vector3:
 	return min_entropy
 
 
-#returns true if all cells contain only one cellItem, false otherwise
+# returns true if all cells contain only one cellItem, false otherwise
 func is_collapsed() -> bool:
 	for x in range(x_size):
 		for y in range(y_size):
@@ -79,9 +79,9 @@ func is_collapsed() -> bool:
 	return true
 
 
-#removes all cellItems from the given index except one random cellItem
-#adds the chosen item and removed items to the history in this format:
-#[&"assumption", index: Vector3, chosen: CellItem, removed1: CellItem, removed2: CellItem, ...]
+# removes all cellItems from the given index except one random cellItem
+# adds the chosen item and removed items to the history in this format:
+# [&"assumption", index: Vector3, chosen: CellItem, removed1: CellItem, removed2: CellItem, ...]
 func collapse_cell(cell_index: Vector3) -> void:
 	var assumption: Array = []
 	grid[cell_index.x][cell_index.y][cell_index.z].shuffle()
@@ -93,7 +93,7 @@ func collapse_cell(cell_index: Vector3) -> void:
 	history.push_back(assumption)
 
 
-#checks a given cells neighbours and removes them if they are invalid. the neighbours of any modified cell are also checked
+# checks a given cells neighbours and removes them if they are invalid. the neighbours of any modified cell are also checked
 func propagate(cell_index: Vector3) -> void:
 	modified_stack.push_back(cell_index)
 	while modified_stack.size() > 0:
@@ -133,7 +133,7 @@ func propagate(cell_index: Vector3) -> void:
 					return
 
 
-#collapses the whole grid until all cells contain only one item
+# collapses the whole grid until all cells contain only one item
 func collapse_all() -> void:
 	var current_cell: Vector3
 	while not is_collapsed():
@@ -142,7 +142,7 @@ func collapse_all() -> void:
 		propagate(current_cell)
 
 
-#spawns the map after the grid has been collapsed
+# spawns the map after the grid has been collapsed
 func spawn_items() -> void:
 	if is_collapsed():
 		var current_item: CellItem
@@ -165,14 +165,14 @@ func spawn_items() -> void:
 						add_child(instance)
 
 
-#sets a cell to a specific item and propogates to the neighbours
+# sets a cell to a specific item and propogates to the neighbours
 #set cell should only be used max once on any cell
 func set_cell(cell_index: Vector3, cell_items: Array[CellItem]) -> void:
 	grid[cell_index.x][cell_index.y][cell_index.z] = cell_items
 	propagate(cell_index)
 
 
-#checks if the given index is in bounds of the grid array
+# checks if the given index is in bounds of the grid array
 func is_valid_index(index: Vector3) -> bool:
 	if index.x < 0 or index.y < 0 or index.z < 0:
 		return false
@@ -181,6 +181,7 @@ func is_valid_index(index: Vector3) -> bool:
 	return true
 
 
+# pops and handles history items until an assumption was undone
 func backstep() -> void:
 	while history.size() > 0:
 		var history_item: Array = history.pop_back()
@@ -192,6 +193,9 @@ func backstep() -> void:
 			return
 
 
+# gets a propagation passed in this form: [&"propogation", index Vector3, name: CellItem]
+# restores the state of the grid and modifed_stack as if that propagation was never made
+# removes the last history entry if it matches the propagation
 func restore_propogation(history_item: Array) -> void:
 	var index: Vector3 = history_item.pop_front()
 	#remove from modified_stack
@@ -203,6 +207,9 @@ func restore_propogation(history_item: Array) -> void:
 	grid[index.x][index.y][index.z].push_back(history_cell_item)
 
 
+# gets an assumption passed in this form: [&"assumption", index: Vector3, chosen: CellItem, removed1: CellItem, removed2: CellItem, ...]
+# restores the state of the grid and modifed_stack as if that assumption was never made
+# the made assumption gets added to the history so the CellItem gets readded in case more backstepping is required
 func restore_assumption(history_item: Array) -> void:
 	var index: Vector3 = history_item.pop_front()
 	var choice: CellItem = history_item.pop_front()
@@ -214,3 +221,19 @@ func restore_assumption(history_item: Array) -> void:
 	#restore the removed items
 	for discarded_item in discarded:
 		grid[index.x][index.y][index.z].push_back(discarded_item)
+
+
+# counts the occurences of a specific CellItem in a collapsed grid
+func count_rotations(item_name: StringName) -> Array:
+	var results: Array = [item_name, {Vector3.RIGHT: 0, Vector3.FORWARD: 0, Vector3.LEFT: 0, Vector3.BACK: 0}]
+	
+	if !is_collapsed():
+		return results
+		
+	for x in range(x_size):
+		for y in range(y_size):
+			for z in range(z_size):
+				var current_item = grid[x][y][z][0]
+				if current_item.item_name == item_name:
+					results[1][current_item.rotation] += 1
+	return results

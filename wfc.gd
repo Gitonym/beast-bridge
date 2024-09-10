@@ -71,7 +71,10 @@ func _ready():
 			Vector3.FORWARD: [&"ground", &"air"]
 		}).track().generate_rotations()
 	
-	wfc = WaveFunctionCollapseGrid.new(15, 5, 15, 4, CellItem.definitions)
+	wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, CellItem.definitions)
 	add_child(wfc)
 	wfc.collapse_all()
 	wfc.spawn_items()
+	
+	print(wfc.count_rotations(&"ramp"))
+	print(wfc.count_rotations(&"gate"))
