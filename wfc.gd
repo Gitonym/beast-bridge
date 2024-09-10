@@ -41,8 +41,8 @@ func _ready():
 	CellItem.new(&"gate",
 		"res://wfc/items/models/gate.glb",
 		{
-			Vector3.RIGHT:   [&"ground", &"ramp"],
-			Vector3.LEFT:    [&"ground", &"ramp"],
+			Vector3.RIGHT:   [&"ground"],
+			Vector3.LEFT:    [&"ground"],
 			Vector3.UP:      [&"air"],
 			Vector3.DOWN:    [&"ground"],
 			Vector3.BACK:    [&"air"],
@@ -52,23 +52,23 @@ func _ready():
 	CellItem.new(&"water",
 		"res://wfc/items/models/water.glb",
 		{
-			Vector3.RIGHT:   [&"ground", &"water", &"ramp"],
-			Vector3.LEFT:    [&"ground", &"water", &"ramp"],
+			Vector3.RIGHT:   [&"ground", &"water"],
+			Vector3.LEFT:    [&"ground", &"water"],
 			Vector3.UP:      [&"air"],
 			Vector3.DOWN:    [&"ground"],
-			Vector3.BACK:    [&"ground", &"water", &"ramp"],
-			Vector3.FORWARD: [&"ground", &"water", &"ramp"]
+			Vector3.BACK:    [&"ground", &"water"],
+			Vector3.FORWARD: [&"ground", &"water"]
 		}).track()
 	
 	CellItem.new(&"ramp",
 		"res://wfc/items/models/ramp.glb",
 		{
-			Vector3.RIGHT:   [&"ground", &"water", &"ramp", &"gate"],
+			Vector3.RIGHT:   [&"ground", &"water"],
 			Vector3.LEFT:    [&"air", &"tree"],
 			Vector3.UP:      [&"air"],
 			Vector3.DOWN:    [&"ground"],
-			Vector3.BACK:    [&"ground", &"tree", &"air"],
-			Vector3.FORWARD: [&"ground", &"tree", &"air"]
+			Vector3.BACK:    [&"ground", &"air"],
+			Vector3.FORWARD: [&"ground", &"air"]
 		}).track().generate_rotations()
 	
 	wfc = WaveFunctionCollapseGrid.new(15, 5, 15, 4, CellItem.definitions)

@@ -33,6 +33,7 @@ func track() -> CellItem:
 
 # Adds the CellItems of the other three possible rotations to CellItem.definitions
 # TODO: adjust weights when generating rotations. Multiply by 0.25
+# TODO: symmetric CellItems dont need all rotations
 func generate_rotations() -> void:
 	# Forward
 	CellItem.new(

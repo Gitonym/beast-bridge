@@ -33,10 +33,23 @@ func init_grid() -> void:
 			for z in range(z_size):
 				grid[x][y].append(cellItems)
 	
-	#set the lowest y value to "ground" CellItems
+	#set the lowest y value to "ground" CellItems except the rim
 	for x in range(x_size):
 		for z in range(z_size):
-			set_cell(Vector3(x, 0, z), cellItems[1])
+			if (x > 3 and x < x_size - 4) or (z > 3 and z < z_size-4):
+				set_cell(Vector3(x, 0, z), [cellItems[1]])
+	
+	#transition between ground and water
+	for x in range(x_size):
+		for z in range(z_size):
+			if (x > 0 and x <= 3) or (z > 0 and z <= 3):
+				set_cell(Vector3(x, 0, z), [cellItems[1], cellItems[7]])
+	
+	#water border
+	for x in range(x_size):
+		for z in range(z_size):
+			if x == 0 or x == x_size - 1 or z == 0 or z == z_size-1:
+				set_cell(Vector3(x, 0, z), [cellItems[7]])
 
 
 #return the cell index with the lowest entropy that is not collapsed yet
@@ -153,8 +166,9 @@ func spawn_items() -> void:
 
 
 #sets a cell to a specific item and propogates to the neighbours
-func set_cell(cell_index: Vector3, cell_item: CellItem) -> void:
-	grid[cell_index.x][cell_index.y][cell_index.z] = [cell_item]
+#set cell should only be used max once on any cell
+func set_cell(cell_index: Vector3, cell_items: Array[CellItem]) -> void:
+	grid[cell_index.x][cell_index.y][cell_index.z] = cell_items
 	propagate(cell_index)
 
 
