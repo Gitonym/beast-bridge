@@ -5,7 +5,8 @@ var wfc: WaveFunctionCollapseGrid
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	#randomize()
+	# fixed seed for testing purposed, randomize seed otherwise
+	# TODO: randomize()
 	seed(12345)
 	
 	CellItem.new(&"air",
@@ -74,19 +75,20 @@ func _ready():
 			Vector3.FORWARD: [&"ground", &"air"]
 		}).track().generate_rotations()
 	
+	print("Time to generate: ", get_execution_time(func ():
+		wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, CellItem.definitions)
+		add_child(wfc)
+		wfc.collapse_all()
+	), " Seconds")
+	
+	print("Time to spawn: ", get_execution_time(wfc.spawn_items), " Seconds")
+	
+	print("Rotations: ", wfc.count_rotations(&"ramp"))
+	print("Rotations: ", wfc.count_rotations(&"gate"))
+
+
+func get_execution_time(callback: Callable) -> float:
 	var time1 = Time.get_ticks_usec()
-	
-	wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, CellItem.definitions)
-	add_child(wfc)
-	wfc.collapse_all()
-	
+	callback.call()
 	var time2 = Time.get_ticks_usec()
-	print("Time to collapse: ", (time2-time1)/1000000.0, " μs")
-	
-	wfc.spawn_items()
-	
-	var time3 = Time.get_ticks_usec()
-	print("Time to spawn: ", (time3-time2)/1000000.0, " μs")
-	
-	print(wfc.count_rotations(&"ramp"))
-	print(wfc.count_rotations(&"gate"))
+	return (time2-time1)/1000000.0
