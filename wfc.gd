@@ -87,6 +87,7 @@ func _ready():
 	print("Rotations: ", wfc.count_rotations(&"gate"))
 
 
+# executes the callback and returns a float in seconds measuring how long the execution took
 func get_execution_time(callback: Callable) -> float:
 	var time1 = Time.get_ticks_usec()
 	callback.call()
