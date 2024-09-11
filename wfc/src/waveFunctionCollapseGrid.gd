@@ -34,7 +34,8 @@ func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItem
 
 func _process(_delta):
 	move_cursor()
-	spawn_item()
+	set_template_cell()
+	remove_template_cell()
 
 
 # inits a 3d array with all cellItems
@@ -400,7 +401,36 @@ func update_cursor_position() -> void:
 
 
 # spawns an item in the current cell if its empty and enter was pressed
-func spawn_item() -> void:
-	if Input.is_action_just_pressed("enter"):
+func set_template_cell() -> void:
+	if Input.is_action_just_pressed("enter") and selected_cellItem != null:
 		if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] == null:
 			template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] = selected_cellItem
+			spawn_template_cell(selected_cell_index)
+
+
+func remove_template_cell() -> void:
+	if Input.is_action_just_pressed("delete"):
+		if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] != null:
+			template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] = null
+			remove_child(template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["instance"])
+			template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["instance"] = null
+
+
+func spawn_template_cell(index: Vector3) -> void:
+	var current_item = template_grid[index.x][index.y][index.z]["cellItem"]
+	
+	if current_item.item_name != &"air":
+		var instance = load(current_item.model_path).instantiate()
+		instance.position = Vector3(index.x * cellSize, index.y * cellSize, index.z * cellSize)
+		if current_item.rotation == Vector3.FORWARD:
+			instance.rotate(Vector3.UP, deg_to_rad(90))
+			instance.position += Vector3(1, 0, 0) * cellSize
+		elif current_item.rotation == Vector3.LEFT:
+			instance.rotate(Vector3.UP, deg_to_rad(180))
+			instance.position += Vector3(1, 0, -1) * cellSize
+		elif current_item.rotation == Vector3.BACK:
+			instance.rotate(Vector3.UP, deg_to_rad(-90))
+			instance.position += Vector3(0, 0, -1) * cellSize
+		add_child(instance)
+		template_grid[index.x][index.y][index.z]["instance"] = instance
+		instance.position += Vector3.BACK * cellSize # TODO: fix the item origins so this hack can be removed
