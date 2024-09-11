@@ -18,7 +18,9 @@ var modified_stack: Array[Vector3] = []	# keeps track of which cells have been m
 
 var template_grid: Array
 var template_grid_dimensions: Vector3
-var selected_cellItem: StringName
+var selected_cellItem: CellItem
+var selected_cell_index: Vector3 = Vector3(0, 0, 0)
+var cursor_instance: Node3D
 
 
 func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItems: Array[CellItem]):
@@ -28,6 +30,11 @@ func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItem
 	cellSize = _cellSize
 	cellItems = _cellItems
 	init_grid()
+
+
+func _process(_delta):
+	move_cursor()
+	spawn_item()
 
 
 # inits a 3d array with all cellItems
@@ -275,11 +282,22 @@ func create_template_ground():
 	add_child(body)
 
 
+# call this to prepare a scene so you can edit rules manually
 func template_mode(width: int, height: int, length: int) -> void:
 	template_grid_dimensions = Vector3(width, height, length)
+	create_cursor()
 	create_template_ground()
 	init_template_grid()
 	create_template_ui()
+
+
+# creates the cursor scene visualizer
+func create_cursor() -> void:
+	cursor_instance = load("res://wfc/ui/cursor.tscn").instantiate()
+	cursor_instance.scale = Vector3(cellSize, cellSize, cellSize)
+	cursor_instance.position = selected_cell_index * cellSize
+	add_child(cursor_instance)
+
 
 func init_template_grid() -> void:
 	template_grid = []
@@ -288,7 +306,7 @@ func init_template_grid() -> void:
 		for y in range(template_grid_dimensions.y):
 			template_grid[x].append([])
 			for z in range(template_grid_dimensions.z):
-				template_grid[x][y] = []
+				template_grid[x][y].append({"cellItem": null, "instance": null})
 
 
 func _unhandled_input(event):
@@ -324,8 +342,12 @@ func create_template_ui() -> void:
 
 # the callback that is passed to the ui, a button uses this callback when its pressed
 func _set_selected_cellItem(item_name: StringName):
-	selected_cellItem = item_name
-	print(selected_cellItem)
+	for item in cellItems:
+		if item.item_name == item_name:
+			selected_cellItem = item
+			print(selected_cellItem.item_name)
+			return
+	printerr("No matching CellItem found for ", item_name)
 
 
 # converts a Vector3 of a position into the corresponding index of the template_grid
@@ -346,3 +368,39 @@ func position_to_index(pos: Vector3) -> Vector3:
 		
 	print("index: ", index)
 	return index
+
+
+# moves the cursor
+# TODO: cursor wraps in positive directions only
+func move_cursor() -> void:
+	if Input.is_action_just_pressed("move_right"):
+		selected_cell_index += Vector3.RIGHT
+	if Input.is_action_just_pressed("move_left"):
+		selected_cell_index += Vector3.LEFT
+	if Input.is_action_just_pressed("move_forward"):
+		selected_cell_index += Vector3.FORWARD
+	if Input.is_action_just_pressed("move_back"):
+		selected_cell_index += Vector3.BACK
+	if Input.is_action_just_pressed("jump"):
+		selected_cell_index += Vector3.UP
+	if Input.is_action_just_pressed("sprint"):
+		selected_cell_index += Vector3.DOWN
+	selected_cell_index = Vector3(
+		max(0, fmod(selected_cell_index.x, template_grid_dimensions.x)),
+		max(0, fmod(selected_cell_index.y, template_grid_dimensions.y)),
+		max(0, fmod(selected_cell_index.z, template_grid_dimensions.z))
+	)
+	update_cursor_position()
+
+
+# sets the position of the cursor scene to the position of the selected cell
+func update_cursor_position() -> void:
+	if cursor_instance != null:
+		cursor_instance.position = selected_cell_index * cellSize
+
+
+# spawns an item in the current cell if its empty and enter was pressed
+func spawn_item() -> void:
+	if Input.is_action_just_pressed("enter"):
+		if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] == null:
+			template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] = selected_cellItem
