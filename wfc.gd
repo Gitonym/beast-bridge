@@ -5,6 +5,9 @@ var wfc: WaveFunctionCollapseGrid
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	#randomize()
+	seed(12345)
+	
 	CellItem.new(&"air",
 		"",
 		{
@@ -71,9 +74,16 @@ func _ready():
 			Vector3.FORWARD: [&"ground", &"air"]
 		}).track().generate_rotations()
 	
+	var start = Time.get_ticks_usec()
+	
 	wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, CellItem.definitions)
 	add_child(wfc)
 	wfc.collapse_all()
+	
+	var end = Time.get_ticks_usec()
+	print("Execution time:")
+	print((end-start)/1000000.0, " μs")
+	
 	wfc.spawn_items()
 	
 	print(wfc.count_rotations(&"ramp"))
