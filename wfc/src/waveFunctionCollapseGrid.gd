@@ -273,8 +273,12 @@ func create_template_ground(width: int, _height: int, length: int):
 	add_child(body)
 
 
-func create_template_grid(width: int, height: int, length: int):
+func template_mode(width: int, height: int, length: int) -> void:
 	create_template_ground(width, height, length)
+	init_template_grid(width, height, length)
+	create_template_ui()
+
+func init_template_grid(width: int, height: int, length: int) -> void:
 	template_grid = []
 	for x in range(width):
 		template_grid.append([])
@@ -305,3 +309,10 @@ func get_mouse_position_3d():
 	var mouse_position_3D:Vector3 = result.get("position", end)
 	print("x: ", mouse_position_3D.x, "\ty: ", mouse_position_3D.y, "\tz: ", mouse_position_3D.z)
 	return Vector3(mouse_position_3D.x, mouse_position_3D.y, mouse_position_3D.z)
+
+
+func create_template_ui() -> void:
+	var ui = load("res://wfc/ui/WFCUI.tscn").instantiate()
+	add_child(ui)
+	for item in cellItems:
+		ui.add_button(item.item_name)
