@@ -1,15 +1,17 @@
+# This script shows a usage example of the WaveFunctionCollapse system
 extends Node3D
 
+# first create the grid
 var wfc: WaveFunctionCollapseGrid
 
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	# fixed seed for testing purposed, randomize seed otherwise
 	# TODO: randomize()
 	seed(12345)
-	var cell_items: Array[CellItem] = []
+	var cell_items: Array[CellItem] = []	# all possible items will be stored in here
 	
+	# manually create an item with all its possible neighbours
 	cell_items.append(
 		CellItem.new(&"air",
 			"",
@@ -52,6 +54,9 @@ func _ready():
 		)
 	)
 	
+	# manually create an item and add it to the array
+	# this item can also have different orientations so we call generate_rotations()
+	#generate rotations returns an array of all rotations so we use append_array() here
 	cell_items.append_array(	
 		CellItem.new(&"gate",
 			"res://wfc/items/models/gate.glb",
@@ -63,7 +68,7 @@ func _ready():
 				Vector3.BACK:    [&"air"],
 				Vector3.FORWARD: [&"air"]
 			}
-		).generate_rotations()
+		).generate_rotations()	# this generates three more CellItems with different rotations
 	)
 	
 	cell_items.append(	
@@ -95,12 +100,12 @@ func _ready():
 	)
 
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, cell_items)
-		add_child(wfc)
-		wfc.collapse_all()
+		wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, cell_items)	# create a new grid with specified size, pass all items
+		add_child(wfc)													# add it to the scene tree
+		wfc.collapse_all()												# run the wfc algorythm
 	), " Seconds")
 	
-	print("Time to spawn: ", get_execution_time(wfc.spawn_items), " Seconds")
+	print("Time to spawn: ", get_execution_time(wfc.spawn_items), " Seconds")	# spawn_items spawns all scenes from the grid after collapse_all was called
 	
 	print("Rotations: ", wfc.count_rotations(&"ramp"))
 	print("Rotations: ", wfc.count_rotations(&"gate"))

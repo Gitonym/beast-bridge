@@ -1,10 +1,12 @@
+# this class represents one possible item that can be in the grid
+# an item represents the mesh that will be rendered and its rotation
 class_name CellItem
 extends Node
 
 
-var item_name: StringName
-var model_path: String
-var valid_neighbours: Dictionary = {
+var item_name: StringName					# name of this item, should be unique except for its rotations
+var model_path: String						# the path to the scene that should be created when the grid is done
+var valid_neighbours: Dictionary = {		# stores the rules of which neighbours are valid
 	Vector3.RIGHT:   [],
 	Vector3.LEFT:    [],
 	Vector3.UP:      [],
@@ -12,7 +14,7 @@ var valid_neighbours: Dictionary = {
 	Vector3.BACK:    [],
 	Vector3.FORWARD: []
 }
-var rotation: Vector3
+var rotation: Vector3						# stores the rotation if this item
 
 
 func _init(_item_name: StringName, _model_path: String, _valid_neighbours: Dictionary,  _rotation = Vector3.RIGHT):

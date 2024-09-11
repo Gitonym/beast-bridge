@@ -1,17 +1,19 @@
+# this class represents the grid that stores the results of the wfc
+# this class is also responsible for performing the wfc
 class_name WaveFunctionCollapseGrid
 extends Node3D
 
 
-var x_size: int
-var y_size: int
-var z_size: int
-var cellSize: float
+var x_size: int							# width of the grid
+var y_size: int							# length of the grid
+var z_size: int							# height of the grid
+var cellSize: float						# the edge length of a cell in meters, this should match with the size of the meshed representing aa cell
 
-var grid
-var cellItems: Array[CellItem]
+var grid								# the 3d grid storing the results
+var cellItems: Array[CellItem]			# a list of all possible cellItems
 
-var history: Array = []
-var modified_stack: Array[Vector3] = []
+var history: Array = []					# a history for restoring past states of the grid
+var modified_stack: Array[Vector3] = []	# keeps track of which cells have been modified
 
 
 func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItems: Array[CellItem]):
