@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://5i5frgg65t4p"]
+
+[ext_resource type="Script" path="res://wfcTemplate.gd" id="1_dw04s"]
+
+[node name="WFCTemplate" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.87253, 0.48856, 0, -0.48856, 0.87253, 2.28378, 3.19954, 5.21104)
+
+[node name="WFC" type="Node3D" parent="."]
+script = ExtResource("1_dw04s")

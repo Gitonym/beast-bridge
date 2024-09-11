@@ -33,25 +33,24 @@ func init_grid() -> void:
 		for y in range(y_size):
 			grid[x].append([])
 			for z in range(z_size):
-				grid[x][y].append(cellItems)
-	
-	#set the lowest y value to "ground" CellItems except the rim
-	for x in range(x_size):
-		for z in range(z_size):
-			if (x > 3 and x < x_size - 4) or (z > 3 and z < z_size-4):
-				set_cell(Vector3(x, 0, z), [cellItems[1]])
-	
-	#transition between ground and water
-	for x in range(x_size):
-		for z in range(z_size):
-			if (x > 0 and x <= 3) or (z > 0 and z <= 3):
-				set_cell(Vector3(x, 0, z), [cellItems[1], cellItems[7]])
-	
-	#water border
-	for x in range(x_size):
-		for z in range(z_size):
-			if x == 0 or x == x_size - 1 or z == 0 or z == z_size-1:
-				set_cell(Vector3(x, 0, z), [cellItems[7]])
+				grid[x][y].append(cellItems.duplicate())
+	##set the lowest y value to "ground" CellItems except the rim
+	#for x in range(x_size):
+	#	for z in range(z_size):
+	#		if (x > 3 and x < x_size - 4) or (z > 3 and z < z_size-4):
+	#			set_cell(Vector3(x, 0, z), [cellItems[1]])
+	#
+	##transition between ground and water
+	#for x in range(x_size):
+	#	for z in range(z_size):
+	#		if (x > 0 and x <= 3) or (z > 0 and z <= 3):
+	#			set_cell(Vector3(x, 0, z), [cellItems[1], cellItems[7]])
+	#
+	##water border
+	#for x in range(x_size):
+	#	for z in range(z_size):
+	#		if x == 0 or x == x_size - 1 or z == 0 or z == z_size-1:
+	#			set_cell(Vector3(x, 0, z), [cellItems[7]])
 
 
 # return a random cell index with the lowest entropy that is not collapsed yet
