@@ -16,6 +16,9 @@ var history: Array = []					# a history for restoring past states of the grid
 var modified_stack: Array[Vector3] = []	# keeps track of which cells have been modified
 
 
+var template_grid: Array
+
+
 func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItems: Array[CellItem]):
 	x_size = _x_size
 	y_size = _y_size
@@ -249,3 +252,56 @@ func for_each_cell_in_grid(callback: Callable) -> bool:
 				if !callback.call(x, y, z):
 					return false
 	return true
+
+
+# creates a floor under the template grid so there is something to click on
+func create_template_ground(width: int, _height: int, length: int):
+	var body = StaticBody3D.new()
+	var mesh = MeshInstance3D.new()
+	var coll = CollisionShape3D.new()
+	
+	mesh.position = Vector3(0.5, -0.5, 0.5)
+	mesh.mesh = BoxMesh.new()
+	coll.position = Vector3(0.5, -0.5, 0.5)
+	coll.shape = BoxShape3D.new()
+	
+	body.add_child(mesh)
+	body.add_child(coll)
+	
+	body.scale = Vector3(width * cellSize, 1, length * cellSize)
+	
+	add_child(body)
+
+
+func create_template_grid(width: int, height: int, length: int):
+	create_template_ground(width, height, length)
+	template_grid = []
+	for x in range(width):
+		template_grid.append([])
+		for y in range(height):
+			template_grid[x].append([])
+			for z in range(length):
+				template_grid[x][y] = []
+
+
+func _unhandled_input(event):
+	if event.is_action_pressed("click"):
+		get_mouse_position_3d()
+
+
+# shoots a ray from the camera to the mouse until something is hit
+# the coordinates of the hit position are returned
+func get_mouse_position_3d():
+	var viewport := get_viewport()
+	var mouse_position := viewport.get_mouse_position()
+	var camera := viewport.get_camera_3d()
+	var origin := camera.project_ray_origin(mouse_position)
+	var direction := camera.project_ray_normal(mouse_position)
+	var ray_length := camera.far
+	var end := origin + direction * ray_length
+	var space_state := get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(origin, end)
+	var result := space_state.intersect_ray(query)
+	var mouse_position_3D:Vector3 = result.get("position", end)
+	print("x: ", mouse_position_3D.x, "\ty: ", mouse_position_3D.y, "\tz: ", mouse_position_3D.z)
+	return Vector3(mouse_position_3D.x, mouse_position_3D.y, mouse_position_3D.z)

@@ -5,9 +5,10 @@
 [node name="WFCTemplate" type="Node3D"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.563901, 0.647297, -0.512857, 0, 0.621011, 0.783802, 0.825842, -0.441987, 0.350189, -12.1825, 0, 9.00285)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.87253, 0.48856, 0, -0.48856, 0.87253, 2.28378, 3.19954, 5.21104)
+transform = Transform3D(1, 0, 0, 0, 0.87253, 0.48856, 0, -0.48856, 0.87253, 19.8709, 11.9498, 47.9346)
 
 [node name="WFC" type="Node3D" parent="."]
 script = ExtResource("1_dw04s")

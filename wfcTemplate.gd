@@ -15,6 +15,8 @@ func _ready():
 	]
 	wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, cell_items)
 	add_child(wfc)
+	wfc.create_template_grid(10, 5, 10)
+	print("1")
 
 func _process(_delta):
 	pass
