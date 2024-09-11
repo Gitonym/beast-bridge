@@ -231,10 +231,17 @@ func count_rotations(item_name: StringName) -> Array:
 	if !is_collapsed():
 		return results
 		
-	for x in range(x_size):
-		for y in range(y_size):
-			for z in range(z_size):
-				var current_item = grid[x][y][z][0]
-				if current_item.item_name == item_name:
-					results[1][current_item.rotation] += 1
+	for_each_cell_in_grid(func count_rotation_in_cell(x, y, z):
+		var current_item = grid[x][y][z][0]
+		if current_item.item_name == item_name:
+			results[1][current_item.rotation] += 1
+		)
 	return results
+
+
+# executes callback with the parameters (x, y, z) for every cell and its coordinates
+func for_each_cell_in_grid(callback: Callable) -> void:
+	for z in range(z_size):
+		for y in range(y_size):
+			for x in range(x_size):
+				callback.call(x, y, z)
