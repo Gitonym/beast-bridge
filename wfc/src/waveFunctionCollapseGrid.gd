@@ -17,6 +17,8 @@ var modified_stack: Array[Vector3] = []	# keeps track of which cells have been m
 
 
 var template_grid: Array
+var template_grid_dimensions: Vector3
+var selected_cellItem: StringName
 
 
 func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItems: Array[CellItem]):
@@ -255,7 +257,7 @@ func for_each_cell_in_grid(callback: Callable) -> bool:
 
 
 # creates a floor under the template grid so there is something to click on
-func create_template_ground(width: int, _height: int, length: int):
+func create_template_ground():
 	var body = StaticBody3D.new()
 	var mesh = MeshInstance3D.new()
 	var coll = CollisionShape3D.new()
@@ -268,29 +270,30 @@ func create_template_ground(width: int, _height: int, length: int):
 	body.add_child(mesh)
 	body.add_child(coll)
 	
-	body.scale = Vector3(width * cellSize, 1, length * cellSize)
+	body.scale = Vector3(template_grid_dimensions.x * cellSize, 1, template_grid_dimensions.z * cellSize)
 	
 	add_child(body)
 
 
 func template_mode(width: int, height: int, length: int) -> void:
-	create_template_ground(width, height, length)
-	init_template_grid(width, height, length)
+	template_grid_dimensions = Vector3(width, height, length)
+	create_template_ground()
+	init_template_grid()
 	create_template_ui()
 
-func init_template_grid(width: int, height: int, length: int) -> void:
+func init_template_grid() -> void:
 	template_grid = []
-	for x in range(width):
+	for x in range(template_grid_dimensions.x):
 		template_grid.append([])
-		for y in range(height):
+		for y in range(template_grid_dimensions.y):
 			template_grid[x].append([])
-			for z in range(length):
+			for z in range(template_grid_dimensions.z):
 				template_grid[x][y] = []
 
 
 func _unhandled_input(event):
 	if event.is_action_pressed("click"):
-		get_mouse_position_3d()
+		position_to_index(get_mouse_position_3d())
 
 
 # shoots a ray from the camera to the mouse until something is hit
@@ -311,8 +314,35 @@ func get_mouse_position_3d():
 	return Vector3(mouse_position_3D.x, mouse_position_3D.y, mouse_position_3D.z)
 
 
+# creates the ui and populates it with buttons
 func create_template_ui() -> void:
 	var ui = load("res://wfc/ui/WFCUI.tscn").instantiate()
 	add_child(ui)
 	for item in cellItems:
-		ui.add_button(item.item_name)
+		ui.add_button(item.item_name, _set_selected_cellItem)
+
+
+# the callback that is passed to the ui, a button uses this callback when its pressed
+func _set_selected_cellItem(item_name: StringName):
+	selected_cellItem = item_name
+	print(selected_cellItem)
+
+
+# converts a Vector3 of a position into the corresponding index of the template_grid
+# returns Vector3(-1, -1, -1) if outside of grid
+func position_to_index(pos: Vector3) -> Vector3:
+	var index: Vector3 = Vector3(
+		int(fmod(pos.x, template_grid_dimensions.x)),
+		int(fmod(pos.y, template_grid_dimensions.y)),
+		int(fmod(pos.z, template_grid_dimensions.z))
+	)
+	
+	if pos.x >= template_grid_dimensions.x * cellSize or pos.x < 0:
+		index = Vector3(-1, -1, -1)
+	if pos.y >= template_grid_dimensions.y * cellSize or pos.y < 0:
+		index = Vector3(-1, -1, -1)
+	if pos.z >= template_grid_dimensions.z * cellSize or pos.z < 0:
+		index = Vector3(-1, -1, -1)
+		
+	print("index: ", index)
+	return index
