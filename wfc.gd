@@ -8,75 +8,94 @@ func _ready():
 	# fixed seed for testing purposed, randomize seed otherwise
 	# TODO: randomize()
 	seed(12345)
+	var cell_items: Array[CellItem] = []
 	
-	CellItem.new(&"air",
-		"",
-		{
-			Vector3.RIGHT:   [&"air", &"ground", &"tree", &"gate", &"ramp"],
-			Vector3.LEFT:    [&"air", &"ground", &"tree", &"gate", &"ramp"],
-			Vector3.UP:      [&"air"],
-			Vector3.DOWN:    [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"],
-			Vector3.BACK:    [&"air", &"ground", &"tree", &"gate", &"ramp"],
-			Vector3.FORWARD: [&"air", &"ground", &"tree", &"gate", &"ramp"]
-		}).track()
+	cell_items.append(
+		CellItem.new(&"air",
+			"",
+			{
+				Vector3.RIGHT:   [&"air", &"ground", &"tree", &"gate", &"ramp"],
+				Vector3.LEFT:    [&"air", &"ground", &"tree", &"gate", &"ramp"],
+				Vector3.UP:      [&"air"],
+				Vector3.DOWN:    [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"],
+				Vector3.BACK:    [&"air", &"ground", &"tree", &"gate", &"ramp"],
+				Vector3.FORWARD: [&"air", &"ground", &"tree", &"gate", &"ramp"]
+			}
+		)
+	)
 	
-	CellItem.new(&"ground",
-		"res://wfc/items/models/cube.glb",
-		{
-			Vector3.RIGHT:   [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"],
-			Vector3.LEFT:    [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"],
-			Vector3.UP:      [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"],
-			Vector3.DOWN:    [&"ground"],
-			Vector3.BACK:    [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"],
-			Vector3.FORWARD: [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"]
-		}).track()
+	cell_items.append(
+		CellItem.new(&"ground",
+			"res://wfc/items/models/cube.glb",
+			{
+				Vector3.RIGHT:   [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"],
+				Vector3.LEFT:    [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"],
+				Vector3.UP:      [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"],
+				Vector3.DOWN:    [&"ground"],
+				Vector3.BACK:    [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"],
+				Vector3.FORWARD: [&"air", &"ground", &"tree", &"gate", &"water", &"ramp"]
+			}
+		)
+	)
 	
-	CellItem.new(&"tree",
-		"res://wfc/items/models/tree.glb",
-		{
-			Vector3.RIGHT:   [&"air", &"ground", &"tree", &"gate", &"ramp"],
-			Vector3.LEFT:    [&"air", &"ground", &"tree", &"gate", &"ramp"],
-			Vector3.UP:      [&"air"],
-			Vector3.DOWN:    [&"ground"],
-			Vector3.BACK:    [&"air", &"ground", &"tree", &"gate", &"ramp"],
-			Vector3.FORWARD: [&"air", &"ground", &"tree", &"gate", &"ramp"]
-		}).track()
+	cell_items.append(	
+		CellItem.new(&"tree",
+			"res://wfc/items/models/tree.glb",
+			{
+				Vector3.RIGHT:   [&"air", &"ground", &"tree", &"gate", &"ramp"],
+				Vector3.LEFT:    [&"air", &"ground", &"tree", &"gate", &"ramp"],
+				Vector3.UP:      [&"air"],
+				Vector3.DOWN:    [&"ground"],
+				Vector3.BACK:    [&"air", &"ground", &"tree", &"gate", &"ramp"],
+				Vector3.FORWARD: [&"air", &"ground", &"tree", &"gate", &"ramp"]
+			}
+		)
+	)
 	
-	CellItem.new(&"gate",
-		"res://wfc/items/models/gate.glb",
-		{
-			Vector3.RIGHT:   [&"ground"],
-			Vector3.LEFT:    [&"ground"],
-			Vector3.UP:      [&"air"],
-			Vector3.DOWN:    [&"ground"],
-			Vector3.BACK:    [&"air"],
-			Vector3.FORWARD: [&"air"]
-		}).track().generate_rotations()
+	cell_items.append_array(	
+		CellItem.new(&"gate",
+			"res://wfc/items/models/gate.glb",
+			{
+				Vector3.RIGHT:   [&"ground"],
+				Vector3.LEFT:    [&"ground"],
+				Vector3.UP:      [&"air"],
+				Vector3.DOWN:    [&"ground"],
+				Vector3.BACK:    [&"air"],
+				Vector3.FORWARD: [&"air"]
+			}
+		).generate_rotations()
+	)
 	
-	CellItem.new(&"water",
-		"res://wfc/items/models/water.glb",
-		{
-			Vector3.RIGHT:   [&"ground", &"water"],
-			Vector3.LEFT:    [&"ground", &"water"],
-			Vector3.UP:      [&"air"],
-			Vector3.DOWN:    [&"ground"],
-			Vector3.BACK:    [&"ground", &"water"],
-			Vector3.FORWARD: [&"ground", &"water"]
-		}).track()
+	cell_items.append(	
+		CellItem.new(&"water",
+			"res://wfc/items/models/water.glb",
+			{
+				Vector3.RIGHT:   [&"ground", &"water"],
+				Vector3.LEFT:    [&"ground", &"water"],
+				Vector3.UP:      [&"air"],
+				Vector3.DOWN:    [&"ground"],
+				Vector3.BACK:    [&"ground", &"water"],
+				Vector3.FORWARD: [&"ground", &"water"]
+			}
+		)
+	)
 	
-	CellItem.new(&"ramp",
-		"res://wfc/items/models/ramp.glb",
-		{
-			Vector3.RIGHT:   [&"ground", &"water"],
-			Vector3.LEFT:    [&"air", &"tree"],
-			Vector3.UP:      [&"air"],
-			Vector3.DOWN:    [&"ground"],
-			Vector3.BACK:    [&"ground", &"air"],
-			Vector3.FORWARD: [&"ground", &"air"]
-		}).track().generate_rotations()
-	
+	cell_items.append_array(	
+		CellItem.new(&"ramp",
+			"res://wfc/items/models/ramp.glb",
+			{
+				Vector3.RIGHT:   [&"ground", &"water"],
+				Vector3.LEFT:    [&"air", &"tree"],
+				Vector3.UP:      [&"air"],
+				Vector3.DOWN:    [&"ground"],
+				Vector3.BACK:    [&"ground", &"air"],
+				Vector3.FORWARD: [&"ground", &"air"]
+			}
+		).generate_rotations()
+	)
+
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, CellItem.definitions)
+		wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, cell_items)
 		add_child(wfc)
 		wfc.collapse_all()
 	), " Seconds")
