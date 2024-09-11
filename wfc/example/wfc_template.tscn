@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://5i5frgg65t4p"]
 
-[ext_resource type="Script" path="res://wfcTemplate.gd" id="1_dw04s"]
+[ext_resource type="Script" path="res://wfc/example/wfcTemplate.gd" id="1_dw04s"]
 
 [node name="WFCTemplate" type="Node3D"]
 
