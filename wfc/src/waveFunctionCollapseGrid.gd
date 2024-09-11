@@ -52,21 +52,22 @@ func init_grid() -> void:
 				set_cell(Vector3(x, 0, z), [cellItems[7]])
 
 
-# return the cell index with the lowest entropy that is not collapsed yet
+# return a random cell index with the lowest entropy that is not collapsed yet
 func get_min_entropy() -> Vector3:
-	var min_entropy: Vector3 = Vector3(-1, -1, -1)
+	var min_entropy: Array[Vector3] = []
 	var min_amount: int = -1
 	for x in range(x_size):
 		for y in range(y_size):
 			for z in range(z_size):
-				if (grid[x][y][z].size() < min_amount and grid[x][y][z].size() > 1) or (min_amount == -1 and grid[x][y][z].size() > 1):
+				if (grid[x][y][z].size() < min_amount or min_amount == -1) and grid[x][y][z].size() > 1:
 					min_amount = grid[x][y][z].size()
-					min_entropy.x = x
-					min_entropy.y = y
-					min_entropy.z = z
-					if min_amount == 2:
-						return min_entropy
-	return min_entropy
+					min_entropy = [Vector3(x, y, z)]
+					# TODO: small optimization might make the probability of rotation assymetric though, more investigation required before reenabling
+					#if min_amount == 2:
+					#	return min_entropy.pick_random()
+				elif (grid[x][y][z].size() == min_amount):
+					min_entropy.append(Vector3(x, y, z))
+	return min_entropy.pick_random()
 
 
 # returns true if all cells contain only one cellItem, false otherwise
