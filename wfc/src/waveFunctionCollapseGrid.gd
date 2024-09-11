@@ -56,9 +56,9 @@ func init_grid() -> void:
 func get_min_entropy() -> Vector3:
 	var min_entropy: Array[Vector3] = []
 	var min_amount: int = -1
-	for x in range(x_size):
+	for z in range(z_size):
 		for y in range(y_size):
-			for z in range(z_size):
+			for x in range(x_size):
 				if (grid[x][y][z].size() < min_amount or min_amount == -1) and grid[x][y][z].size() > 1:
 					min_amount = grid[x][y][z].size()
 					min_entropy = [Vector3(x, y, z)]
@@ -72,12 +72,11 @@ func get_min_entropy() -> Vector3:
 
 # returns true if all cells contain only one cellItem, false otherwise
 func is_collapsed() -> bool:
-	for x in range(x_size):
-		for y in range(y_size):
-			for z in range(z_size):
-				if grid[x][y][z].size() > 1:
-					return false
-	return true
+	return for_each_cell_in_grid(func is_cell_collapsed(x, y, z):
+		if grid[x][y][z].size() > 1:
+			return false
+		return true
+	)
 
 
 # removes all cellItems from the given index except one random cellItem
@@ -146,24 +145,23 @@ func collapse_all() -> void:
 # spawns the map after the grid has been collapsed
 func spawn_items() -> void:
 	if is_collapsed():
-		var current_item: CellItem
-		for x in range(x_size):
-			for y in range(y_size):
-				for z in range(z_size):
-					current_item = grid[x][y][z][0]
-					if current_item.item_name != &"air":
-						var instance = load(current_item.model_path).instantiate()
-						instance.position = Vector3(x * cellSize, y * cellSize, z * cellSize)
-						if current_item.rotation == Vector3.FORWARD:
-							instance.rotate(Vector3.UP, deg_to_rad(90))
-							instance.position += Vector3(1, 0, 0) * cellSize
-						elif current_item.rotation == Vector3.LEFT:
-							instance.rotate(Vector3.UP, deg_to_rad(180))
-							instance.position += Vector3(1, 0, -1) * cellSize
-						elif current_item.rotation == Vector3.BACK:
-							instance.rotate(Vector3.UP, deg_to_rad(-90))
-							instance.position += Vector3(0, 0, -1) * cellSize
-						add_child(instance)
+		for_each_cell_in_grid(func spawn_cell(x, y, z):
+			var current_item: CellItem = grid[x][y][z][0]
+			if current_item.item_name != &"air":
+				var instance = load(current_item.model_path).instantiate()
+				instance.position = Vector3(x * cellSize, y * cellSize, z * cellSize)
+				if current_item.rotation == Vector3.FORWARD:
+					instance.rotate(Vector3.UP, deg_to_rad(90))
+					instance.position += Vector3(1, 0, 0) * cellSize
+				elif current_item.rotation == Vector3.LEFT:
+					instance.rotate(Vector3.UP, deg_to_rad(180))
+					instance.position += Vector3(1, 0, -1) * cellSize
+				elif current_item.rotation == Vector3.BACK:
+					instance.rotate(Vector3.UP, deg_to_rad(-90))
+					instance.position += Vector3(0, 0, -1) * cellSize
+				add_child(instance)
+			return true
+		)
 
 
 # sets a cell to a specific item and propogates to the neighbours
@@ -235,13 +233,18 @@ func count_rotations(item_name: StringName) -> Array:
 		var current_item = grid[x][y][z][0]
 		if current_item.item_name == item_name:
 			results[1][current_item.rotation] += 1
+		return true
 		)
 	return results
 
 
 # executes callback with the parameters (x, y, z) for every cell and its coordinates
-func for_each_cell_in_grid(callback: Callable) -> void:
+# returns true if no early return, returns false if early return
+# the callback should also return true if no ealry return, false if early return
+func for_each_cell_in_grid(callback: Callable) -> bool:
 	for z in range(z_size):
 		for y in range(y_size):
 			for x in range(x_size):
-				callback.call(x, y, z)
+				if !callback.call(x, y, z):
+					return false
+	return true
