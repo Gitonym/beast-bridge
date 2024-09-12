@@ -17,6 +17,13 @@ func _init(_template_grid_dimensions: Vector3, _cellSize: float, _cellItems: Arr
 	cellItems = _cellItems
 
 
+func _ready():
+	create_cursor()
+	create_template_ground()
+	init_template_grid()
+	create_template_ui()
+
+
 func _process(_delta):
 	move_cursor()
 	if Input.is_action_just_pressed("enter") and selected_cellItem != null:
@@ -46,14 +53,6 @@ func create_template_ground():
 	body.scale = Vector3(template_grid_dimensions.x * cellSize, 1, template_grid_dimensions.z * cellSize)
 	
 	add_child(body)
-
-
-# call this to prepare a scene so you can edit rules manually
-func start() -> void:
-	create_cursor()
-	create_template_ground()
-	init_template_grid()
-	create_template_ui()
 
 
 # creates the cursor scene visualizer

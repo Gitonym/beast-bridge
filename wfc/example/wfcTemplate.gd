@@ -16,7 +16,6 @@ func _ready():
 	
 	wfcT = WaveFunctionCollapseTemplate.new(Vector3(10, 6, 10), 4, cell_items)
 	add_child(wfcT)
-	wfcT.start()
 
 func _process(_delta):
 	pass
