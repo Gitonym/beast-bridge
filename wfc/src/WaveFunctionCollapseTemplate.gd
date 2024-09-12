@@ -9,7 +9,6 @@ var template_grid_dimensions: Vector3
 var selected_cellItem: CellItem
 var selected_cell_index: Vector3 = Vector3(0, 0, 0)
 var cursor_instance: Node3D
-var rules: Array[WaveFunctionCollapseRule]
 
 
 func _init(_template_grid_dimensions: Vector3, _cellSize: float, _cellItems: Array[CellItem]):
@@ -25,7 +24,9 @@ func _process(_delta):
 	remove_template_cell()
 	rotate_template_cell()
 	if Input.is_action_just_pressed("generate"):
-		generate_rules()
+		var rules: Array[WaveFunctionCollapseRule] = generate_rules()
+		var json: String = generate_rules_json(rules)
+		save_rules_json(json)
 
 
 # creates a floor under the template grid so there is something to click on
@@ -202,8 +203,8 @@ func rotate_template_cell() -> void:
 				spawn_template_cell(selected_cell_index)
 
 
-func generate_rules() -> void:
-	rules = []
+func generate_rules() -> Array[WaveFunctionCollapseRule]:
+	var rules: Array[WaveFunctionCollapseRule] = []
 	
 	# for every 3x3 sub grid
 	# x, y, z is in the center of each sub grid
@@ -223,10 +224,10 @@ func generate_rules() -> void:
 								sub_grid[dx][dy][dz] = cellItems[0]
 				# set the new rule
 				rules.append(WaveFunctionCollapseRule.new(sub_grid))
-	save_rules()
+	return rules
 
 
-func save_rules() -> void:
+func generate_rules_json(rules: Array[WaveFunctionCollapseRule]) -> String:
 	var data = {"items": [], "rules": []}
 	
 	# save all CellItem variations
@@ -248,7 +249,10 @@ func save_rules() -> void:
 		data["rules"].append(new_rule)
 	
 	# convert to json and save to file
-	var json_data = JSON.stringify(data, "    ")
+	return JSON.stringify(data, "    ")
+
+
+func save_rules_json(json_data: String) -> void:
 	var file = FileAccess.open("res://wfc/temp/rules.json", FileAccess.WRITE)
 	file.store_string(json_data)
 	file.close()
