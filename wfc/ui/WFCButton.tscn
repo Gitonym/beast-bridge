@@ -19,6 +19,7 @@ script = ExtResource("1_os540")
 
 [node name="TextureButton" type="TextureButton" parent="."]
 layout_mode = 2
+focus_mode = 1
 toggle_mode = true
 button_group = ExtResource("1_g7kya")
 texture_normal = ExtResource("3_p21ew")

@@ -34,8 +34,10 @@ func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItem
 
 func _process(_delta):
 	move_cursor()
-	set_template_cell()
+	if Input.is_action_just_pressed("enter") and selected_cellItem != null:
+		set_template_cell()
 	remove_template_cell()
+	rotate_template_cell()
 
 
 # inits a 3d array with all cellItems
@@ -402,10 +404,9 @@ func update_cursor_position() -> void:
 
 # spawns an item in the current cell if its empty and enter was pressed
 func set_template_cell() -> void:
-	if Input.is_action_just_pressed("enter") and selected_cellItem != null:
-		if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] == null:
-			template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] = selected_cellItem
-			spawn_template_cell(selected_cell_index)
+	if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] == null:
+		template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] = selected_cellItem.clone()
+		spawn_template_cell(selected_cell_index)
 
 
 func remove_template_cell() -> void:
@@ -434,3 +435,28 @@ func spawn_template_cell(index: Vector3) -> void:
 		add_child(instance)
 		template_grid[index.x][index.y][index.z]["instance"] = instance
 		instance.position += Vector3.BACK * cellSize # TODO: fix the item origins so this hack can be removed
+
+
+# TODO: fix the rotation
+func rotate_template_cell() -> void:
+	if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] == null:
+		return
+	if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["instance"] == null:
+		return
+	var instance = template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["instance"]
+	if Input.is_action_just_pressed("right"):
+				remove_child(instance)
+				template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotation = Vector3.RIGHT
+				spawn_template_cell(selected_cell_index)
+	if Input.is_action_just_pressed("left"):
+				remove_child(instance)
+				template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotation = Vector3.LEFT
+				spawn_template_cell(selected_cell_index)
+	if Input.is_action_just_pressed("up"):
+				remove_child(instance)
+				template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotation = Vector3.FORWARD
+				spawn_template_cell(selected_cell_index)
+	if Input.is_action_just_pressed("down"):
+				remove_child(instance)
+				template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotation = Vector3.BACK
+				spawn_template_cell(selected_cell_index)

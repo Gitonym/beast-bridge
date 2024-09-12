@@ -82,3 +82,18 @@ func generate_rotations() -> Array[CellItem]:
 	)
 	
 	return rotations
+
+
+func clone() -> CellItem:
+	return CellItem.new(
+		item_name,
+		model_path,
+		{
+			Vector3.RIGHT:   [],
+			Vector3.LEFT:    [],
+			Vector3.UP:      [],
+			Vector3.DOWN:    [],
+			Vector3.BACK:    [],
+			Vector3.FORWARD: []
+		}
+	)
