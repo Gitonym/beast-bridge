@@ -2,7 +2,7 @@
 extends Node3D
 
 
-var wfc: WaveFunctionCollapseGrid
+var wfcT: WaveFunctionCollapseTemplate
 
 func _ready():
 	var cell_items: Array[CellItem] = [
@@ -13,9 +13,9 @@ func _ready():
 		CellItem.new(&"water", "res://wfc/items/models/water.glb", {Vector3.RIGHT: [], Vector3.LEFT: [], Vector3.UP: [], Vector3.DOWN: [], Vector3.BACK: [], Vector3.FORWARD: []}),
 		CellItem.new(&"ramp", "res://wfc/items/models/ramp.glb", {Vector3.RIGHT: [], Vector3.LEFT: [], Vector3.UP: [], Vector3.DOWN: [], Vector3.BACK: [], Vector3.FORWARD: []})
 	]
-	wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, cell_items)
-	add_child(wfc)
-	wfc.template_mode(10, 5, 10)
+	wfcT = WaveFunctionCollapseTemplate.new(Vector3(10, 5, 10), 4, cell_items)
+	add_child(wfcT)
+	wfcT.start()
 
 func _process(_delta):
 	pass
