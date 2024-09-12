@@ -9,6 +9,7 @@ var template_grid_dimensions: Vector3
 var selected_cellItem: CellItem
 var selected_cell_index: Vector3 = Vector3(0, 0, 0)
 var cursor_instance: Node3D
+var rules: Array[WaveFunctionCollapseRule]
 
 
 func _init(_template_grid_dimensions: Vector3, _cellSize: float, _cellItems: Array[CellItem]):
@@ -23,6 +24,8 @@ func _process(_delta):
 		set_template_cell()
 	remove_template_cell()
 	rotate_template_cell()
+	if Input.is_action_just_pressed("generate"):
+		generate_rules()
 
 
 # creates a floor under the template grid so there is something to click on
@@ -197,3 +200,47 @@ func rotate_template_cell() -> void:
 				remove_child(instance)
 				template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotation = Vector3.BACK
 				spawn_template_cell(selected_cell_index)
+
+
+func generate_rules() -> void:
+	rules = []
+	
+	# for every 3x3 sub grid
+	# x, y, z is in the center of each sub grid
+	for z in range(0, template_grid_dimensions.z - 2, 3):
+		for y in range(0, template_grid_dimensions.y - 2, 3):
+			for x in range(0, template_grid_dimensions.x - 2, 3):
+				# new empty rule
+				var sub_grid: Array = [[[null, null, null], [null, null, null], [null, null, null]], [[null, null, null], [null, null, null], [null, null, null]], [[null, null, null], [null, null, null], [null, null, null]]]
+				# for every cell in the sub grid
+				for dz in range(0, 3):
+					for dy in range(0, 3):
+						for dx in range(0, 3):
+							# save the CellItem in the new rule
+							if template_grid[x+dx][y+dy][z+dz]["cellItem"] != null:
+								sub_grid[dx][dy][dz] = template_grid[x+dx][y+dy][z+dz]["cellItem"]
+							else:
+								sub_grid[dx][dy][dz] = cellItems[0]
+				# set the new rule
+				rules.append(WaveFunctionCollapseRule.new(sub_grid))
+	save_rules()
+
+
+func save_rules() -> void:
+	var data = []
+	for rule in rules:
+		var new_data = []
+		for z in range(3):
+			for y in range(3):
+				for x in range(3):
+					new_data.append({
+						"item_name": rule.rule[x][y][z].item_name,
+						"scene_path": rule.rule[x][y][z].model_path,
+						"rotation_x": rule.rule[x][y][z].rotation.x,
+						"rotation_y": rule.rule[x][y][z].rotation.y,
+						"rotation_z": rule.rule[x][y][z].rotation.z
+					})
+		data.append(new_data)
+	var parsed_data = JSON.stringify(data, "    ")
+	print(parsed_data)
+	print("Done")
