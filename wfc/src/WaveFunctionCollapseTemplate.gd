@@ -203,6 +203,7 @@ func rotate_template_cell() -> void:
 				spawn_template_cell(selected_cell_index)
 
 
+# look at the whole grid and generate rules
 func generate_rules() -> Array[WaveFunctionCollapseRule]:
 	var rules: Array[WaveFunctionCollapseRule] = []
 	
@@ -227,6 +228,7 @@ func generate_rules() -> Array[WaveFunctionCollapseRule]:
 	return rules
 
 
+# takes the rules and converts them to json
 func generate_rules_json(rules: Array[WaveFunctionCollapseRule]) -> String:
 	var data = {"items": [], "rules": []}
 	
@@ -252,6 +254,7 @@ func generate_rules_json(rules: Array[WaveFunctionCollapseRule]) -> String:
 	return JSON.stringify(data, "    ")
 
 
+# takes rules as json and saves them to file
 func save_rules_json(json_data: String) -> void:
 	var file = FileAccess.open("res://wfc/temp/rules.json", FileAccess.WRITE)
 	file.store_string(json_data)
