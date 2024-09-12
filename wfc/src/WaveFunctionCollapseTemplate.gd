@@ -70,29 +70,6 @@ func init_template_grid() -> void:
 				template_grid[x][y].append({"cellItem": null, "instance": null})
 
 
-func _unhandled_input(event):
-	if event.is_action_pressed("click"):
-		position_to_index(get_mouse_position_3d())
-
-
-# shoots a ray from the camera to the mouse until something is hit
-# the coordinates of the hit position are returned
-func get_mouse_position_3d():
-	var viewport := get_viewport()
-	var mouse_position := viewport.get_mouse_position()
-	var camera := viewport.get_camera_3d()
-	var origin := camera.project_ray_origin(mouse_position)
-	var direction := camera.project_ray_normal(mouse_position)
-	var ray_length := camera.far
-	var end := origin + direction * ray_length
-	var space_state := get_world_3d().direct_space_state
-	var query := PhysicsRayQueryParameters3D.create(origin, end)
-	var result := space_state.intersect_ray(query)
-	var mouse_position_3D:Vector3 = result.get("position", end)
-	print("x: ", mouse_position_3D.x, "\ty: ", mouse_position_3D.y, "\tz: ", mouse_position_3D.z)
-	return Vector3(mouse_position_3D.x, mouse_position_3D.y, mouse_position_3D.z)
-
-
 # creates the ui and populates it with buttons
 func create_template_ui() -> void:
 	var ui = load("res://wfc/ui/WFCUI.tscn").instantiate()
@@ -167,6 +144,7 @@ func set_template_cell() -> void:
 		spawn_template_cell(selected_cell_index)
 
 
+# remove the instance and CellItem at the current cursor position
 func remove_template_cell() -> void:
 	if Input.is_action_just_pressed("delete"):
 		if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] != null:
@@ -175,6 +153,7 @@ func remove_template_cell() -> void:
 			template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["instance"] = null
 
 
+# spawn the instance of the CellItem at the given index
 func spawn_template_cell(index: Vector3) -> void:
 	var current_item = template_grid[index.x][index.y][index.z]["cellItem"]
 	
@@ -195,7 +174,7 @@ func spawn_template_cell(index: Vector3) -> void:
 		instance.position += Vector3.BACK * cellSize # TODO: fix the item origins so this hack can be removed
 
 
-# TODO: fix the rotation
+# deletes and recreated the instance of the current CellItem with the correct rotation
 func rotate_template_cell() -> void:
 	if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] == null:
 		return
