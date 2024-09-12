@@ -17,3 +17,11 @@ func _init(_item_name: StringName, _model_path: String,  _rotation = Vector3.RIG
 
 func clone() -> CellItem:
 	return CellItem.new(item_name, model_path, rotation)
+
+
+func equals(other: CellItem) -> bool:
+	if self == other:
+		return true
+	if item_name == other.item_name and rotation == other.rotation:
+		return true
+	return false

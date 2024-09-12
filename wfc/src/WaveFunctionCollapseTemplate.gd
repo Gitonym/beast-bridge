@@ -227,20 +227,29 @@ func generate_rules() -> void:
 
 
 func save_rules() -> void:
-	var data = []
+	var data = {"items": [], "rules": []}
+	
+	# save all CellItem variations
+	for item in cellItems:
+		data["items"].append({"item_name": item.item_name, "scene_path": item.model_path})
+	
+	# save all rules
 	for rule in rules:
-		var new_data = []
+		var new_rule = []
 		for z in range(3):
 			for y in range(3):
 				for x in range(3):
-					new_data.append({
+					new_rule.append({
 						"item_name": rule.rule[x][y][z].item_name,
-						"scene_path": rule.rule[x][y][z].model_path,
 						"rotation_x": rule.rule[x][y][z].rotation.x,
 						"rotation_y": rule.rule[x][y][z].rotation.y,
 						"rotation_z": rule.rule[x][y][z].rotation.z
 					})
-		data.append(new_data)
-	var parsed_data = JSON.stringify(data, "    ")
-	print(parsed_data)
-	print("Done")
+		data["rules"].append(new_rule)
+	
+	# convert to json and save to file
+	var json_data = JSON.stringify(data, "    ")
+	var file = FileAccess.open("res://wfc/temp/rules.json", FileAccess.WRITE)
+	file.store_string(json_data)
+	file.close()
+	
