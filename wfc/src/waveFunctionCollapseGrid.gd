@@ -137,9 +137,6 @@ func propagate(cell_index: Vector3) -> void:
 	while modified_stack.size() > 0:
 		var current_index: Vector3 = modified_stack.pop_back()
 		
-		if current_index == Vector3(0, 2, 9):
-			print("here")
-		
 		# find all valid neighbours for the current index
 		var valid_neighbours: Array = [[[[], [], []], [[], [], []], [[], [], []]], [[[], [], []], [[], [], []], [[], [], []]], [[[], [], []], [[], [], []], [[], [], []]]]
 		# for every rule
