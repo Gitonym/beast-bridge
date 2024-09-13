@@ -11,18 +11,74 @@ var cellSize: float						# the edge length of a cell in meters, this should matc
 
 var grid								# the 3d grid storing the results
 var cellItems: Array[CellItem]			# a list of all possible cellItems
+var rules = []
 
 var history: Array = []					# a history for restoring past states of the grid
 var modified_stack: Array[Vector3] = []	# keeps track of which cells have been modified
 
 
-func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, _cellItems: Array[CellItem]):
+func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, rules_json: String):
 	x_size = _x_size
 	y_size = _y_size
 	z_size = _z_size
 	cellSize = _cellSize
-	cellItems = _cellItems
+	generate_cell_items_and_rules_from_json(rules_json)
 	init_grid()
+	print("Done")
+
+
+func generate_cell_items_and_rules_from_json(rules_json: String) -> void:
+	var parsed_rules = JSON.parse_string(rules_json)
+	generate_cell_items_from_json(parsed_rules["items"])
+	generate_rules_from_json(parsed_rules["rules"])
+
+
+func generate_rules_from_json(rules_list: Array) -> void:
+	rules = []
+	for rule in rules_list:
+		var new_rule: Array = [[[null, null, null], [null, null, null], [null, null, null]], [[null, null, null], [null, null, null], [null, null, null]], [[null, null, null], [null, null, null], [null, null, null]]]
+		var list_index: int = 0
+		for z in range(3):
+			for y in range(3):
+				for x in range(3):
+					var item_name: StringName = rule[list_index]["item_name"]
+					var item_rotation: Vector3 = Vector3(rule[list_index]["rotation_x"], rule[list_index]["rotation_y"], rule[list_index]["rotation_y"])
+					for cellItem in cellItems:
+						if cellItem.item_name == item_name:
+							new_rule[x][y][z] = cellItem
+							new_rule[x][y][z].rotation = item_rotation
+					list_index += 1
+		rules.append(new_rule)
+
+
+func generate_cell_items_from_json(cellItems_json) -> void:
+	cellItems = []
+	for cellItem_json in cellItems_json:
+		cellItems.append(CellItem.new(
+			cellItem_json["item_name"],
+			cellItem_json["scene_path"],
+			cellItem_json["rotatable"]
+		))
+		# generate the othe rotations if rotatable
+		if cellItem_json["rotatable"]:
+			cellItems.append(CellItem.new(
+				cellItem_json["item_name"],
+				cellItem_json["scene_path"],
+				cellItem_json["rotatable"],
+				Vector3(-1, 0, 0)
+			))
+			cellItems.append(CellItem.new(
+				cellItem_json["item_name"],
+				cellItem_json["scene_path"],
+				cellItem_json["rotatable"],
+				Vector3(0, 0, 1)
+			))
+			cellItems.append(CellItem.new(
+				cellItem_json["item_name"],
+				cellItem_json["scene_path"],
+				cellItem_json["rotatable"],
+				Vector3(0, 0, -1)
+			))
 
 
 # inits a 3d array with all cellItems
@@ -34,23 +90,6 @@ func init_grid() -> void:
 			grid[x].append([])
 			for z in range(z_size):
 				grid[x][y].append(cellItems.duplicate())
-	##set the lowest y value to "ground" CellItems except the rim
-	#for x in range(x_size):
-	#	for z in range(z_size):
-	#		if (x > 3 and x < x_size - 4) or (z > 3 and z < z_size-4):
-	#			set_cell(Vector3(x, 0, z), [cellItems[1]])
-	#
-	##transition between ground and water
-	#for x in range(x_size):
-	#	for z in range(z_size):
-	#		if (x > 0 and x <= 3) or (z > 0 and z <= 3):
-	#			set_cell(Vector3(x, 0, z), [cellItems[1], cellItems[7]])
-	#
-	##water border
-	#for x in range(x_size):
-	#	for z in range(z_size):
-	#		if x == 0 or x == x_size - 1 or z == 0 or z == z_size-1:
-	#			set_cell(Vector3(x, 0, z), [cellItems[7]])
 
 
 # return a random cell index with the lowest entropy that is not collapsed yet
