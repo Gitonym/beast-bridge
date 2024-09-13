@@ -86,29 +86,8 @@ func _set_selected_cellItem(item_name: StringName):
 	for item in cellItems:
 		if item.item_name == item_name:
 			selected_cellItem = item
-			print(selected_cellItem.item_name)
 			return
 	printerr("No matching CellItem found for ", item_name)
-
-
-# converts a Vector3 of a position into the corresponding index of the template_grid
-# returns Vector3(-1, -1, -1) if outside of grid
-func position_to_index(pos: Vector3) -> Vector3:
-	var index: Vector3 = Vector3(
-		int(fmod(pos.x, template_grid_dimensions.x)),
-		int(fmod(pos.y, template_grid_dimensions.y)),
-		int(fmod(pos.z, template_grid_dimensions.z))
-	)
-	
-	if pos.x >= template_grid_dimensions.x * cellSize or pos.x < 0:
-		index = Vector3(-1, -1, -1)
-	if pos.y >= template_grid_dimensions.y * cellSize or pos.y < 0:
-		index = Vector3(-1, -1, -1)
-	if pos.z >= template_grid_dimensions.z * cellSize or pos.z < 0:
-		index = Vector3(-1, -1, -1)
-		
-	print("index: ", index)
-	return index
 
 
 # moves the cursor
@@ -182,6 +161,8 @@ func rotate_template_cell() -> void:
 	if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] == null:
 		return
 	if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["instance"] == null:
+		return
+	if !template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotatable:
 		return
 	var instance = template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["instance"]
 	if Input.is_action_just_pressed("right"):
