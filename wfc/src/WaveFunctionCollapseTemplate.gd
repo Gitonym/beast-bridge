@@ -31,9 +31,11 @@ func _process(_delta):
 	remove_template_cell()
 	rotate_template_cell()
 	if Input.is_action_just_pressed("generate"):
+		var template_json: String = generate_template_json()
+		save_template_json(template_json)
 		var rules: Array[WaveFunctionCollapseRule] = generate_rules()
-		var json: String = generate_rules_json(rules)
-		save_rules_json(json)
+		var rules_json: String = generate_rules_json(rules)
+		save_rules_json(rules_json)
 
 
 # creates a floor under the template grid so there is something to click on
@@ -214,7 +216,7 @@ func generate_rules_json(rules: Array[WaveFunctionCollapseRule]) -> String:
 	
 	# save all CellItem variations
 	for item in cellItems:
-		data["items"].append({"item_name": item.item_name, "scene_path": item.model_path})
+		data["items"].append({"item_name": item.item_name, "scene_path": item.model_path, "rotatable": item.rotatable})
 	
 	# save all rules
 	for rule in rules:
@@ -239,4 +241,73 @@ func save_rules_json(json_data: String) -> void:
 	var file = FileAccess.open("res://wfc/temp/rules.json", FileAccess.WRITE)
 	file.store_string(json_data)
 	file.close()
+
+
+# returns a json string that describes the template grid as it curently is
+func generate_template_json() -> String:
+	var data = {"items": [], "cells": []}
 	
+	# save all CellItem variations
+	for item in cellItems:
+		data["items"].append({"item_name": item.item_name, "scene_path": item.model_path, "rotatable": item.rotatable})
+	
+	for z in range(template_grid_dimensions.z):
+		for y in range(template_grid_dimensions.y):
+			for x in range(template_grid_dimensions.x):
+				if template_grid[x][y][z]['cellItem'] != null:
+					var cellItem = template_grid[x][y][z]['cellItem']
+					data["cells"].append({
+						"item_name": cellItem.item_name,
+						"rotation_x": cellItem.rotation.x,
+						"rotation_y": cellItem.rotation.y,
+						"rotation_z": cellItem.rotation.z,
+						"x": x,
+						"y": y,
+						"z": z
+					})
+				else:
+					data["cells"].append({
+						"item_name": cellItems[0].item_name,
+						"rotation_x": cellItems[0].rotation.x,
+						"rotation_y": cellItems[0].rotation.y,
+						"rotation_z": cellItems[0].rotation.z,
+						"x": x,
+						"y": y,
+						"z": z
+					})
+					
+				
+	return JSON.stringify(data, "    ")
+
+
+# takes grid as json and saves them to file
+func save_template_json(json_data: String) -> void:
+	var file = FileAccess.open("res://wfc/temp/template.json", FileAccess.WRITE)
+	file.store_string(json_data)
+	file.close()
+
+
+# loads the template state from file as json and parses it
+# restores all cellItems and the state of teh grid
+func restore_template_from_file() -> void:
+	var file = FileAccess.open("res://wfc/temp/template.json", FileAccess.READ)
+	var template_json: String = file.get_as_text()
+	var template = JSON.parse_string(template_json)
+	restore_cell_items(template["items"])
+	restore_template_cells(template["cells"])
+
+
+# restores cellItems from [{}]
+func restore_cell_items(items) -> void:
+	cellItems = []
+	for cellItem_json in items:
+		cellItems.append(CellItem.new(
+			cellItem_json["item_name"],
+			cellItem_json["scene_path"],
+			cellItem_json["rotatable"]
+		))
+	print("Done")
+
+
+func restore_template_cells(cells) -> void:
+	pass
