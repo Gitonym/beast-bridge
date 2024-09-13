@@ -4,6 +4,7 @@ class_name CellItem
 extends Node
 
 
+# TODO: rename model_path to scene_path
 var item_name: StringName					# name of this item, should be unique except for its rotations
 var model_path: String						# the path to the scene that should be created when the grid is done
 var rotatable: bool							# whether the item can be in other rotations

@@ -10,6 +10,8 @@ var selected_cellItem: CellItem
 var selected_cell_index: Vector3 = Vector3(0, 0, 0)
 var cursor_instance: Node3D
 
+var ui
+
 
 func _init(_template_grid_dimensions: Vector3, _cellSize: float, _cellItems: Array[CellItem]):
 	template_grid_dimensions = _template_grid_dimensions
@@ -75,9 +77,12 @@ func init_template_grid() -> void:
 				template_grid[x][y].append({"cellItem": null, "instance": null})
 
 
-# creates the ui and populates it with buttons
+# re-creates the ui and populates it with buttons
 func create_template_ui() -> void:
-	var ui = load("res://wfc/ui/WFCUI.tscn").instantiate()
+	if ui != null:
+		remove_child(ui)
+	
+	ui = load("res://wfc/ui/WFCUI.tscn").instantiate()
 	add_child(ui)
 	for item in cellItems:
 		ui.add_button(item.item_name, _set_selected_cellItem)
@@ -297,7 +302,6 @@ func restore_template_from_file() -> void:
 	restore_template_cells(template["cells"])
 
 
-# restores cellItems from [{}]
 func restore_cell_items(items) -> void:
 	cellItems = []
 	for cellItem_json in items:
@@ -306,8 +310,27 @@ func restore_cell_items(items) -> void:
 			cellItem_json["scene_path"],
 			cellItem_json["rotatable"]
 		))
-	print("Done")
+	create_template_ui()
 
 
 func restore_template_cells(cells) -> void:
-	pass
+	for cell in cells:
+		var x: int = cell["x"]
+		var y: int = cell["y"]
+		var z: int = cell["z"]
+		var item_name: StringName = cell["item_name"]
+		var item_rotation: Vector3 = Vector3(cell["rotation_x"], cell["rotation_y"], cell["rotation_z"])
+		
+		for item in cellItems:
+			if item_name == cellItems[0].item_name:
+				template_grid[x][y][z]["cellItem"] = null
+				template_grid[x][y][z]["instance"] = null
+				item.rotation = item_rotation
+				continue
+				
+			if item.item_name == item_name:
+				template_grid[x][y][z]["cellItem"] = item.clone()
+				template_grid[x][y][z]["instance"] = null
+				item.rotation = item_rotation
+				spawn_template_cell(Vector3(x, y, z))
+				continue
