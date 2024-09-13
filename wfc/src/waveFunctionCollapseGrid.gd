@@ -24,7 +24,6 @@ func _init(_x_size: int, _y_size: int, _z_size: int, _cellSize: float, rules_jso
 	cellSize = _cellSize
 	generate_cell_items_and_rules_from_json(rules_json)
 	init_grid()
-	print("Done")
 
 
 func generate_cell_items_and_rules_from_json(rules_json: String) -> void:
@@ -44,9 +43,8 @@ func generate_rules_from_json(rules_list: Array) -> void:
 					var item_name: StringName = rule[list_index]["item_name"]
 					var item_rotation: Vector3 = Vector3(rule[list_index]["rotation_x"], rule[list_index]["rotation_y"], rule[list_index]["rotation_y"])
 					for cellItem in cellItems:
-						if cellItem.item_name == item_name:
+						if cellItem.item_name == item_name and cellItem.rotation == item_rotation:
 							new_rule[x][y][z] = cellItem
-							new_rule[x][y][z].rotation = item_rotation
 					list_index += 1
 		rules.append(new_rule)
 
@@ -138,39 +136,90 @@ func propagate(cell_index: Vector3) -> void:
 	modified_stack.push_back(cell_index)
 	while modified_stack.size() > 0:
 		var current_index: Vector3 = modified_stack.pop_back()
-		var directions: Array[Vector3] = [
-			Vector3.RIGHT,
-			Vector3.LEFT,
-			Vector3.UP,
-			Vector3.DOWN,
-			Vector3.BACK,
-			Vector3.FORWARD,
-		]
-		for direction: Vector3 in directions:
-			#find all valid neighbours of the current cell
-			var neighbour_index: Vector3 = current_index + direction
-			var allowed_neighbours: Array[StringName] = []
-			for current_item: CellItem in grid[current_index.x][current_index.y][current_index.z]:
-				allowed_neighbours.append_array(current_item.valid_neighbours[direction])
-			
-			#remove any invalid neigbour
-			#TODO: can be moved further up to improve performance
-			if is_valid_index(neighbour_index):
-				var new_neighbours: Array = grid[neighbour_index.x][neighbour_index.y][neighbour_index.z].duplicate()
-				for current_neighbour: CellItem in grid[neighbour_index.x][neighbour_index.y][neighbour_index.z]:
-					if not allowed_neighbours.has(current_neighbour.item_name):
-						new_neighbours.erase(current_neighbour)
-						#add removed neighbour to history in this format:
-						#[&"propogation", index Vector3, name: CellItem]
-						history.push_back([&"propogation", neighbour_index, current_neighbour])
-						#add neighbour to modifiedStack if not already in the stack
-						if not modified_stack.has(neighbour_index):
-							modified_stack.push_back(neighbour_index)
-				grid[neighbour_index.x][neighbour_index.y][neighbour_index.z] = new_neighbours
-				#if a cell is empty then backstep
-				if new_neighbours.size() == 0:
-					backstep()
-					return
+		
+		if current_index == Vector3(0, 2, 9):
+			print("here")
+		
+		# find all valid neighbours for the current index
+		var valid_neighbours: Array = [[[[], [], []], [[], [], []], [[], [], []]], [[[], [], []], [[], [], []], [[], [], []]], [[[], [], []], [[], [], []], [[], [], []]]]
+		# for every rule
+		for rule in rules:
+			# for every possible item at current index
+			for item in grid[current_index.x][current_index.y][current_index.z]:
+				# if rule applies
+				if item.equals(rule[1][1][1]):
+					# for every cell in the rule
+					for z in range(3):
+						for y in range(3):
+							for x in range(3):
+								# save as valid neighbour if not already saved
+								if !valid_neighbours[x][y][z].has(rule[x][y][z]):
+									valid_neighbours[x][y][z].append(rule[x][y][z])
+							
+		
+		# remove any invalid neigbour
+		# for every neighbour
+		for z in range(3):
+			for y in range(3):
+				for x in range(3):
+					var neighbour_index = Vector3(current_index.x+x-1, current_index.y+y-1, current_index.z+z-1)
+					if is_valid_index(neighbour_index) and Vector3(x, y, z) != Vector3(1, 1, 1):
+						var new_neighbours: Array = grid[neighbour_index.x][neighbour_index.y][neighbour_index.z].duplicate()
+						for current_neighbour: CellItem in grid[neighbour_index.x][neighbour_index.y][neighbour_index.z]:
+							if not valid_neighbours[x][y][z].has(current_neighbour):
+								new_neighbours.erase(current_neighbour)
+								#add removed neighbour to history in this format:
+								#[&"propogation", index Vector3, name: CellItem]
+								history.push_back([&"propogation", neighbour_index, current_neighbour])
+								#add neighbour to modifiedStack if not already in the stack
+								if not modified_stack.has(neighbour_index):
+									modified_stack.push_back(neighbour_index)
+						grid[neighbour_index.x][neighbour_index.y][neighbour_index.z] = new_neighbours
+						#if a cell is empty then backstep
+						# TODO: can be done sooner
+						if new_neighbours.size() == 0:
+							backstep()
+							return
+
+
+# checks a given cells neighbours and removes them if they are invalid. the neighbours of any modified cell are also checked
+#func propagate(cell_index: Vector3) -> void:
+#	modified_stack.push_back(cell_index)
+#	while modified_stack.size() > 0:
+#		var current_index: Vector3 = modified_stack.pop_back()
+#		var directions: Array[Vector3] = [
+#			Vector3.RIGHT,
+#			Vector3.LEFT,
+#			Vector3.UP,
+#			Vector3.DOWN,
+#			Vector3.BACK,
+#			Vector3.FORWARD,
+#		]
+#		for direction: Vector3 in directions:
+#			#find all valid neighbours of the current cell
+#			var neighbour_index: Vector3 = current_index + direction
+#			var allowed_neighbours: Array[StringName] = []
+#			for current_item: CellItem in grid[current_index.x][current_index.y][current_index.z]:
+#				allowed_neighbours.append_array(current_item.valid_neighbours[direction])
+#			
+#			#remove any invalid neigbour
+#			#TODO: can be moved further up to improve performance
+#			if is_valid_index(neighbour_index):
+#				var new_neighbours: Array = grid[neighbour_index.x][neighbour_index.y][neighbour_index.z].duplicate()
+#				for current_neighbour: CellItem in grid[neighbour_index.x][neighbour_index.y][neighbour_index.z]:
+#					if not allowed_neighbours.has(current_neighbour.item_name):
+#						new_neighbours.erase(current_neighbour)
+#						#add removed neighbour to history in this format:
+#						#[&"propogation", index Vector3, name: CellItem]
+#						history.push_back([&"propogation", neighbour_index, current_neighbour])
+#						#add neighbour to modifiedStack if not already in the stack
+#						if not modified_stack.has(neighbour_index):
+#							modified_stack.push_back(neighbour_index)
+#				grid[neighbour_index.x][neighbour_index.y][neighbour_index.z] = new_neighbours
+#				#if a cell is empty then backstep
+#				if new_neighbours.size() == 0:
+#					backstep()
+#					return
 
 
 # collapses the whole grid until all cells contain only one item
@@ -230,6 +279,7 @@ func backstep() -> void:
 		elif history_type == &"assumption":
 			restore_assumption(history_item)
 			return
+	printerr("History empty, continuing from state which knowingly fails")
 
 
 # gets a propagation passed in this form: [&"propogation", index Vector3, name: CellItem]

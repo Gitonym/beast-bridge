@@ -38,6 +38,7 @@ func _process(_delta):
 		var rules: Array[WaveFunctionCollapseRule] = generate_rules()
 		var rules_json: String = generate_rules_json(rules)
 		save_rules_json(rules_json)
+		print("Done generating rules")
 
 
 # creates a floor under the template grid so there is something to click on
@@ -196,9 +197,9 @@ func generate_rules() -> Array[WaveFunctionCollapseRule]:
 	
 	# for every 3x3 sub grid
 	# x, y, z is in the center of each sub grid
-	for z in range(0, template_grid_dimensions.z - 2, 3):
-		for y in range(0, template_grid_dimensions.y - 2, 3):
-			for x in range(0, template_grid_dimensions.x - 2, 3):
+	for z in range(0, template_grid_dimensions.z - 2):
+		for y in range(0, template_grid_dimensions.y - 2):
+			for x in range(0, template_grid_dimensions.x - 2):
 				# new empty rule
 				var sub_grid: Array = [[[null, null, null], [null, null, null], [null, null, null]], [[null, null, null], [null, null, null], [null, null, null]], [[null, null, null], [null, null, null], [null, null, null]]]
 				# for every cell in the sub grid
@@ -211,7 +212,13 @@ func generate_rules() -> Array[WaveFunctionCollapseRule]:
 							else:
 								sub_grid[dx][dy][dz] = cellItems[0]
 				# set the new rule
-				rules.append(WaveFunctionCollapseRule.new(sub_grid))
+				var new_rule = WaveFunctionCollapseRule.new(sub_grid)
+				if rules.any(func(rule): return rule.equals(new_rule)):
+					continue
+				#for rule in rules:
+				#	if rule.equals(new_rule):
+				#		continue
+				rules.append(new_rule)
 	return rules
 
 
@@ -320,6 +327,9 @@ func restore_template_cells(cells) -> void:
 		var z: int = cell["z"]
 		var item_name: StringName = cell["item_name"]
 		var item_rotation: Vector3 = Vector3(cell["rotation_x"], cell["rotation_y"], cell["rotation_z"])
+		
+		if x >= template_grid_dimensions.x or y >= template_grid_dimensions.y or z >= template_grid_dimensions.z:
+			continue
 		
 		for item in cellItems:
 			if item_name == cellItems[0].item_name:
