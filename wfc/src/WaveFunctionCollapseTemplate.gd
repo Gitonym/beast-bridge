@@ -216,12 +216,10 @@ func generate_rules() -> Array[WaveFunctionCollapseRule]:
 							else:
 								sub_grid[dx][dy][dz] = cellItems[0]
 				# set the new rule
+				# dont add duplicates
 				var new_rule = WaveFunctionCollapseRule.new(sub_grid)
 				if rules.any(func(rule): return rule.equals(new_rule)):
 					continue
-				#for rule in rules:
-				#	if rule.equals(new_rule):
-				#		continue
 				rules.append(new_rule)
 	return rules
 

@@ -132,6 +132,7 @@ func collapse_cell(cell_index: Vector3) -> void:
 
 
 # checks a given cells neighbours and removes them if they are invalid. the neighbours of any modified cell are also checked
+# TODO: fix it
 func propagate(cell_index: Vector3) -> void:
 	modified_stack.push_back(cell_index)
 	while modified_stack.size() > 0:
@@ -177,46 +178,6 @@ func propagate(cell_index: Vector3) -> void:
 						if new_neighbours.size() == 0:
 							backstep()
 							return
-
-
-# checks a given cells neighbours and removes them if they are invalid. the neighbours of any modified cell are also checked
-#func propagate(cell_index: Vector3) -> void:
-#	modified_stack.push_back(cell_index)
-#	while modified_stack.size() > 0:
-#		var current_index: Vector3 = modified_stack.pop_back()
-#		var directions: Array[Vector3] = [
-#			Vector3.RIGHT,
-#			Vector3.LEFT,
-#			Vector3.UP,
-#			Vector3.DOWN,
-#			Vector3.BACK,
-#			Vector3.FORWARD,
-#		]
-#		for direction: Vector3 in directions:
-#			#find all valid neighbours of the current cell
-#			var neighbour_index: Vector3 = current_index + direction
-#			var allowed_neighbours: Array[StringName] = []
-#			for current_item: CellItem in grid[current_index.x][current_index.y][current_index.z]:
-#				allowed_neighbours.append_array(current_item.valid_neighbours[direction])
-#			
-#			#remove any invalid neigbour
-#			#TODO: can be moved further up to improve performance
-#			if is_valid_index(neighbour_index):
-#				var new_neighbours: Array = grid[neighbour_index.x][neighbour_index.y][neighbour_index.z].duplicate()
-#				for current_neighbour: CellItem in grid[neighbour_index.x][neighbour_index.y][neighbour_index.z]:
-#					if not allowed_neighbours.has(current_neighbour.item_name):
-#						new_neighbours.erase(current_neighbour)
-#						#add removed neighbour to history in this format:
-#						#[&"propogation", index Vector3, name: CellItem]
-#						history.push_back([&"propogation", neighbour_index, current_neighbour])
-#						#add neighbour to modifiedStack if not already in the stack
-#						if not modified_stack.has(neighbour_index):
-#							modified_stack.push_back(neighbour_index)
-#				grid[neighbour_index.x][neighbour_index.y][neighbour_index.z] = new_neighbours
-#				#if a cell is empty then backstep
-#				if new_neighbours.size() == 0:
-#					backstep()
-#					return
 
 
 # collapses the whole grid until all cells contain only one item
