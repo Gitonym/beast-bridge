@@ -264,7 +264,7 @@ func restore_assumption(history_item: Array) -> void:
 	#remove old decision
 	#the old discarded decision push on history as propagation
 	grid[index.x][index.y][index.z].pop_back()
-	history.push_back([&"propogation", index, choice])
+	history.push_back([&"propogation", index, choice])			# TODO: do not do this if the history is empty, to avoid choosing this if all other assumptions fails also. This will cause a criticial fail instead however.
 	#restore the removed items
 	for discarded_item in discarded:
 		grid[index.x][index.y][index.z].push_back(discarded_item)
