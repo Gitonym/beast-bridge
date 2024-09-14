@@ -28,10 +28,12 @@ func _ready():
 
 func _process(_delta):
 	move_cursor()
+	
 	if Input.is_action_just_pressed("enter") and selected_cellItem != null:
-		set_template_cell()
-	remove_template_cell()
+		set_template_cell(selected_cellItem.item_name, Vector3.RIGHT)
+		
 	rotate_template_cell()
+	
 	if Input.is_action_just_pressed("generate"):
 		var template_json: String = generate_template_json()
 		save_template_json(template_json)
@@ -39,6 +41,9 @@ func _process(_delta):
 		var rules_json: String = generate_rules_json(rules)
 		save_rules_json(rules_json)
 		print("Done generating rules")
+		
+	if Input.is_action_just_pressed("delete"):
+		remove_template_cell()
 
 
 # creates a floor under the template grid so there is something to click on
@@ -86,7 +91,8 @@ func create_template_ui() -> void:
 	ui = load("res://wfc/ui/WFCUI.tscn").instantiate()
 	add_child(ui)
 	for item in cellItems:
-		ui.add_button(item.item_name, _set_selected_cellItem)
+		if item.rotation == Vector3.RIGHT:
+			ui.add_button(item.item_name, _set_selected_cellItem)
 
 
 # the callback that is passed to the ui, a button uses this callback when its pressed
@@ -128,15 +134,17 @@ func update_cursor_position() -> void:
 
 
 # spawns an item in the current cell if its empty and enter was pressed
-func set_template_cell() -> void:
+func set_template_cell(item_name: StringName, item_rotation: Vector3) -> void:
 	if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] == null:
-		template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] = selected_cellItem.clone()
-		spawn_template_cell(selected_cell_index)
+		for item in cellItems:
+			if item.item_name == item_name and item.rotation == item_rotation:
+				template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] = item
+				spawn_template_cell(selected_cell_index)
+				return
 
 
 # remove the instance and CellItem at the current cursor position
 func remove_template_cell() -> void:
-	if Input.is_action_just_pressed("delete"):
 		if template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] != null:
 			template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"] = null
 			remove_child(template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["instance"])
@@ -172,23 +180,19 @@ func rotate_template_cell() -> void:
 		return
 	if !template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotatable:
 		return
-	var instance = template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["instance"]
+	var item_name = template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].item_name
 	if Input.is_action_just_pressed("right"):
-				remove_child(instance)
-				template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotation = Vector3.RIGHT
-				spawn_template_cell(selected_cell_index)
-	if Input.is_action_just_pressed("left"):
-				remove_child(instance)
-				template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotation = Vector3.LEFT
-				spawn_template_cell(selected_cell_index)
-	if Input.is_action_just_pressed("up"):
-				remove_child(instance)
-				template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotation = Vector3.FORWARD
-				spawn_template_cell(selected_cell_index)
-	if Input.is_action_just_pressed("down"):
-				remove_child(instance)
-				template_grid[selected_cell_index.x][selected_cell_index.y][selected_cell_index.z]["cellItem"].rotation = Vector3.BACK
-				spawn_template_cell(selected_cell_index)
+				remove_template_cell()
+				set_template_cell(item_name, Vector3.RIGHT)
+	elif Input.is_action_just_pressed("left"):
+				remove_template_cell()
+				set_template_cell(item_name, Vector3.LEFT)
+	elif Input.is_action_just_pressed("up"):
+				remove_template_cell()
+				set_template_cell(item_name, Vector3.FORWARD)
+	elif Input.is_action_just_pressed("down"):
+				remove_template_cell()
+				set_template_cell(item_name, Vector3.BACK)
 
 
 # look at the whole grid and generate rules
@@ -228,7 +232,8 @@ func generate_rules_json(rules: Array[WaveFunctionCollapseRule]) -> String:
 	
 	# save all CellItem variations
 	for item in cellItems:
-		data["items"].append({"item_name": item.item_name, "scene_path": item.model_path, "rotatable": item.rotatable})
+		if item.rotation == Vector3.RIGHT:
+			data["items"].append({"item_name": item.item_name, "scene_path": item.model_path, "rotatable": item.rotatable})
 	
 	# save all rules
 	for rule in rules:
@@ -261,7 +266,8 @@ func generate_template_json() -> String:
 	
 	# save all CellItem variations
 	for item in cellItems:
-		data["items"].append({"item_name": item.item_name, "scene_path": item.model_path, "rotatable": item.rotatable})
+		if item.rotation == Vector3.RIGHT:
+			data["items"].append({"item_name": item.item_name, "scene_path": item.model_path, "rotatable": item.rotatable})
 	
 	for z in range(template_grid_dimensions.z):
 		for y in range(template_grid_dimensions.y):
@@ -317,6 +323,25 @@ func restore_cell_items(items) -> void:
 			cellItem_json["scene_path"],
 			cellItem_json["rotatable"]
 		))
+		if cellItem_json["rotatable"]:
+			cellItems.append(CellItem.new(
+				cellItem_json["item_name"],
+				cellItem_json["scene_path"],
+				cellItem_json["rotatable"],
+				Vector3.LEFT
+			))
+			cellItems.append(CellItem.new(
+				cellItem_json["item_name"],
+				cellItem_json["scene_path"],
+				cellItem_json["rotatable"],
+				Vector3.FORWARD
+			))
+			cellItems.append(CellItem.new(
+				cellItem_json["item_name"],
+				cellItem_json["scene_path"],
+				cellItem_json["rotatable"],
+				Vector3.BACK
+			))
 	create_template_ui()
 
 
@@ -335,12 +360,10 @@ func restore_template_cells(cells) -> void:
 			if item_name == cellItems[0].item_name:
 				template_grid[x][y][z]["cellItem"] = null
 				template_grid[x][y][z]["instance"] = null
-				item.rotation = item_rotation
 				continue
 				
-			if item.item_name == item_name:
-				template_grid[x][y][z]["cellItem"] = item.clone()
+			if item.item_name == item_name and item.rotation == item_rotation:
+				template_grid[x][y][z]["cellItem"] = item
 				template_grid[x][y][z]["instance"] = null
-				item.rotation = item_rotation
 				spawn_template_cell(Vector3(x, y, z))
 				continue

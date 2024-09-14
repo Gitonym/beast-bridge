@@ -9,6 +9,11 @@
             "item_name": "ground",
             "rotatable": false,
             "scene_path": "res://wfc/items/models/cube.glb"
+        },
+        {
+            "item_name": "ramp",
+            "rotatable": true,
+            "scene_path": "res://wfc/items/models/ramp.glb"
         }
     ],
     "rules": [
