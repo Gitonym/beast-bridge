@@ -16,7 +16,7 @@ func _ready():
 	var rules_json: String = rules_file.get_as_text()
 
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(25, 5, 25, 4, rules_json)	# create a new grid with specified size, pass all items
+		wfc = WaveFunctionCollapseGrid.new(10, 5, 10, 4, rules_json)	# create a new grid with specified size, pass all items
 		add_child(wfc)													# add it to the scene tree
 		wfc.collapse_all()												# run the wfc algorythm
 	), " Seconds")
