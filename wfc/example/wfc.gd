@@ -8,13 +8,15 @@ var wfc: WaveFunctionCollapseGrid
 func _ready():
 	# fixed seed for testing purposed, randomize seed otherwise
 	# TODO: randomize()
-	seed(12347)
+	var current_seed: int = randi()
+	print(current_seed)
+	seed(current_seed)
 	
 	var rules_file = FileAccess.open("res://wfc/temp/rules.json", FileAccess.READ)
 	var rules_json: String = rules_file.get_as_text()
 
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(10, 5, 10, 4, rules_json)	# create a new grid with specified size, pass all items
+		wfc = WaveFunctionCollapseGrid.new(25, 5, 25, 4, rules_json)	# create a new grid with specified size, pass all items
 		add_child(wfc)													# add it to the scene tree
 		wfc.collapse_all()												# run the wfc algorythm
 	), " Seconds")

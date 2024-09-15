@@ -1,6 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://5i5frgg65t4p"]
+[gd_scene load_steps=5 format=3 uid="uid://5i5frgg65t4p"]
 
 [ext_resource type="Script" path="res://wfc/example/wfcTemplate.gd" id="1_dw04s"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rfjst"]
+ground_bottom_color = Color(0.384314, 0.454902, 0.54902, 1)
+
+[sub_resource type="Sky" id="Sky_i6kor"]
+sky_material = SubResource("ProceduralSkyMaterial_rfjst")
+
+[sub_resource type="Environment" id="Environment_2im0u"]
+background_mode = 2
+sky = SubResource("Sky_i6kor")
 
 [node name="WFCTemplate" type="Node3D"]
 
@@ -9,6 +19,7 @@ transform = Transform3D(0.563901, 0.647297, -0.512857, 0, 0.621011, 0.783802, 0.
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.487921, 0.872888, 0, -0.872888, 0.487921, 26.784, 37.5177, 61.1823)
+environment = SubResource("Environment_2im0u")
 fov = 95.0
 
 [node name="WFC" type="Node3D" parent="."]

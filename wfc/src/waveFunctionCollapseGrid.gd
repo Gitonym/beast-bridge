@@ -11,7 +11,7 @@ var cellSize: float						# the edge length of a cell in meters, this should matc
 
 var grid								# the 3d grid storing the results
 var cellItems: Array[CellItem]			# a list of all possible cellItems
-var rules = []
+var rules: Array[WaveFunctionCollapseRule] = []
 
 var history: Array = []					# a history for restoring past states of the grid
 var modified_stack: Array[Vector3] = []	# keeps track of which cells have been modified
@@ -46,7 +46,7 @@ func generate_rules_from_json(rules_list: Array) -> void:
 						if cellItem.item_name == item_name and cellItem.rotation == item_rotation:
 							new_rule[x][y][z] = cellItem
 					list_index += 1
-		rules.append(new_rule)
+		rules.append(WaveFunctionCollapseRule.new(new_rule))
 
 
 func generate_cell_items_from_json(cellItems_json) -> void:
@@ -132,52 +132,73 @@ func collapse_cell(cell_index: Vector3) -> void:
 
 
 # checks a given cells neighbours and removes them if they are invalid. the neighbours of any modified cell are also checked
-# TODO: fix it
 func propagate(cell_index: Vector3) -> void:
 	modified_stack.push_back(cell_index)
 	while modified_stack.size() > 0:
 		var current_index: Vector3 = modified_stack.pop_back()
+		if current_index == Vector3(96, 6, 0):
+			print("Here!")
 		
-		# find all valid neighbours for the current index
-		var valid_neighbours: Array = [[[[], [], []], [[], [], []], [[], [], []]], [[[], [], []], [[], [], []], [[], [], []]], [[[], [], []], [[], [], []], [[], [], []]]]
-		# for every rule
-		for rule in rules:
-			# for every possible item at current index
-			for item in grid[current_index.x][current_index.y][current_index.z]:
-				# if rule applies
-				if item.equals(rule[1][1][1]):
-					# for every cell in the rule
-					for z in range(3):
-						for y in range(3):
-							for x in range(3):
-								# save as valid neighbour if not already saved
-								if !valid_neighbours[x][y][z].has(rule[x][y][z]):
-									valid_neighbours[x][y][z].append(rule[x][y][z])
-							
-		
-		# remove any invalid neigbour
-		# for every neighbour
+		# init neighbour validity
+		var neighbour_validity: Array = [[[[], [], []], [[], [], []], [[], [], []]], [[[], [], []], [[], [], []], [[], [], []]], [[[], [], []], [[], [], []], [[], [], []]]]
 		for z in range(3):
 			for y in range(3):
 				for x in range(3):
-					var neighbour_index = Vector3(current_index.x+x-1, current_index.y+y-1, current_index.z+z-1)
-					if is_valid_index(neighbour_index) and Vector3(x, y, z) != Vector3(1, 1, 1):
-						var new_neighbours: Array = grid[neighbour_index.x][neighbour_index.y][neighbour_index.z].duplicate()
-						for current_neighbour: CellItem in grid[neighbour_index.x][neighbour_index.y][neighbour_index.z]:
-							if not valid_neighbours[x][y][z].has(current_neighbour):
-								new_neighbours.erase(current_neighbour)
-								#add removed neighbour to history in this format:
-								#[&"propogation", index Vector3, name: CellItem]
-								history.push_back([&"propogation", neighbour_index, current_neighbour])
-								#add neighbour to modifiedStack if not already in the stack
-								if not modified_stack.has(neighbour_index):
-									modified_stack.push_back(neighbour_index)
-						grid[neighbour_index.x][neighbour_index.y][neighbour_index.z] = new_neighbours
-						#if a cell is empty then backstep
-						# TODO: can be done sooner
-						if new_neighbours.size() == 0:
-							backstep()
-							return
+					var neighbour_index: Vector3 = Vector3(current_index.x+x-1, current_index.y+y-1, current_index.z+z-1)
+					if not is_valid_index(neighbour_index):
+						continue
+					if x == 1 and y == 1 and z == 1:
+						continue
+					for neighbour in grid[current_index.x+x-1][current_index.y+y-1][current_index.z+z-1]:
+						neighbour_validity[x][y][z].append({"cellItem": neighbour, "validity": false})
+		
+		# check neighbour validity
+		for rule in rules:
+			# if rule applies (meaning the center of teh rule is the same as the current cellItem)
+			if grid[current_index.x][current_index.y][current_index.z].any(func(item): return item.equals(rule.rule[1][1][1])):
+				# check for each neighbour if its valid by the rule (all neighbours specified in the rule)
+				var rule_validity = true
+				for z in range(3):
+					for y in range(3):
+						for x in range(3):
+							if x == 1 and y == 1 and z == 1:
+								continue
+							var neighbour_index: Vector3 = Vector3(current_index.x+x-1, current_index.y+y-1, current_index.z+z-1)
+							if not is_valid_index(neighbour_index):
+								continue
+							if not neighbour_validity[x][y][z].any(func(item): return item["cellItem"].equals(rule.rule[x][y][z])):
+								rule_validity = false
+				# if all conditions of the rules are met then mark the neighbours that fit the rule as valid
+				if rule_validity:
+					for z in range(3):
+						for y in range(3):
+							for x in range(3):
+								for neighbour in neighbour_validity[x][y][z]:
+									if neighbour["cellItem"].equals(rule.rule[x][y][z]):
+										neighbour["validity"] = true
+		
+		# remove the neighbours that are not valid
+		for z in range(3):
+			for y in range(3):
+				for x in range(3):
+					if z == 1 and y == 1 and x == 1:
+						continue
+					var neighbour_index: Vector3 = Vector3(current_index.x+x-1, current_index.y+y-1, current_index.z+z-1)
+					if not is_valid_index(neighbour_index):
+						continue
+					for neighbour in neighbour_validity[x][y][z]:
+						if not neighbour["validity"]:
+							grid[neighbour_index.x][neighbour_index.y][neighbour_index.z].erase(neighbour["cellItem"])
+							#add removed neighbour to history in this format:
+							#[&"propogation", index Vector3, name: CellItem]
+							history.push_back([&"propogation", neighbour_index, neighbour["cellItem"]])
+							#add neighbour to modifiedStack if not already in the stack
+							if not modified_stack.has(neighbour_index):
+								modified_stack.push_back(neighbour_index)
+							# backstep if the last neighbour in the cell was deleted
+							if grid[neighbour_index.x][neighbour_index.y][neighbour_index.z].size() == 0:
+								backstep()
+								return
 
 
 # collapses the whole grid until all cells contain only one item

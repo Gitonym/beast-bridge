@@ -9,12 +9,12 @@
 transform = Transform3D(0.804168, 0.423317, -0.417272, 0, 0.702004, 0.712173, 0.594402, -0.572707, 0.564529, 0, 7.02775, 0)
 
 [node name="Player" parent="." instance=ExtResource("1_tpetr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.0038, 16.3574, 63.6312)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.3148, 22.1508, 121.196)
 
 [node name="WFC" type="Node3D" parent="."]
 script = ExtResource("2_ebfmb")
 
 [node name="Platform" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.8678, 15.1762, 63.6312)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.1787, 20.9696, 121.196)
 use_collision = true
 size = Vector3(6.55316, 1.26074, 3.13818)
