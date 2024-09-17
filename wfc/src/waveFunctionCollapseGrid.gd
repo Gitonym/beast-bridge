@@ -129,11 +129,11 @@ func collapse_cell(cell_index: Vector3) -> void:
 	assumption.push_front(cell_index)
 	assumption.push_front(&"assumption")
 	history.push_back(assumption)
+	modified_stack.push_back(cell_index)
 
 
 # checks a given cells neighbours and removes them if they are invalid. the neighbours of any modified cell are also checked
-func propagate(cell_index: Vector3) -> void:
-	modified_stack.push_back(cell_index)
+func propagate() -> void:
 	while modified_stack.size() > 0:
 		var current_index: Vector3 = modified_stack.pop_back()
 		if current_index == Vector3(96, 6, 0):
@@ -205,9 +205,11 @@ func propagate(cell_index: Vector3) -> void:
 func collapse_all() -> void:
 	var current_cell: Vector3
 	while not is_collapsed():
-		current_cell = get_min_entropy()
-		collapse_cell(current_cell)
-		propagate(current_cell)
+		print_collapsed_percentage()
+		if modified_stack.size() == 0:
+			current_cell = get_min_entropy()
+			collapse_cell(current_cell)
+		propagate()
 
 
 # spawns the map after the grid has been collapsed
@@ -236,7 +238,8 @@ func spawn_items() -> void:
 #set cell should only be used max once on any cell
 func set_cell(cell_index: Vector3, cell_items: Array[CellItem]) -> void:
 	grid[cell_index.x][cell_index.y][cell_index.z] = cell_items
-	propagate(cell_index)
+	modified_stack.push_back(cell_index)
+	propagate()
 
 
 # checks if the given index is in bounds of the grid array
@@ -289,6 +292,10 @@ func restore_assumption(history_item: Array) -> void:
 	#restore the removed items
 	for discarded_item in discarded:
 		grid[index.x][index.y][index.z].push_back(discarded_item)
+	# mark the cell as modified if only one item has been restored as this is effectively the new choice
+	# TODO: it would be better to save for each cell if it collapsed or not instead of assuming that a length of 1 is always collapsed
+	if discarded.size() == 1:
+		modified_stack.push_back(index)
 
 
 # counts the occurences of a specific CellItem in a collapsed grid
@@ -317,3 +324,23 @@ func for_each_cell_in_grid(callback: Callable) -> bool:
 				if !callback.call(x, y, z):
 					return false
 	return true
+
+
+func print_collapsed_percentage() -> void:
+	var all: int = x_size * y_size * z_size
+	var collapsed: int = 0
+	
+	for z in range(z_size):
+		for y in range(y_size):
+			for x in range(x_size):
+				if grid[x][y][z].size() == 1:
+					collapsed += 1
+	var result: float = float(collapsed)/float(all)
+	var bar: String = "["
+	for x in range(10, 110, 10):
+		if x >= result * 100:
+			bar += "░"
+		else:
+			bar += "▓"
+	bar += "]"
+	print("Collapsed: ", bar, " ", result * 100, "%")

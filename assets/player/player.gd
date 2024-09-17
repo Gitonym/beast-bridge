@@ -19,15 +19,10 @@ var state = "idle"
 var movement_direction : Vector3 = Vector3(0, 0, 0)
 
 
-func _process(delta):
+func _process(_delta):
 	#movement
 	get_movement_direction()
 	interpolate_player_rotation()
-	accelerate(delta)
-	friction(delta)
-	jump()
-	gravity(delta)
-	
 	land_on_ground()
 	play_animations()
 	#TODO: Reenable these features at some point
@@ -35,7 +30,11 @@ func _process(delta):
 	#on_alt_click_event()
 
 
-func _physics_process(_delta):
+func _physics_process(delta):
+	accelerate(delta)
+	friction(delta)
+	jump()
+	gravity(delta)
 	interact()
 	move_and_slide()
 
@@ -98,7 +97,7 @@ func play_animations():
 		if is_on_floor():
 			if velocity.length() > 5:
 				animationPlayer.play("Running_A", -1, 2)
-			elif velocity.length() > 0.5:
+			elif velocity.length() > 1:
 				animationPlayer.play("Running_B", -1, 2)
 			else:
 				animationPlayer.play("Idle", 0.1, 1)

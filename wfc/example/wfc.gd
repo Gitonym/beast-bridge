@@ -8,9 +8,10 @@ var wfc: WaveFunctionCollapseGrid
 func _ready():
 	# fixed seed for testing purposed, randomize seed otherwise
 	# TODO: randomize()
+	# TODO: this seed: 2720066666 fails for dimensions of 10, 5, 10
 	var current_seed: int = randi()
-	print(current_seed)
-	seed(current_seed)
+	print("Seed: ", current_seed)
+	seed(2720066666)
 	
 	var rules_file = FileAccess.open("res://wfc/temp/rules.json", FileAccess.READ)
 	var rules_json: String = rules_file.get_as_text()
