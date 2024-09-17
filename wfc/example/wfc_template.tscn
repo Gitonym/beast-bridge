@@ -18,7 +18,7 @@ sky = SubResource("Sky_i6kor")
 transform = Transform3D(0.563901, 0.647297, -0.512857, 0, 0.621011, 0.783802, 0.825842, -0.441987, 0.350189, -12.1825, 0, 9.00285)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.487921, 0.872888, 0, -0.872888, 0.487921, 26.784, 37.5177, 61.1823)
+transform = Transform3D(1, 0, 0, 0, 0.487921, 0.872888, 0, -0.872888, 0.487921, 60.8119, 37.5177, 61.1823)
 environment = SubResource("Environment_2im0u")
 fov = 95.0
 

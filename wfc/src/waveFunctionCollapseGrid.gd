@@ -136,8 +136,6 @@ func collapse_cell(cell_index: Vector3) -> void:
 func propagate() -> void:
 	while modified_stack.size() > 0:
 		var current_index: Vector3 = modified_stack.pop_back()
-		if current_index == Vector3(96, 6, 0):
-			print("Here!")
 		
 		# init neighbour validity
 		var neighbour_validity: Array = [[[[], [], []], [[], [], []], [[], [], []]], [[[], [], []], [[], [], []], [[], [], []]], [[[], [], []], [[], [], []], [[], [], []]]]
@@ -161,6 +159,8 @@ func propagate() -> void:
 				for z in range(3):
 					for y in range(3):
 						for x in range(3):
+							if !rule_validity:
+								continue
 							if x == 1 and y == 1 and z == 1:
 								continue
 							var neighbour_index: Vector3 = Vector3(current_index.x+x-1, current_index.y+y-1, current_index.z+z-1)
@@ -328,19 +328,30 @@ func for_each_cell_in_grid(callback: Callable) -> bool:
 
 func print_collapsed_percentage() -> void:
 	var all: int = x_size * y_size * z_size
+	var all_opt: int = x_size * y_size * z_size * cellItems.size()
 	var collapsed: int = 0
+	var collapsed_opt: int = 0
 	
 	for z in range(z_size):
 		for y in range(y_size):
 			for x in range(x_size):
+				collapsed_opt += grid[x][y][z].size()
 				if grid[x][y][z].size() == 1:
 					collapsed += 1
 	var result: float = float(collapsed)/float(all)
+	var result_opt: float = float(collapsed_opt)/float(all_opt)
 	var bar: String = "["
+	var bar_opt: String = "["
 	for x in range(10, 110, 10):
 		if x >= result * 100:
 			bar += "░"
 		else:
 			bar += "▓"
 	bar += "]"
-	print("Collapsed: ", bar, " ", result * 100, "%")
+	for x in range(10, 110, 10):
+		if x >= result_opt * 100:
+			bar_opt += "░"
+		else:
+			bar_opt += "▓"
+	bar_opt += "]"
+	print("Collapsed: ", bar, " ", int(result * 100), "%", "\t\tOptions: ", bar_opt, " ", int(result_opt * 100), "%")
