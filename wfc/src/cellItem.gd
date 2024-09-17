@@ -1,79 +1,34 @@
+# this class represents one possible item that can be in the grid
+# an item represents the mesh that will be rendered and its rotation
 class_name CellItem
 extends Node
 
 
-static var definitions: Array[CellItem] = []
-
-var item_name: StringName
-var model_path: String
-var valid_neighbours: Dictionary = {
-	Vector3.RIGHT:   [],
-	Vector3.LEFT:    [],
-	Vector3.UP:      [],
-	Vector3.DOWN:    [],
-	Vector3.BACK:    [],
-	Vector3.FORWARD: []
-}
-var rotation: Vector3
+# TODO: rename model_path to scene_path
+var item_name: StringName					# name of this item, should be unique except for its rotations
+var model_path: String						# the path to the scene that should be created when the grid is done
+var rotatable: bool							# whether the item can be in other rotations
+var rotation: Vector3						# stores the rotation if this item
 
 
-func _init(_item_name: StringName, _model_path: String, _valid_neighbours: Dictionary,  _rotation = Vector3.RIGHT):
+func _init(_item_name: StringName, _model_path: String, _rotatable: bool, _rotation = Vector3.RIGHT):
 	item_name = _item_name
 	model_path = _model_path
-	valid_neighbours = _valid_neighbours
-	rotation = _rotation
+	rotatable = _rotatable
+	if _rotatable:
+		rotation = _rotation
+	else:
+		rotation = Vector3.RIGHT
 
 
-# Adds the CellItem to CellItem.definitions. This should happen for every CellItem but self does not
-# seem to work in _init
-func track() -> CellItem:
-	CellItem.definitions.append(self)
-	return self
+func clone() -> CellItem:
+	return CellItem.new(item_name, model_path, rotatable, rotation)
 
 
-# Adds the CellItems of the other three possible rotations to CellItem.definitions
-# TODO: adjust weights when generating rotations. Multiply by 0.25
-# TODO: symmetric CellItems dont need all rotations
-func generate_rotations() -> void:
-	# Forward
-	CellItem.new(
-		self.item_name,
-		self.model_path,
-		{
-			Vector3.RIGHT:   self.valid_neighbours[Vector3.BACK],
-			Vector3.LEFT:    self.valid_neighbours[Vector3.FORWARD],
-			Vector3.UP:      self.valid_neighbours[Vector3.UP],
-			Vector3.DOWN:    self.valid_neighbours[Vector3.DOWN],
-			Vector3.BACK:    self.valid_neighbours[Vector3.LEFT],
-			Vector3.FORWARD: self.valid_neighbours[Vector3.RIGHT]
-		},
-		Vector3.FORWARD
-	).track()
-	# Left
-	CellItem.new(
-		self.item_name,
-		self.model_path,
-		{
-			Vector3.RIGHT:   self.valid_neighbours[Vector3.LEFT],
-			Vector3.LEFT:    self.valid_neighbours[Vector3.RIGHT],
-			Vector3.UP:      self.valid_neighbours[Vector3.UP],
-			Vector3.DOWN:    self.valid_neighbours[Vector3.DOWN],
-			Vector3.BACK:    self.valid_neighbours[Vector3.FORWARD],
-			Vector3.FORWARD: self.valid_neighbours[Vector3.BACK]
-		},
-		Vector3.LEFT
-	).track()
-	# Back
-	CellItem.new(
-		self.item_name,
-		self.model_path,
-		{
-			Vector3.RIGHT:   self.valid_neighbours[Vector3.FORWARD],
-			Vector3.LEFT:    self.valid_neighbours[Vector3.BACK],
-			Vector3.UP:      self.valid_neighbours[Vector3.UP],
-			Vector3.DOWN:    self.valid_neighbours[Vector3.DOWN],
-			Vector3.BACK:    self.valid_neighbours[Vector3.RIGHT],
-			Vector3.FORWARD: self.valid_neighbours[Vector3.LEFT]
-		},
-		Vector3.BACK
-	).track()
+# TODO: compare only adresses
+func equals(other: CellItem) -> bool:
+	if self == other:
+		return true
+	if item_name == other.item_name and rotation == other.rotation:
+		return true
+	return false
