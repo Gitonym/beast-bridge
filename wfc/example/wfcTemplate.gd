@@ -2,20 +2,19 @@
 extends Node3D
 
 
-var wfc: WaveFunctionCollapseGrid
+# this class manages a scene that
+var wfcT: WaveFunctionCollapseTemplate
 
 func _ready():
 	var cell_items: Array[CellItem] = [
-		CellItem.new(&"air", "", {Vector3.RIGHT: [], Vector3.LEFT: [], Vector3.UP: [], Vector3.DOWN: [], Vector3.BACK: [], Vector3.FORWARD: []}),
-		CellItem.new(&"ground", "res://wfc/items/models/cube.glb", {Vector3.RIGHT: [], Vector3.LEFT: [], Vector3.UP: [], Vector3.DOWN: [], Vector3.BACK: [], Vector3.FORWARD: []}),
-		CellItem.new(&"tree", "res://wfc/items/models/tree.glb", {Vector3.RIGHT: [], Vector3.LEFT: [], Vector3.UP: [], Vector3.DOWN: [], Vector3.BACK: [], Vector3.FORWARD: []}),
-		CellItem.new(&"gate", "res://wfc/items/models/gate.glb", {Vector3.RIGHT: [], Vector3.LEFT: [], Vector3.UP: [], Vector3.DOWN: [], Vector3.BACK: [], Vector3.FORWARD: []}),
-		CellItem.new(&"water", "res://wfc/items/models/water.glb", {Vector3.RIGHT: [], Vector3.LEFT: [], Vector3.UP: [], Vector3.DOWN: [], Vector3.BACK: [], Vector3.FORWARD: []}),
-		CellItem.new(&"ramp", "res://wfc/items/models/ramp.glb", {Vector3.RIGHT: [], Vector3.LEFT: [], Vector3.UP: [], Vector3.DOWN: [], Vector3.BACK: [], Vector3.FORWARD: []})
+		#CellItem.new(&"air", "", false),
+		#CellItem.new(&"ground", "res://wfc/items/models/cube.glb", false),
+		#CellItem.new(&"tree", "res://wfc/items/models/tree.glb", false),
+		#CellItem.new(&"gate", "res://wfc/items/models/gate.glb", true),
+		#CellItem.new(&"water", "res://wfc/items/models/water.glb", false),
+		#CellItem.new(&"ramp", "res://wfc/items/models/ramp.glb", true)
 	]
-	wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, cell_items)
-	add_child(wfc)
-	wfc.template_mode(10, 5, 10)
-
-func _process(_delta):
-	pass
+	
+	wfcT = WaveFunctionCollapseTemplate.new(Vector3(15, 10, 15), 4, cell_items)
+	add_child(wfcT)
+	wfcT.restore_template_from_file()
