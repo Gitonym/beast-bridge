@@ -15,6 +15,6 @@ func _ready():
 		#CellItem.new(&"ramp", "res://wfc/items/models/ramp.glb", true)
 	]
 	
-	wfcT = WaveFunctionCollapseTemplate.new(Vector3(30, 10, 15), 4, cell_items)
+	wfcT = WaveFunctionCollapseTemplate.new(Vector3(15, 10, 15), 4, cell_items)
 	add_child(wfcT)
 	wfcT.restore_template_from_file()

@@ -221,6 +221,7 @@ func generate_rules() -> Array[WaveFunctionCollapseRule]:
 				if rules.any(func(rule): return rule.equals(new_rule)):
 					continue
 				rules.append(new_rule)
+				# TODO: generate rotated rules
 	return rules
 
 

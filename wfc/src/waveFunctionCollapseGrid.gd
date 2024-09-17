@@ -152,6 +152,7 @@ func propagate() -> void:
 		
 		# check neighbour validity
 		for rule in rules:
+			# TODO: skip if all neighbours already valid
 			# if rule applies (meaning the center of teh rule is the same as the current cellItem)
 			if grid[current_index.x][current_index.y][current_index.z].any(func(item): return item.equals(rule.rule[1][1][1])):
 				# check for each neighbour if its valid by the rule (all neighbours specified in the rule)

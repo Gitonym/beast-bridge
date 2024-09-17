@@ -25,6 +25,7 @@ func clone() -> CellItem:
 	return CellItem.new(item_name, model_path, rotatable, rotation)
 
 
+# TODO: compare only adresses
 func equals(other: CellItem) -> bool:
 	if self == other:
 		return true
