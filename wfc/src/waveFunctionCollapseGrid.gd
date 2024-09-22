@@ -125,7 +125,7 @@ func are_neighbours(i1: int, i2: int) -> bool:
 func collapse_all() -> void:
 	var current_cell: int
 	while not is_grid_collapsed():
-		# print_collapsed_percentage()
+		print_collapsed_percentage()
 		if modified_stack.size() == 0:
 			current_cell = get_min_entropy()
 			collapse_cell(current_cell)
@@ -144,13 +144,10 @@ func spawn_items() -> void:
 		instance.position = Vector3(get_3d_index(i)) * cell_size
 		if current_item.rotation == Vector3.FORWARD:
 			instance.rotate(Vector3.UP, deg_to_rad(90))
-			instance.position += Vector3(1, 0, 0) * cell_size
 		elif current_item.rotation == Vector3.LEFT:
 			instance.rotate(Vector3.UP, deg_to_rad(180))
-			instance.position += Vector3(1, 0, -1) * cell_size
 		elif current_item.rotation == Vector3.BACK:
 			instance.rotate(Vector3.UP, deg_to_rad(-90))
-			instance.position += Vector3(0, 0, -1) * cell_size
 		add_child(instance)
 
 
