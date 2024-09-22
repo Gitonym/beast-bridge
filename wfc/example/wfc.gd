@@ -8,10 +8,10 @@ var wfc: WaveFunctionCollapseGrid
 func _ready():
 	# fixed seed for testing purposed, randomize seed otherwise
 	# TODO: randomize()
-	# TODO: Seed takes long: 3896040363, works: 573895099
+	# TODO: Seed takes long: 3896040363, works: 573895099 35secs: 650133898
 	var current_seed: int = randi()
 	print("Seed: ", current_seed)
-	seed(current_seed)
+	seed(3896040363)
 	
 	var cell_items: Array[CellItem] = [
 		CellItem.new("air", "", "air", "air", "air", "air", "air", "air"),

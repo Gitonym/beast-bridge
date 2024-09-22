@@ -9,10 +9,9 @@ var cell_size: float									# the edge length of a cell in meters, this should 
 
 var grid											# the 3d grid storing the results
 var cell_items: Array[CellItem]						# a list of all possible cellItems
-var rules: Array[WaveFunctionCollapseRule] = []
 
 var history: Array = []								# a history for restoring past states of the grid
-var modified_stack: Array[int] = []				# keeps track of which cells have been modified
+var modified_stack: Array[int] = []					# keeps track of which cells have been modified
 
 
 func _init(p_x_size: int, p_y_size: int, p_z_size: int, p_cell_size: float, p_cell_items: Array[CellItem]):
@@ -37,7 +36,9 @@ func get_1d_index(index: Vector3) -> int:
 
 # calculates a 3d index from a 1d index and returns it
 func get_3d_index(index: int) -> Vector3:
+	@warning_ignore("integer_division")
 	var z: int = index / (int(size.x) * int(size.y));
+	@warning_ignore("integer_division")
 	var y: int = (index % (int(size.x) * int(size.y))) / int(size.x);
 	var x: int = index % int(size.x);
 	return Vector3(x, y, z)
