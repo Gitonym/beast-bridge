@@ -8,20 +8,24 @@ var wfc: WaveFunctionCollapseGrid
 func _ready():
 	# fixed seed for testing purposed, randomize seed otherwise
 	# TODO: randomize()
-	# TODO: this seed: 2720066666 fails for dimensions of 10, 5, 10
 	var current_seed: int = randi()
 	print("Seed: ", current_seed)
 	seed(current_seed)
 	
 	var cell_items: Array[CellItem] = [
 		CellItem.new("air", "", "air", "air", "air", "air", "air", "air"),
-		CellItem.new("ground", "res://wfc/items/models/cube.glb", "ground", "ground", "ground", "ground", "air", "air")
+		CellItem.new("road_bend", "res://wfc/items/models/roads/road_bend.glb", "pavement", "pavement", "road", "road", "air", "air"),
+		CellItem.new("road_cross", "res://wfc/items/models/roads/road_crossing.glb", "road", "road", "road", "road", "air", "air"),
+		CellItem.new("road_dead", "res://wfc/items/models/roads/road_dead.glb", "pavement", "road", "pavement", "pavement", "air", "air"),
+		CellItem.new("road_pavement", "res://wfc/items/models/roads/road_pavement.glb", "pavement", "pavement", "pavement", "pavement", "air", "air"),
+		CellItem.new("road_straight", "res://wfc/items/models/roads/road_straight.glb", "road", "pavement", "road", "pavement", "air", "air"),
+		CellItem.new("road_t", "res://wfc/items/models/roads/road_t.glb", "pavement", "road", "road", "road", "air", "air"),
 	]
 
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(8, 4, 8, 4, cell_items)		# create a new grid with specified size, pass all items
-		add_child(wfc)													# add it to the scene tree
-		wfc.collapse_all()												# run the wfc algorythm
+		wfc = WaveFunctionCollapseGrid.new(10, 4, 10, 5, cell_items)			# create a new grid with specified size, pass all items
+		add_child(wfc)															# add it to the scene tree
+		wfc.collapse_all()														# run the wfc algorythm
 	), " Seconds")
 	
 	print("Time to spawn: ", get_execution_time(wfc.spawn_items), " Seconds")	# spawn_items spawns all scenes from the grid after collapse_all was called

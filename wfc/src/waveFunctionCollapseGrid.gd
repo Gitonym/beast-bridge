@@ -32,7 +32,7 @@ func init_grid() -> void:
 
 # calculates the 1d index from a 3d index and returns it
 func get_1d_index(index: Vector3) -> int:
-	return index.x + index.y * size.x + index.z * size.x * size.y;
+	return int(index.x + index.y * size.x + index.z * size.x * size.y);
 
 
 # calculates a 3d index from a 1d index and returns it
@@ -58,7 +58,7 @@ func get_min_entropy() -> int:
 # returns true if all cells contain only one cellItem, false otherwise
 func is_grid_collapsed() -> bool:
 	for cell in grid:
-		if cell.size() != 1:
+		if cell.size() > 1:
 			return false
 	return true
 
@@ -196,9 +196,10 @@ func restore_propogation(propagation: Array) -> void:
 # restores the state of the grid and modifed_stack as if that assumption was never made
 # the made assumption gets added to the history so the CellItem gets readded in case more backstepping is required
 func restore_assumption(assumption: Array) -> void:
-	var index: int = assumption[1]
-	var choice: CellItem = assumption[2]
-	var discarded: Array = assumption.slice(3, -1)
+	assumption.pop_front()
+	var index: int = assumption.pop_front()
+	var choice: CellItem = assumption.pop_front()
+	var discarded: Array = assumption
 	# push the old decision on the history as propagation
 	grid[index] = []
 	# TODO: do i want to do this if the history is empty?
