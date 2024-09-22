@@ -138,7 +138,7 @@ func spawn_items() -> void:
 		return
 	for i in grid.size():
 		var current_item: CellItem = grid[i][0]
-		if current_item.item_name == &"air":
+		if current_item.scene_path == &"":
 			continue
 		var instance = load(current_item.scene_path).instantiate()
 		instance.position = Vector3(get_3d_index(i)) * cell_size
