@@ -46,10 +46,10 @@ func _ready():
 		CellItem.new("grass_slope_top_b", "res://wfc/tiles/grass_slope_top.glb", "slope_top_b", "air", "slope_top_b", "grass", "air", "edge_b", Vector3.BACK),
 		
 		# slope top path
-		CellItem.new("grass_slope_top_path_r", "res://wfc/tiles/grass_slope_top_path.glb", "path", "slope_top_r", "air", "slope_top_r", "air", "ladder_r"),
-		CellItem.new("grass_slope_top_path_f", "res://wfc/tiles/grass_slope_top_path.glb", "slope_top_f", "path", "slope_top_f", "air", "air", "ladder_f", Vector3.FORWARD),
-		CellItem.new("grass_slope_top_path_l", "res://wfc/tiles/grass_slope_top_path.glb", "air", "slope_top_l", "path", "slope_top_l", "air", "ladder_l", Vector3.LEFT),
-		CellItem.new("grass_slope_top_path_b", "res://wfc/tiles/grass_slope_top_path.glb", "slope_top_b", "air", "slope_top_b", "path", "air", "ladder_b", Vector3.BACK),
+		#CellItem.new("grass_slope_top_path_r", "res://wfc/tiles/grass_slope_top_path.glb", "path", "slope_top_r", "air", "slope_top_r", "air", "ladder_r"),
+		#CellItem.new("grass_slope_top_path_f", "res://wfc/tiles/grass_slope_top_path.glb", "slope_top_f", "path", "slope_top_f", "air", "air", "ladder_f", Vector3.FORWARD),
+		#CellItem.new("grass_slope_top_path_l", "res://wfc/tiles/grass_slope_top_path.glb", "air", "slope_top_l", "path", "slope_top_l", "air", "ladder_l", Vector3.LEFT),
+		#CellItem.new("grass_slope_top_path_b", "res://wfc/tiles/grass_slope_top_path.glb", "slope_top_b", "air", "slope_top_b", "path", "air", "ladder_b", Vector3.BACK),
 		
 		# slope bottom
 		CellItem.new("grass_slope_bottom_r", "res://wfc/tiles/grass_slope_bottom.glb", "ground", "slope_bottom_r", "air", "slope_bottom_r", "edge_r", "slope_bottom"),
@@ -58,10 +58,10 @@ func _ready():
 		CellItem.new("grass_slope_bottom_b", "res://wfc/tiles/grass_slope_bottom.glb", "slope_bottom_b", "air", "slope_bottom_b", "ground", "edge_b", "slope_bottom", Vector3.BACK),
 		
 		# slope bottom path
-		CellItem.new("grass_slope_bottom_path_r", "res://wfc/tiles/grass_slope_bottom_path.glb", "ground", "slope_bottom_r", "air", "slope_bottom_r", "ladder_r", "slope_bottom"),
-		CellItem.new("grass_slope_bottom_path_f", "res://wfc/tiles/grass_slope_bottom_path.glb", "slope_bottom_f", "ground", "slope_bottom_f", "air", "ladder_f", "slope_bottom", Vector3.FORWARD),
-		CellItem.new("grass_slope_bottom_path_l", "res://wfc/tiles/grass_slope_bottom_path.glb", "air", "slope_bottom_l", "ground", "slope_bottom_l", "ladder_l", "slope_bottom", Vector3.LEFT),
-		CellItem.new("grass_slope_bottom_path_b", "res://wfc/tiles/grass_slope_bottom_path.glb", "slope_bottom_b", "air", "slope_bottom_b", "ground", "ladder_b", "slope_bottom", Vector3.BACK),
+		#CellItem.new("grass_slope_bottom_path_r", "res://wfc/tiles/grass_slope_bottom_path.glb", "ground", "slope_bottom_r", "air", "slope_bottom_r", "ladder_r", "slope_bottom"),
+		#CellItem.new("grass_slope_bottom_path_f", "res://wfc/tiles/grass_slope_bottom_path.glb", "slope_bottom_f", "ground", "slope_bottom_f", "air", "ladder_f", "slope_bottom", Vector3.FORWARD),
+		#CellItem.new("grass_slope_bottom_path_l", "res://wfc/tiles/grass_slope_bottom_path.glb", "air", "slope_bottom_l", "ground", "slope_bottom_l", "ladder_l", "slope_bottom", Vector3.LEFT),
+		#CellItem.new("grass_slope_bottom_path_b", "res://wfc/tiles/grass_slope_bottom_path.glb", "slope_bottom_b", "air", "slope_bottom_b", "ground", "ladder_b", "slope_bottom", Vector3.BACK),
 		
 		# slope top corner
 		CellItem.new("grass_slope_top_corner_r", "res://wfc/tiles/grass_slope_top_corner.glb", "slope_top_f", "slope_top_r", "air", "air", "air", "corner_r"),
@@ -82,10 +82,10 @@ func _ready():
 		CellItem.new("slope_wall_b", "res://wfc/tiles/slope_wall.glb", "edge_b", "air", "edge_b", "ground", "edge_b", "edge_b", Vector3.BACK),
 		
 		# slope wall path
-		CellItem.new("slope_wall_path_r", "res://wfc/tiles/slope_wall_path.glb", "ground", "edge_r", "air", "edge_r", "ladder_r", "ladder_r"),
-		CellItem.new("slope_wall_path_f", "res://wfc/tiles/slope_wall_path.glb", "edge_f", "ground", "edge_f", "air", "ladder_f", "ladder_f", Vector3.FORWARD),
-		CellItem.new("slope_wall_path_l", "res://wfc/tiles/slope_wall_path.glb", "air", "edge_l", "ground", "edge_l", "ladder_l", "ladder_l", Vector3.LEFT),
-		CellItem.new("slope_wall_path_b", "res://wfc/tiles/slope_wall_path.glb", "edge_b", "air", "edge_b", "ground", "ladder_b", "ladder_b", Vector3.BACK),
+		#CellItem.new("slope_wall_path_r", "res://wfc/tiles/slope_wall_path.glb", "ground", "edge_r", "air", "edge_r", "ladder_r", "ladder_r"),
+		#CellItem.new("slope_wall_path_f", "res://wfc/tiles/slope_wall_path.glb", "edge_f", "ground", "edge_f", "air", "ladder_f", "ladder_f", Vector3.FORWARD),
+		#CellItem.new("slope_wall_path_l", "res://wfc/tiles/slope_wall_path.glb", "air", "edge_l", "ground", "edge_l", "ladder_l", "ladder_l", Vector3.LEFT),
+		#CellItem.new("slope_wall_path_b", "res://wfc/tiles/slope_wall_path.glb", "edge_b", "air", "edge_b", "ground", "ladder_b", "ladder_b", Vector3.BACK),
 		
 		# slope corner
 		CellItem.new("slope_corner_r", "res://wfc/tiles/slope_corner.glb", "edge_r", "edge_r", "air", "air", "corner_r", "corner_r"),
