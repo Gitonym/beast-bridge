@@ -11,18 +11,33 @@ func _ready():
 	# fixed seed for testing purposed, randomize seed otherwise
 	var current_seed: int = randi()
 	print("Seed: ", current_seed)
-	seed(current_seed)
+	seed(4036136937)
 	
 	var cell_items: Array[CellItem] = [
-		# 4 way symmetrie
 		CellItem.new("air", "", "air", "air", "air", "air", "air", "air"),
 		CellItem.new("ground", "res://wfc/tiles/ground.glb", "ground", "ground", "ground", "ground", "ground", "ground"),
 		CellItem.new("grass", "res://wfc/tiles/grass.glb", "grass", "grass", "grass", "grass", "air", "ground"),
+		
+		# paths
 		CellItem.new("path_cross", "res://wfc/tiles/path_cross.glb", "path", "path", "path", "path", "air", "ground"),
 		
-		# symmetrical along axis
 		CellItem.new("path_straight_x", "res://wfc/tiles/path_straight.glb", "path", "grass", "path", "grass", "air", "ground"),
 		CellItem.new("path_straight_z", "res://wfc/tiles/path_straight.glb", "grass", "path", "grass", "path", "air", "ground", Vector3.FORWARD),
+		
+		CellItem.new("path_end_r", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground"),
+		CellItem.new("path_end_f", "res://wfc/tiles/path_end.glb", "grass", "path", "grass", "grass", "air", "ground", Vector3.FORWARD),
+		CellItem.new("path_end_l", "res://wfc/tiles/path_end.glb", "grass", "grass", "path", "grass", "air", "ground", Vector3.LEFT),
+		CellItem.new("path_end_b", "res://wfc/tiles/path_end.glb", "grass", "grass", "grass", "path", "air", "ground", Vector3.BACK),
+		
+		CellItem.new("path_bend_r", "res://wfc/tiles/path_bend.glb", "path", "path", "grass", "grass", "air", "ground"),
+		CellItem.new("path_bend_f", "res://wfc/tiles/path_bend.glb", "grass", "path", "path", "grass", "air", "ground", Vector3.FORWARD),
+		CellItem.new("path_bend_l", "res://wfc/tiles/path_bend.glb", "grass", "grass", "path", "path", "air", "ground", Vector3.LEFT),
+		CellItem.new("path_bend_b", "res://wfc/tiles/path_bend.glb", "path", "grass", "grass", "path", "air", "ground", Vector3.BACK),
+		
+		CellItem.new("path_t_r", "res://wfc/tiles/path_t.glb", "path", "path", "grass", "path", "air", "ground"),
+		CellItem.new("path_t_f", "res://wfc/tiles/path_t.glb", "path", "path", "path", "grass", "air", "ground", Vector3.FORWARD),
+		CellItem.new("path_t_l", "res://wfc/tiles/path_t.glb", "grass", "path", "path", "path", "air", "ground", Vector3.LEFT),
+		CellItem.new("path_t_b", "res://wfc/tiles/path_t.glb", "path", "grass", "path", "path", "air", "ground", Vector3.BACK),
 		
 		# slope top
 		CellItem.new("grass_slope_top_r", "res://wfc/tiles/grass_slope_top.glb", "grass", "slope_top_r", "air", "slope_top_r", "air", "edge_r"),
@@ -74,7 +89,7 @@ func _ready():
 	]
 
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(20, 5, 20, 4, cell_items)			# create a new grid with specified size, pass all items
+		wfc = WaveFunctionCollapseGrid.new(10, 5, 10, 4, cell_items)			# create a new grid with specified size, pass all items
 		add_child(wfc)															# add it to the scene tree
 		wfc.collapse_all()														# run the wfc algorythm
 	), " Seconds")

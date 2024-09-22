@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://bp045uran4rix"]
+[gd_scene load_steps=12 format=3 uid="uid://bp045uran4rix"]
 
 [ext_resource type="PackedScene" uid="uid://dreebj84dlmv7" path="res://assets/player/player.tscn" id="1_tpetr"]
 [ext_resource type="Script" path="res://wfc/example/wfc.gd" id="2_ebfmb"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://cuy5gjf336jsa" path="res://wfc/tiles/grass_slope_bottom_corner.glb" id="8_apg2j"]
 [ext_resource type="PackedScene" uid="uid://dwv6cn1fn6yon" path="res://wfc/tiles/slope_wall.glb" id="9_i7ngx"]
 [ext_resource type="PackedScene" uid="uid://juqg3swymi6x" path="res://wfc/tiles/slope_corner.glb" id="10_22fh3"]
+[ext_resource type="PackedScene" uid="uid://cg28kpru5y2ih" path="res://wfc/tiles/grass_slope_bottom_path.glb" id="11_tggd3"]
 
 [node name="World" type="Node3D"]
 
@@ -182,3 +183,5 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -35, 1
 
 [node name="slope_corner" parent="ex2" instance=ExtResource("10_22fh3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33, 8, -41)
+
+[node name="grass_slope_bottom_path" parent="." instance=ExtResource("11_tggd3")]
