@@ -124,6 +124,7 @@ func are_neighbours(i1: int, i2: int) -> bool:
 func collapse_all() -> void:
 	var current_cell: int
 	while not is_grid_collapsed():
+		# print_collapsed_percentage()
 		if modified_stack.size() == 0:
 			current_cell = get_min_entropy()
 			collapse_cell(current_cell)
@@ -211,3 +212,32 @@ func restore_assumption(assumption: Array) -> void:
 	# TODO: it would be better to save for each cell if it collapsed or not instead of assuming that a length of 1 is always collapsed
 	if discarded.size() == 1:
 		modified_stack.push_back(index)
+
+
+func print_collapsed_percentage() -> void:
+	var all: int = grid.size()
+	var all_opt: int = grid.size() * cell_items.size()
+	var collapsed: int = 0
+	var collapsed_opt: int = 0
+	
+	for i in range(grid.size()):
+		collapsed_opt += grid[i].size()
+		if grid[i].size() == 1:
+			collapsed += 1
+	var result: float = float(collapsed)/float(all)
+	var result_opt: float = float(collapsed_opt)/float(all_opt)
+	var bar: String = "["
+	var bar_opt: String = "["
+	for x in range(10, 110, 10):
+		if x >= result * 100:
+			bar += "░"
+		else:
+			bar += "▓"
+	bar += "]"
+	for x in range(10, 110, 10):
+		if x >= result_opt * 100:
+			bar_opt += "░"
+		else:
+			bar_opt += "▓"
+	bar_opt += "]"
+	print("Collapsed: ", bar, " ", int(result * 100), "%", "\t\tOptions: ", bar_opt, " ", int(result_opt * 100), "%")

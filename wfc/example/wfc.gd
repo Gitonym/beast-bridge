@@ -8,6 +8,7 @@ var wfc: WaveFunctionCollapseGrid
 func _ready():
 	# fixed seed for testing purposed, randomize seed otherwise
 	# TODO: randomize()
+	# TODO: Seed takes long: 3896040363, works: 573895099
 	var current_seed: int = randi()
 	print("Seed: ", current_seed)
 	seed(current_seed)
