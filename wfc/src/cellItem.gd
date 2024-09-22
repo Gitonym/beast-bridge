@@ -4,31 +4,29 @@ class_name CellItem
 extends Node
 
 
-# TODO: rename model_path to scene_path
 var item_name: StringName					# name of this item, should be unique except for its rotations
-var model_path: String						# the path to the scene that should be created when the grid is done
-var rotatable: bool							# whether the item can be in other rotations
+var scene_path: String						# the path to the scene that should be created when the grid is done
 var rotation: Vector3						# stores the rotation if this item
 
+# the key that determines valid and invalid neighbours
+# two cellItems can only be adjecent if their keys match in the others direction
+var keys: Dictionary
 
-func _init(_item_name: StringName, _model_path: String, _rotatable: bool, _rotation = Vector3.RIGHT):
-	item_name = _item_name
-	model_path = _model_path
-	rotatable = _rotatable
-	if _rotatable:
-		rotation = _rotation
-	else:
-		rotation = Vector3.RIGHT
+
+# cosntructor
+func _init(p_item_name: StringName, p_scene_path: String, key_right: StringName, key_forward: StringName, key_left: StringName, key_back: StringName, key_up: StringName, key_down: StringName, p_rotation = Vector3.RIGHT):
+	item_name = p_item_name
+	scene_path = p_scene_path
+	rotation = p_rotation
+	keys = {
+		Vector3.RIGHT: key_right,
+		Vector3.FORWARD: key_forward,
+		Vector3.LEFT: key_left,
+		Vector3.BACK: key_back,
+		Vector3.UP: key_up,
+		Vector3.DOWN: key_down,
+	}
 
 
 func clone() -> CellItem:
-	return CellItem.new(item_name, model_path, rotatable, rotation)
-
-
-# TODO: compare only adresses
-func equals(other: CellItem) -> bool:
-	if self == other:
-		return true
-	if item_name == other.item_name and rotation == other.rotation:
-		return true
-	return false
+	return CellItem.new(item_name, scene_path, keys[Vector3.RIGHT], keys[Vector3.FORWARD], keys[Vector3.LEFT], keys[Vector3.BACK], keys[Vector3.UP], keys[Vector3.DOWN], rotation)
