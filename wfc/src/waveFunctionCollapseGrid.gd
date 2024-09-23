@@ -129,7 +129,7 @@ func collapse_cell(cell_index: int) -> void:
 func collapse_all() -> void:
 	var current_cell: int
 	while not is_grid_collapsed():
-		print_collapsed_percentage()
+		print_collapsed_percentage()	# TODO: only print if not printed in a while
 		if modified_stack.size() == 0:
 			current_cell = get_min_entropy()
 			collapse_cell(current_cell)
