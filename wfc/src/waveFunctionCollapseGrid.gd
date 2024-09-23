@@ -52,10 +52,10 @@ func init_grid() -> void:
 			set_cell(i, air_item)
 			
 		# sets two paths that need to be connected
-		if i_3d == Vector3(0, 0, 1):
-			set_cell(i, path_end_items[0])
-		if i_3d == Vector3(size.x-1, 0, size.z-2):
-			set_cell(i, path_end_items[2])
+		#if i_3d == Vector3(0, 0, 1):
+		#	set_cell(i, path_end_items[0])
+		#if i_3d == Vector3(size.x-1, 0, size.z-2):
+		#	set_cell(i, path_end_items[2])
 
 
 # calculates the 1d index from a 3d index and returns it
