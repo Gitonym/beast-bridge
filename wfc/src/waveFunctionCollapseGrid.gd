@@ -24,9 +24,38 @@ func _init(p_x_size: int, p_y_size: int, p_z_size: int, p_cell_size: float, p_ce
 # inits a 3d array with all cellItems
 func init_grid() -> void:
 	grid = []
+	var _ground_item = get_item_by_name("ground")
+	var grass_item = get_item_by_name("grass")
+	var air_item = get_item_by_name("air")
+	var _path_straight_item = get_item_by_name("path_straight_x")
+	var _path_end_items = CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground")
+	
 	var grid_size = get_1d_index(size - Vector3.ONE) + 1
 	for i in range(grid_size):
 		grid.append(cell_items.duplicate())
+		
+		var i_3d = get_3d_index(i)
+		# set the lowest level to always be ground
+		#if i_3d.y == 0:
+		#	set_cell(i, ground_item)
+		
+		# TODO: this causes problems
+		#if i_3d == Vector3(2, 2, 2):
+		#	set_cell(i, get_item_by_name("slope_wall_r"))
+			
+		# set the lowest level to always be ground
+		if i_3d.y == 0 and (i_3d.x == 0 or i_3d.z == 0 or i_3d.x == size.x-1 or i_3d.z == size.z-1):
+			set_cell(i, grass_item)
+			
+		# set the highest level to always be air
+		if i_3d.y == size.y - 1:
+			set_cell(i, air_item)
+			
+		# sets two paths that need to be connected
+		#if i_3d == Vector3(0, 0, 1):
+		#	set_cell(i, path_end_items[0])
+		#if i_3d == Vector3(size.x-1, 0, size.z-2):
+		#	set_cell(i, path_end_items[2])
 
 
 # calculates the 1d index from a 3d index and returns it
@@ -42,6 +71,23 @@ func get_3d_index(index: int) -> Vector3:
 	var y: int = (index % (int(size.x) * int(size.y))) / int(size.x);
 	var x: int = index % int(size.x);
 	return Vector3(x, y, z)
+
+
+# sets the cell to the specified cellItem and adds the index to modified
+# TODO: might be better to also add an assumption to the history
+func set_cell(index: int, item: CellItem) -> void:
+	grid[index] = [item]
+	modified_stack.append(index)
+
+
+func get_item_by_name(item_name: StringName) -> CellItem:
+	for item in cell_items:
+		if item.item_name == item_name:
+			return item
+	printerr("No CellItem with the name '" + item_name + "' has been found")
+	assert(false)
+	return
+
 
 # return a random cell index with the lowest entropy that is not collapsed yet
 func get_min_entropy() -> int:
@@ -77,6 +123,17 @@ func collapse_cell(cell_index: int) -> void:
 	assumption.push_front(&"assumption")
 	history.push_back(assumption)
 	modified_stack.push_back(cell_index)
+
+
+# collapses the whole grid until all cells contain only one item
+func collapse_all() -> void:
+	var current_cell: int
+	while not is_grid_collapsed():
+		print_collapsed_percentage()
+		if modified_stack.size() == 0:
+			current_cell = get_min_entropy()
+			collapse_cell(current_cell)
+		propagate()
 
 
 # checks a given cells neighbours and removes them if they are invalid. the neighbours of any modified cell are also checked
@@ -119,17 +176,6 @@ func are_neighbours(i1: int, i2: int) -> bool:
 	var i1_3d = get_3d_index(i1)
 	var i2_3d = get_3d_index(i2)
 	return (i1_3d - i2_3d).length() <= 1
-
-
-# collapses the whole grid until all cells contain only one item
-func collapse_all() -> void:
-	var current_cell: int
-	while not is_grid_collapsed():
-		print_collapsed_percentage()
-		if modified_stack.size() == 0:
-			current_cell = get_min_entropy()
-			collapse_cell(current_cell)
-		propagate()
 
 
 # spawns the map after the grid has been collapsed
@@ -207,7 +253,7 @@ func restore_assumption(assumption: Array) -> void:
 	for discarded_item in discarded:
 		grid[index].push_back(discarded_item)
 	# mark the cell as modified if only one item has been restored as this is effectively the new choice
-	# TODO: it would be better to save for each cell if it collapsed or not instead of assuming that a length of 1 is always collapsed
+	# TODO: might need to do this regardless of how many choices remain, whatever choice was removed needs to be propagated through
 	if discarded.size() == 1:
 		modified_stack.push_back(index)
 

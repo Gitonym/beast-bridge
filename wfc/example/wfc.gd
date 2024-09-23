@@ -8,7 +8,7 @@ var cell_items: Array[CellItem] = []
 # verbindungen mit r werden zu f: r>f>l>b>r
 
 func _ready():
-	# fixed seed for testing purposed, randomize seed otherwise 1970916410
+	# fixed seed for testing purposed, randomize seed otherwise 3675036171
 	var current_seed: int = randi()
 	print("Seed: ", current_seed)
 	seed(current_seed)
@@ -16,7 +16,7 @@ func _ready():
 	print("Time to create tiles: ", get_execution_time(create_tiles))
 	
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(10, 5, 10, 4, cell_items)			# create a new grid with specified size, pass all items
+		wfc = WaveFunctionCollapseGrid.new(10, 10, 10, 4, cell_items)			# create a new grid with specified size, pass all items
 		add_child(wfc)															# add it to the scene tree
 		wfc.collapse_all()														# run the wfc algorythm
 	), " Seconds")
