@@ -16,7 +16,7 @@ func _ready():
 	print("Time to create tiles: ", get_execution_time(create_tiles))
 	
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(20, 10, 20, 4, cell_items)			# create a new grid with specified size, pass all items
+		wfc = WaveFunctionCollapseGrid.new(10, 5, 10, 4, cell_items)			# create a new grid with specified size, pass all items
 		add_child(wfc)															# add it to the scene tree
 		wfc.collapse_all()														# run the wfc algorythm
 	), " Seconds")
@@ -33,11 +33,11 @@ func create_tiles() -> void:
 	cell_items.append(CellItem.new("grass", "res://wfc/tiles/grass.glb", "grass", "grass", "grass", "grass", "air", "ground"))
 	
 	# paths
-	cell_items.append(CellItem.new("path_cross", "res://wfc/tiles/path_cross.glb", "path", "path", "path", "path", "air", "ground"))
+	#cell_items.append(CellItem.new("path_cross", "res://wfc/tiles/path_cross.glb", "path", "path", "path", "path", "air", "ground"))
 	cell_items.append_array(CellItem.newMirrored("path_straight", "res://wfc/tiles/path_straight.glb", "path", "grass", "path", "grass", "air", "ground"))
-	cell_items.append_array(CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground"))
+	#cell_items.append_array(CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground"))
 	cell_items.append_array(CellItem.newCardinal("path_bend", "res://wfc/tiles/path_bend.glb", "path", "path", "grass", "grass", "air", "ground"))
-	cell_items.append_array(CellItem.newCardinal("path_t", "res://wfc/tiles/path_t.glb", "path", "path", "grass", "path", "air", "ground"))
+	#cell_items.append_array(CellItem.newCardinal("path_t", "res://wfc/tiles/path_t.glb", "path", "path", "grass", "path", "air", "ground"))
 	
 	# slope
 	cell_items.append_array(CellItem.newCardinal("grass_slope_top", "res://wfc/tiles/grass_slope_top.glb", "grass", "slope_top_r", "air", "slope_top_r", "air", "edge_r"))
