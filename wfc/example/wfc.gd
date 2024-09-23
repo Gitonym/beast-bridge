@@ -11,7 +11,7 @@ func _ready():
 	# fixed seed for testing purposed, randomize seed otherwise
 	var current_seed: int = randi()
 	print("Seed: ", current_seed)
-	seed(3045903845)
+	seed(current_seed)
 	
 	var cell_items: Array[CellItem] = [
 		CellItem.new("air", "", "air", "air", "air", "air", "air", "air"),

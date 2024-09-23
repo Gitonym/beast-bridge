@@ -187,9 +187,10 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -35, 1
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33, 8, -41)
 
 [node name="grass_slope_bottom_path" parent="." instance=ExtResource("11_tggd3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, -32)
 
 [node name="grass_slope_top_path" parent="." instance=ExtResource("12_1kp8o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 8, -32)
 
 [node name="slope_wall_path" parent="." instance=ExtResource("13_o67kv")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 4, -32)
