@@ -24,11 +24,11 @@ func _init(p_x_size: int, p_y_size: int, p_z_size: int, p_cell_size: float, p_ce
 # inits a 3d array with all cellItems
 func init_grid() -> void:
 	grid = []
-	var _ground_item = get_item_by_name("ground")
+	#var _ground_item = get_item_by_name("ground")
 	var grass_item = get_item_by_name("grass")
-	var air_item = get_item_by_name("air")
-	var _path_straight_item = get_item_by_name("path_straight_x")
-	var path_end_items = CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground")
+	#var air_item = get_item_by_name("air")
+	#var _path_straight_item = get_item_by_name("path_straight_x")
+	var _path_end_items = CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground")
 	
 	var grid_size = get_1d_index(size - Vector3.ONE) + 1
 	for i in range(grid_size):
@@ -43,19 +43,20 @@ func init_grid() -> void:
 		#if i_3d == Vector3(2, 2, 2):
 		#	set_cell(i, get_item_by_name("slope_wall_r"))
 			
-		# set the lowest level to always be ground
+		# set the lowest level to always be grass
 		if i_3d.y == 0 and (i_3d.x == 0 or i_3d.z == 0 or i_3d.x == size.x-1 or i_3d.z == size.z-1):
 			set_cell(i, grass_item)
 			
 		# set the highest level to always be air
-		if i_3d.y == size.y - 1:
-			set_cell(i, air_item)
+		#if i_3d.y == size.y - 1:
+		#	set_cell(i, air_item)
 			
 		# sets two paths that need to be connected
 		#if i_3d == Vector3(0, 0, 1):
 		#	set_cell(i, path_end_items[0])
 		#if i_3d == Vector3(size.x-1, 0, size.z-2):
 		#	set_cell(i, path_end_items[2])
+	#set_cell(get_1d_index(Vector3(5, 1, 5)), get_item_by_name("wall_r"))
 
 
 # calculates the 1d index from a 3d index and returns it
