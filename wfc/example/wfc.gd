@@ -8,7 +8,7 @@ var cell_items: Array[CellItem] = []
 # verbindungen mit r werden zu f: r>f>l>b>r
 
 func _ready():
-	# fixed seed for testing purposed, randomize seed otherwise 3675036171
+	# fixed seed for testing purposed, randomize seed otherwise 1917791123
 	var current_seed: int = randi()
 	print("Seed: ", current_seed)
 	seed(1917791123)
@@ -22,6 +22,9 @@ func _ready():
 	), " Seconds")
 	
 	print("Time to spawn: ", get_execution_time(wfc.spawn_items), " Seconds")	# spawn_items spawns all scenes from the grid after collapse_all was called
+	
+	print(wfc.count_cells_by_name("wall"))
+	print(wfc.count_cells_by_name("door"))
 	
 	print("Seed: ", current_seed)
 

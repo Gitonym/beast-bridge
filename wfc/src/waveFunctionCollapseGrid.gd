@@ -13,6 +13,8 @@ var cell_items: Array[CellItem]						# a list of all possible cellItems
 var history: Array = []								# a history for restoring past states of the grid
 var modified_stack: Array[int] = []					# keeps track of which cells have been modified
 
+var last_print_time = 0.0
+
 
 func _init(p_x_size: int, p_y_size: int, p_z_size: int, p_cell_size: float, p_cell_items: Array[CellItem]):
 	cell_items = p_cell_items
@@ -260,6 +262,12 @@ func restore_assumption(assumption: Array) -> void:
 
 
 func print_collapsed_percentage() -> void:
+	if Time.get_ticks_usec() - last_print_time > 1000000.0:
+		last_print_time = Time.get_ticks_usec()
+	else:
+		return
+	
+	
 	var all: int = grid.size()
 	var all_opt: int = grid.size() * cell_items.size()
 	var collapsed: int = 0
@@ -286,3 +294,32 @@ func print_collapsed_percentage() -> void:
 			bar_opt += "▓"
 	bar_opt += "]"
 	print("Collapsed: ", bar, " ", int(result * 100), "%", "\t\tOptions: ", bar_opt, " ", int(result_opt * 100), "%")
+
+
+# in a collapsed grid counts and returns a dict of the occurences of a CellItem and its rotations by name
+func count_cells_by_name(item_name: StringName) -> Dictionary:
+	var possible_names = [item_name, item_name + "_x", item_name + "_z", item_name + "_r", item_name + "_f", item_name + "_l", item_name + "_b"]
+	var results = {
+		possible_names[0]: 0,
+		possible_names[1]: 0,
+		possible_names[2]: 0,
+		possible_names[3]: 0,
+		possible_names[4]: 0,
+		possible_names[5]: 0,
+		possible_names[6]: 0
+	}
+	
+	if not is_grid_collapsed():
+		printerr("Occurences of CellItems can only be counted in a fully collapsed grid")
+		results[&"all"] = 0
+		return results
+	
+	for i in grid:
+		for current_name in possible_names:
+			if i[0].item_name == current_name:
+				results[current_name] += 1
+	
+	results[&"all"] = 0
+	for current_name in possible_names:
+		results["all"] += results[current_name]
+	return results
