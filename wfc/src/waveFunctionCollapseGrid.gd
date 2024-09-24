@@ -16,6 +16,12 @@ var modified_stack: Array[int] = []					# keeps track of which cells have been m
 var last_print_time = 0.0							# keeps track of when the last progress bar was printed
 var rng = RandomNumberGenerator.new()				# to make random choiced and have them be reproducible through a seed
 
+var iterations = 0
+var max_iterations = 1000
+var start_time
+var time_out = 8000
+var state_used: int
+
 
 func _init(p_x_size: int, p_y_size: int, p_z_size: int, p_cell_size: float, p_cell_items: Array[CellItem]):
 	randomize_seed()
@@ -30,7 +36,7 @@ func init_grid() -> void:
 	grid = []
 	#var _ground_item = get_item_by_name("ground")
 	var grass_item = get_item_by_name("grass")
-	#var air_item = get_item_by_name("air")
+	var air_item = get_item_by_name("air")
 	#var _path_straight_item = get_item_by_name("path_straight_x")
 	var path_end_items = CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground")
 	
@@ -44,16 +50,16 @@ func init_grid() -> void:
 		#	set_cell(i, ground_item)
 		
 		# TODO: this causes problems
-		#if i_3d == Vector3(2, 2, 2):
-		#	set_cell(i, get_item_by_name("slope_wall_r"))
+		if i_3d == Vector3(7, 4, 7):
+			set_cell(i, grass_item)
+			
+		# set top to air
+		if i_3d.y == size.y - 1:
+			set_cell(i, air_item)
 			
 		# set the lowest level to always be grass
 		if i_3d.y == 0 and (i_3d.x == 0 or i_3d.z == 0 or i_3d.x == size.x-1 or i_3d.z == size.z-1):
 			set_cell(i, grass_item)
-			
-		# set the highest level to always be air
-		#if i_3d.y == size.y - 1:
-		#	set_cell(i, air_item)
 			
 		# sets two paths that need to be connected
 		if i_3d == Vector3(0, 0, 1):
@@ -152,13 +158,23 @@ func get_weighted_random_index(items: Array) -> int:
 
 # collapses the whole grid until all cells contain only one item
 func collapse_all() -> void:
-	var current_cell: int
+	iterations = 0
+	start_time = Time.get_ticks_msec()
+	state_used = rng.state					#keep track of what state was used to generate this grid
+	print("State: ", rng.state)
+	
 	while not is_grid_collapsed():
-		print_collapsed_percentage()	# TODO: only print if not printed in a while
+		
+		iterations += 1
+		print_collapsed_percentage()
+		if iterations >= max_iterations or Time.get_ticks_msec() - start_time >= time_out:
+			retry()
+			return
+		
 		if modified_stack.size() == 0:
-			current_cell = get_min_entropy()
-			collapse_cell(current_cell)
+			collapse_cell(get_min_entropy())
 		propagate()
+	print_rich("[color=green]Success[/color] after ", iterations, " iterations and ", Time.get_ticks_msec() - start_time, " milliseconds. Used state: ", state_used)
 
 
 # checks a given cells neighbours and removes them if they are invalid. the neighbours of any modified cell are also checked
@@ -284,7 +300,7 @@ func restore_assumption(assumption: Array) -> void:
 
 
 func print_collapsed_percentage() -> void:
-	if Time.get_ticks_usec() - last_print_time > 250000.0:
+	if Time.get_ticks_usec() - last_print_time > 100000.0:
 		last_print_time = Time.get_ticks_usec()
 	else:
 		return
@@ -354,8 +370,21 @@ func set_seed(p_seed: int = -1) -> void:
 	print("set seed to: ", p_seed)
 	rng.seed = p_seed
 
+func set_state(state: int) -> void:
+	rng.state = state
+
 
 # sets a random seed
 func randomize_seed() -> void:
 	rng.randomize()
 	print("Random Seed: ", rng.seed)
+
+
+func retry() -> void:
+	last_print_time = 0
+	print_rich("[color=orange]Retrying[/color] after ", iterations, " iterations and ", Time.get_ticks_msec() - start_time ," milliseconds")
+	iterations = 0
+	history = []
+	modified_stack = []
+	init_grid()
+	collapse_all()
