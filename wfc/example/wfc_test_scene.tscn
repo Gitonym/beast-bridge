@@ -23,7 +23,7 @@
 transform = Transform3D(0.804168, 0.423317, -0.417272, 0, 0.702004, 0.712173, 0.594402, -0.572707, 0.564529, 0, 7.02775, 0)
 
 [node name="Player" parent="." instance=ExtResource("1_tpetr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.283, 10.5348, 51.0934)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.14154, 10.5348, 24.5088)
 gravity_strength = 35
 jump_strength = 35
 
@@ -31,7 +31,7 @@ jump_strength = 35
 script = ExtResource("2_ebfmb")
 
 [node name="Platform" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.1469, 9.3536, 51.0934)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.00544, 9.3536, 24.5088)
 use_collision = true
 size = Vector3(6.55316, 1.26074, 3.13818)
 

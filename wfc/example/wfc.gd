@@ -11,12 +11,12 @@ func _ready():
 	# fixed seed for testing purposed, randomize seed otherwise 3675036171
 	var current_seed: int = randi()
 	print("Seed: ", current_seed)
-	seed(current_seed)
+	seed(1917791123)
 	
 	print("Time to create tiles: ", get_execution_time(create_tiles))
 	
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(5, 2, 20, 4, cell_items)			# create a new grid with specified size, pass all items
+		wfc = WaveFunctionCollapseGrid.new(50, 2, 5, 4, cell_items)			# create a new grid with specified size, pass all items
 		add_child(wfc)															# add it to the scene tree
 		wfc.collapse_all()														# run the wfc algorythm
 	), " Seconds")
