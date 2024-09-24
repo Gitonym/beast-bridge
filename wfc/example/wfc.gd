@@ -16,7 +16,7 @@ func _ready():
 	print("Time to create tiles: ", get_execution_time(create_tiles))
 	
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(10, 2, 10, 4, cell_items)			# create a new grid with specified size, pass all items
+		wfc = WaveFunctionCollapseGrid.new(5, 2, 20, 4, cell_items)			# create a new grid with specified size, pass all items
 		add_child(wfc)															# add it to the scene tree
 		wfc.collapse_all()														# run the wfc algorythm
 	), " Seconds")
@@ -55,7 +55,7 @@ func create_tiles() -> void:
 	cell_items.append_array(CellItem.newCardinal("wall", "res://wfc/tiles/wall.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall"))
 	cell_items.append_array(CellItem.newCardinal("door", "res://wfc/tiles/door.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall"))
 	cell_items.append_array(CellItem.newCardinal("wall_inside_corner", "res://wfc/tiles/wall_inside_corner.glb", "air", "air", "wall_edge_f", "wall_edge_r", "air", "wall"))
-	cell_items.append_array(CellItem.newCardinal("wall_outside_corner", "res://wfc/tiles/wall_outside_corner.glb", "wall_edge_f", "wall_edge_r", "air", "air", "air", "wall"))
+	#cell_items.append_array(CellItem.newCardinal("wall_outside_corner", "res://wfc/tiles/wall_outside_corner.glb", "wall_edge_f", "wall_edge_r", "air", "air", "air", "wall"))
 	
 	cell_items.append_array(CellItem.newCardinal("foundation_edge", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_edge", "grass", "foundation_edge", "wall", "ground"))
 	cell_items.append_array(CellItem.newCardinal("foundation_corner", "res://wfc/tiles/ground.glb", "foundation_edge", "foundation_edge", "grass", "grass", "wall", "ground"))
