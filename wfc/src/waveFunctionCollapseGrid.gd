@@ -32,7 +32,7 @@ func init_grid() -> void:
 	var grass_item = get_item_by_name("grass")
 	#var air_item = get_item_by_name("air")
 	#var _path_straight_item = get_item_by_name("path_straight_x")
-	var _path_end_items = CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground")
+	var path_end_items = CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground")
 	
 	var grid_size = get_1d_index(size - Vector3.ONE) + 1
 	for i in range(grid_size):
@@ -56,10 +56,10 @@ func init_grid() -> void:
 		#	set_cell(i, air_item)
 			
 		# sets two paths that need to be connected
-		#if i_3d == Vector3(0, 0, 1):
-		#	set_cell(i, path_end_items[0])
-		#if i_3d == Vector3(size.x-1, 0, size.z-2):
-		#	set_cell(i, path_end_items[2])
+		if i_3d == Vector3(0, 0, 1):
+			set_cell(i, path_end_items[0])
+		if i_3d == Vector3(size.x-1, 0, size.z-2):
+			set_cell(i, path_end_items[2])
 	#set_cell(get_1d_index(Vector3(5, 1, 5)), get_item_by_name("wall_r"))
 
 
@@ -347,8 +347,10 @@ func count_cells_by_name(item_name: StringName) -> Dictionary:
 	return results
 
 
-# sets a specific seed
-func set_seed(p_seed: int) -> void:
+# sets a specific seed. if p_seed == 1 does nothing
+func set_seed(p_seed: int = -1) -> void:
+	if p_seed == -1:
+		return
 	print("set seed to: ", p_seed)
 	rng.seed = p_seed
 
