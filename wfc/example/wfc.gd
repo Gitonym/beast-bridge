@@ -10,7 +10,7 @@ var cell_items: Array[CellItem] = []
 func _ready():
 	print("Time to create tiles: ", get_execution_time(create_tiles))
 	
-	wfc = WaveFunctionCollapseGrid.new(5, 5, 5, 4, cell_items)				# create a new grid with specified size, pass all items
+	wfc = WaveFunctionCollapseGrid.new(10, 5, 10, 4, cell_items)				# create a new grid with specified size, pass all items
 	wfc.set_seed()
 	
 	print("Time to generate: ", get_execution_time(func ():
@@ -38,16 +38,16 @@ func create_tiles() -> void:
 	#cell_items.append_array(CellItem.newCardinal("path_t", "res://wfc/tiles/path_t.glb", "path", "path", "grass", "path", "air", "ground", 0.1))
 	
 	# slope
-	#cell_items.append_array(CellItem.newCardinal("grass_slope_top", "res://wfc/tiles/grass_slope_top.glb", "grass", "slope_top_r", "air", "slope_top_r", "air", "edge_r"))
-	#cell_items.append_array(CellItem.newCardinal("grass_slope_bottom", "res://wfc/tiles/grass_slope_bottom.glb", "ground", "slope_bottom_r", "air", "slope_bottom_r", "edge_r", "slope_bottom"))
-	#cell_items.append_array(CellItem.newCardinal("grass_slope_top_corner", "res://wfc/tiles/grass_slope_top_corner.glb", "slope_top_f", "slope_top_r", "air", "air", "air", "corner_r"))
-	#cell_items.append_array(CellItem.newCardinal("grass_slope_bottom_corner", "res://wfc/tiles/grass_slope_bottom_corner.glb", "slope_bottom_f", "slope_bottom_r", "air", "air", "corner_r", "slope_bottom_corner_r"))
-	#cell_items.append_array(CellItem.newCardinal("slope_wall", "res://wfc/tiles/slope_wall.glb", "ground", "edge_r", "air", "edge_r", "edge_r", "edge_r"))
-	#cell_items.append_array(CellItem.newCardinal("slope_corner", "res://wfc/tiles/slope_corner.glb", "edge_r", "edge_r", "air", "air", "corner_r", "corner_r"))
+	cell_items.append_array(CellItem.newCardinal("grass_slope_top", "res://wfc/tiles/grass_slope_top.glb", "grass", "slope_top_r", "air", "slope_top_r", "air", "edge_r"))
+	cell_items.append_array(CellItem.newCardinal("grass_slope_bottom", "res://wfc/tiles/grass_slope_bottom.glb", "ground", "slope_bottom_r", "air", "slope_bottom_r", "edge_r", "slope_bottom"))
+	cell_items.append_array(CellItem.newCardinal("grass_slope_top_corner", "res://wfc/tiles/grass_slope_top_corner.glb", "slope_top_f", "slope_top_r", "air", "air", "air", "corner_r"))
+	cell_items.append_array(CellItem.newCardinal("grass_slope_bottom_corner", "res://wfc/tiles/grass_slope_bottom_corner.glb", "slope_bottom_f", "slope_bottom_r", "air", "air", "corner_r", "slope_bottom_corner_r"))
+	cell_items.append_array(CellItem.newCardinal("slope_wall", "res://wfc/tiles/slope_wall.glb", "ground", "edge_r", "air", "edge_r", "edge_r", "edge_r"))
+	cell_items.append_array(CellItem.newCardinal("slope_corner", "res://wfc/tiles/slope_corner.glb", "edge_r", "edge_r", "air", "air", "corner_r", "corner_r"))
 	
 	# connectors
-	#cell_items.append_array(CellItem.newCardinal("slope_grass_connector", "res://wfc/tiles/ground.glb", "ground", "slope_grass_connector", "grass", "slope_grass_connector", "slope_bottom", "ground"))
-	#cell_items.append_array(CellItem.newCardinal("slope_grass_corner_connector", "res://wfc/tiles/ground.glb", "slope_grass_connector", "slope_grass_connector", "grass", "grass", "slope_bottom_corner_r", "ground"))
+	cell_items.append_array(CellItem.newCardinal("slope_grass_connector", "res://wfc/tiles/ground.glb", "ground", "slope_grass_connector", "grass", "slope_grass_connector", "slope_bottom", "ground"))
+	cell_items.append_array(CellItem.newCardinal("slope_grass_corner_connector", "res://wfc/tiles/ground.glb", "slope_grass_connector", "slope_grass_connector", "grass", "grass", "slope_bottom_corner_r", "ground"))
 	
 	# walls
 	#cell_items.append_array(CellItem.newCardinal("wall", "res://wfc/tiles/wall.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall"))

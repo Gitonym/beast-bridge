@@ -28,7 +28,7 @@ func _init(p_x_size: int, p_y_size: int, p_z_size: int, p_cell_size: float, p_ce
 # inits a 3d array with all cellItems
 func init_grid() -> void:
 	grid = []
-	#var _ground_item = get_item_by_name("ground")
+	var ground_item = get_item_by_name("ground")
 	var grass_item = get_item_by_name("grass")
 	var air_item = get_item_by_name("air")
 	#var _path_straight_item = get_item_by_name("path_straight_x")
@@ -44,16 +44,16 @@ func init_grid() -> void:
 		#	set_cell(i, ground_item)
 		
 		# TODO: this causes problems
-		#if i_3d == Vector3(2, 2, 2):
-		#	set_cell(i, get_item_by_name("slope_wall_r"))
+		if i_3d == Vector3(5, 4, 5):
+			set_cell(i, grass_item)
 			
 		# set the lowest level to always be grass
-		#if i_3d.y == 0 and (i_3d.x == 0 or i_3d.z == 0 or i_3d.x == size.x-1 or i_3d.z == size.z-1):
-		#	set_cell(i, grass_item)
+		if i_3d.y == 0 and (i_3d.x == 0 or i_3d.z == 0 or i_3d.x == size.x-1 or i_3d.z == size.z-1):
+			set_cell(i, grass_item)
 			
 		# set the highest level to always be air
-		if i_3d.y == size.y - 1:
-			set_cell(i, air_item)
+		#if i_3d.y == size.y - 1:
+		#	set_cell(i, air_item)
 			
 		# sets two paths that need to be connected
 		#if i_3d == Vector3(0, 0, 1):
