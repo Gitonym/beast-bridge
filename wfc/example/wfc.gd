@@ -8,15 +8,12 @@ var cell_items: Array[CellItem] = []
 # verbindungen mit r werden zu f: r>f>l>b>r
 
 func _ready():
-	# fixed seed for testing purposed, randomize seed otherwise 1917791123
-	var current_seed: int = randi()
-	print("Seed: ", current_seed)
-	seed(1917791123)
-	
 	print("Time to create tiles: ", get_execution_time(create_tiles))
 	
+	wfc = WaveFunctionCollapseGrid.new(10, 2, 10, 4, cell_items)				# create a new grid with specified size, pass all items
+	wfc.set_seed(-275835986282811521)
+	
 	print("Time to generate: ", get_execution_time(func ():
-		wfc = WaveFunctionCollapseGrid.new(50, 2, 5, 4, cell_items)			# create a new grid with specified size, pass all items
 		add_child(wfc)															# add it to the scene tree
 		wfc.collapse_all()														# run the wfc algorythm
 	), " Seconds")
@@ -25,14 +22,12 @@ func _ready():
 	
 	print(wfc.count_cells_by_name("wall"))
 	print(wfc.count_cells_by_name("door"))
-	
-	print("Seed: ", current_seed)
 
 
 func create_tiles() -> void:
 	# base
 	cell_items.append(CellItem.new("air", "", "air", "air", "air", "air", "air", "air"))
-	#cell_items.append(CellItem.new("ground", "res://wfc/tiles/ground.glb", "ground", "ground", "ground", "ground", "ground", "ground"))
+	cell_items.append(CellItem.new("ground", "res://wfc/tiles/ground.glb", "ground", "ground", "ground", "ground", "ground", "ground"))
 	cell_items.append(CellItem.new("grass", "res://wfc/tiles/grass.glb", "grass", "grass", "grass", "grass", "air", "ground"))
 	
 	# paths
@@ -57,7 +52,7 @@ func create_tiles() -> void:
 	# walls
 	cell_items.append_array(CellItem.newCardinal("wall", "res://wfc/tiles/wall.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall"))
 	cell_items.append_array(CellItem.newCardinal("door", "res://wfc/tiles/door.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall"))
-	cell_items.append_array(CellItem.newCardinal("wall_inside_corner", "res://wfc/tiles/wall_inside_corner.glb", "air", "air", "wall_edge_f", "wall_edge_r", "air", "wall"))
+	cell_items.append_array(CellItem.newCardinal("wall_inside_corner", "res://wfc/tiles/wall_inside_corner.glb", "air", "air", "wall_edge_f", "wall_edge_r", "air", "wall", 0.1))
 	#cell_items.append_array(CellItem.newCardinal("wall_outside_corner", "res://wfc/tiles/wall_outside_corner.glb", "wall_edge_f", "wall_edge_r", "air", "air", "air", "wall"))
 	
 	cell_items.append_array(CellItem.newCardinal("foundation_edge", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_edge", "grass", "foundation_edge", "wall", "ground"))
