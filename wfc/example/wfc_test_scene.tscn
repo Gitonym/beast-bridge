@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bp045uran4rix"]
+[gd_scene load_steps=17 format=3 uid="uid://bp045uran4rix"]
 
 [ext_resource type="PackedScene" uid="uid://dreebj84dlmv7" path="res://assets/player/player.tscn" id="1_tpetr"]
 [ext_resource type="Script" path="res://wfc/example/wfc.gd" id="2_ebfmb"]
@@ -13,6 +13,9 @@
 [ext_resource type="PackedScene" uid="uid://cg28kpru5y2ih" path="res://wfc/tiles/grass_slope_bottom_path.glb" id="11_tggd3"]
 [ext_resource type="PackedScene" uid="uid://boite0wwh00ur" path="res://wfc/tiles/grass_slope_top_path.glb" id="12_1kp8o"]
 [ext_resource type="PackedScene" uid="uid://b64wrlflbcfit" path="res://wfc/tiles/slope_wall_path.glb" id="13_o67kv"]
+[ext_resource type="PackedScene" uid="uid://bbemjwrap5qrg" path="res://wfc/tiles/wall.glb" id="14_po3mn"]
+[ext_resource type="PackedScene" uid="uid://0wr68c5gjqpu" path="res://wfc/tiles/wall_inside_corner.glb" id="15_6halu"]
+[ext_resource type="PackedScene" uid="uid://dxyf2tyb8orc2" path="res://wfc/tiles/wall_outside_corner.glb" id="16_7yvl3"]
 
 [node name="World" type="Node3D"]
 
@@ -20,7 +23,7 @@
 transform = Transform3D(0.804168, 0.423317, -0.417272, 0, 0.702004, 0.712173, 0.594402, -0.572707, 0.564529, 0, 7.02775, 0)
 
 [node name="Player" parent="." instance=ExtResource("1_tpetr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.283, 26.5348, 51.0934)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.283, 10.5348, 51.0934)
 gravity_strength = 35
 jump_strength = 35
 
@@ -28,7 +31,7 @@ jump_strength = 35
 script = ExtResource("2_ebfmb")
 
 [node name="Platform" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.1469, 25.3536, 51.0934)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.1469, 9.3536, 51.0934)
 use_collision = true
 size = Vector3(6.55316, 1.26074, 3.13818)
 
@@ -194,3 +197,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 8, -32)
 
 [node name="slope_wall_path" parent="." instance=ExtResource("13_o67kv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 4, -32)
+
+[node name="wall" parent="." instance=ExtResource("14_po3mn")]
+
+[node name="wall_inside_corner" parent="." instance=ExtResource("15_6halu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38, 0, -6)
+
+[node name="wall_outside_corner" parent="." instance=ExtResource("16_7yvl3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42, 0, -6)
+
+[node name="wall_inside_corner2" parent="." instance=ExtResource("15_6halu")]
+
+[node name="wall_outside_corner2" parent="." instance=ExtResource("16_7yvl3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -8)
