@@ -5,7 +5,7 @@ extends Node3D
 
 
 var size: Vector3									# dimensions of the grid
-var cell_size: float									# the edge length of a cell in meters, this should match with the size of the meshed representing aa cell
+var cell_size: float								# the edge length of a cell in meters, this should match with the size of the meshed representing aa cell
 
 var grid											# the 3d grid storing the results
 var cell_items: Array[CellItem]						# a list of all possible cellItems
@@ -13,8 +13,12 @@ var cell_items: Array[CellItem]						# a list of all possible cellItems
 var history: Array = []								# a history for restoring past states of the grid
 var modified_stack: Array[int] = []					# keeps track of which cells have been modified
 
+var last_print_time = 0.0							# keeps track of when the last progress bar was printed
+var rng = RandomNumberGenerator.new()				# to make random choiced and have them be reproducible through a seed
+
 
 func _init(p_x_size: int, p_y_size: int, p_z_size: int, p_cell_size: float, p_cell_items: Array[CellItem]):
+	randomize_seed()
 	cell_items = p_cell_items
 	size = Vector3(p_x_size, p_y_size, p_z_size)
 	cell_size = p_cell_size
@@ -93,15 +97,25 @@ func get_item_by_name(item_name: StringName) -> CellItem:
 # return a random cell index with the lowest entropy that is not collapsed yet
 func get_min_entropy() -> int:
 	var min_entropy: Array[int] = []
-	var min_amount: int = -1
+	var min_amount: float = -1
 	for i in grid.size():
-		if (grid[i].size() < min_amount or min_amount == -1) and grid[i].size() > 1:
-			min_amount = grid[i].size()
+		if grid[i].size() <= 1:
+			continue
+		var entropy = get_entropy(i)
+		if entropy < min_amount or min_amount < 0:
+			min_amount = entropy
 			min_entropy = [i]
-		elif (grid[i].size() == min_amount):
+		elif entropy == min_amount:
 			min_entropy.append(i)
-	return min_entropy.pick_random()
+	return min_entropy[rng.randi_range(0, min_entropy.size()-1)]
 
+
+# returns the entropy of a given index in the grid
+func get_entropy(index: int) -> float:
+	var entropy = 0.0
+	for item in grid[index]:
+		entropy += 1/item.weight
+	return entropy
 
 # returns true if all cells contain only one cellItem, false otherwise
 func is_grid_collapsed() -> bool:
@@ -116,15 +130,25 @@ func is_grid_collapsed() -> bool:
 # [&"assumption", index: int, chosen: CellItem, removed1: CellItem, removed2: CellItem, ...]
 func collapse_cell(cell_index: int) -> void:
 	var assumption: Array = []
-	grid[cell_index].shuffle()
-	while grid[cell_index].size() > 1:
-		assumption.push_back(grid[cell_index].pop_back())
-	assumption.push_front(grid[cell_index][0])
-	assumption.push_front(cell_index)
-	assumption.push_front(&"assumption")
+	var choice_index = get_weighted_random_index(grid[cell_index])
+	var choice = grid[cell_index][choice_index]
+	assumption.push_back(&"assumption")
+	assumption.push_back(cell_index)
+	assumption.push_back(choice)
+	for index in range(grid[cell_index].size()):
+		if not choice == grid[cell_index][index]:
+			assumption.push_back(grid[cell_index][index])
+	grid[cell_index] = [choice]
 	history.push_back(assumption)
 	modified_stack.push_back(cell_index)
 
+
+# takes an array of CellItems and returns a random index weighted by the CellItems weight
+func get_weighted_random_index(items: Array) -> int:
+	var weights = PackedFloat32Array()
+	for item in items:
+		weights.append(item.weight)
+	return rng.rand_weighted(weights)
 
 # collapses the whole grid until all cells contain only one item
 func collapse_all() -> void:
@@ -260,6 +284,12 @@ func restore_assumption(assumption: Array) -> void:
 
 
 func print_collapsed_percentage() -> void:
+	if Time.get_ticks_usec() - last_print_time > 250000.0:
+		last_print_time = Time.get_ticks_usec()
+	else:
+		return
+	
+	
 	var all: int = grid.size()
 	var all_opt: int = grid.size() * cell_items.size()
 	var collapsed: int = 0
@@ -286,3 +316,44 @@ func print_collapsed_percentage() -> void:
 			bar_opt += "▓"
 	bar_opt += "]"
 	print("Collapsed: ", bar, " ", int(result * 100), "%", "\t\tOptions: ", bar_opt, " ", int(result_opt * 100), "%")
+
+
+# in a collapsed grid counts and returns a dict of the occurences of a CellItem and its rotations by name
+func count_cells_by_name(item_name: StringName) -> Dictionary:
+	var possible_names = [item_name, item_name + "_x", item_name + "_z", item_name + "_r", item_name + "_f", item_name + "_l", item_name + "_b"]
+	var results = {
+		possible_names[0]: 0,
+		possible_names[1]: 0,
+		possible_names[2]: 0,
+		possible_names[3]: 0,
+		possible_names[4]: 0,
+		possible_names[5]: 0,
+		possible_names[6]: 0
+	}
+	
+	if not is_grid_collapsed():
+		printerr("Occurences of CellItems can only be counted in a fully collapsed grid")
+		results[&"all"] = 0
+		return results
+	
+	for i in grid:
+		for current_name in possible_names:
+			if i[0].item_name == current_name:
+				results[current_name] += 1
+	
+	results[&"all"] = 0
+	for current_name in possible_names:
+		results["all"] += results[current_name]
+	return results
+
+
+# sets a specific seed
+func set_seed(p_seed: int) -> void:
+	print("set seed to: ", p_seed)
+	rng.seed = p_seed
+
+
+# sets a random seed
+func randomize_seed() -> void:
+	rng.randomize()
+	print("Random Seed: ", rng.seed)

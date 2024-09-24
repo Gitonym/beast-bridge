@@ -7,6 +7,7 @@ extends Node
 var item_name: StringName					# name of this item, should be unique except for its rotations
 var scene_path: String						# the path to the scene that should be created when the grid is done
 var rotation: Vector3						# stores the rotation if this item
+var weight: float
 
 # the key that determines valid and invalid neighbours
 # two cellItems can only be adjecent if their keys match in the others direction
@@ -14,10 +15,9 @@ var keys: Dictionary
 
 
 # cosntructor
-func _init(p_item_name: StringName, p_scene_path: String, key_right: StringName, key_forward: StringName, key_left: StringName, key_back: StringName, key_up: StringName, key_down: StringName, p_rotation = Vector3.RIGHT):
+func _init(p_item_name: StringName, p_scene_path: String, key_right: StringName, key_forward: StringName, key_left: StringName, key_back: StringName, key_up: StringName, key_down: StringName, p_weight = 1.0, p_rotation = Vector3.RIGHT):
 	item_name = p_item_name
 	scene_path = p_scene_path
-	rotation = p_rotation
 	keys = {
 		Vector3.RIGHT: key_right,
 		Vector3.FORWARD: key_forward,
@@ -26,17 +26,19 @@ func _init(p_item_name: StringName, p_scene_path: String, key_right: StringName,
 		Vector3.UP: key_up,
 		Vector3.DOWN: key_down,
 	}
+	weight = p_weight
+	rotation = p_rotation
 
 # create two cellItems rotated by 90 degrees
-static func newMirrored(p_item_name: String, p_scene_path: String, key_right: String, key_forward: String, key_left: String, key_back: String, key_up: String, key_down: String) -> Array[CellItem]:
-	var x = CellItem.new(p_item_name + "_x", p_scene_path, key_right, key_forward, key_left, key_back, key_up, key_down, Vector3.RIGHT)
+static func newMirrored(p_item_name: String, p_scene_path: String, key_right: String, key_forward: String, key_left: String, key_back: String, key_up: String, key_down: String, p_weight = 1.0) -> Array[CellItem]:
+	var x = CellItem.new(p_item_name + "_x", p_scene_path, key_right, key_forward, key_left, key_back, key_up, key_down, p_weight, Vector3.RIGHT)
 	var z = x.create_rotation()
 	return [x, z]
 
 
 # creates 4 cellItems each with a different direction
-static func newCardinal(p_item_name: String, p_scene_path: String, key_right: String, key_forward: String, key_left: String, key_back: String, key_up: String, key_down: String) -> Array[CellItem]:
-	var r = CellItem.new(p_item_name + "_r", p_scene_path, key_right, key_forward, key_left, key_back, key_up, key_down, Vector3.RIGHT)
+static func newCardinal(p_item_name: String, p_scene_path: String, key_right: String, key_forward: String, key_left: String, key_back: String, key_up: String, key_down: String, p_weight = 1.0) -> Array[CellItem]:
+	var r = CellItem.new(p_item_name + "_r", p_scene_path, key_right, key_forward, key_left, key_back, key_up, key_down, p_weight, Vector3.RIGHT)
 	var f = r.create_rotation()
 	var l = f.create_rotation()
 	var b = l.create_rotation()
@@ -50,7 +52,7 @@ func create_rotation() -> CellItem:
 		Vector3.LEFT: Vector3.BACK,
 		Vector3.BACK: Vector3.RIGHT,
 	}
-	return CellItem.new(rotate_key(item_name), scene_path, rotate_key(keys[Vector3.BACK]), rotate_key(keys[Vector3.RIGHT]), rotate_key(keys[Vector3.FORWARD]), rotate_key(keys[Vector3.LEFT]), rotate_key(keys[Vector3.UP]), rotate_key(keys[Vector3.DOWN]), rotate[rotation])
+	return CellItem.new(rotate_key(item_name), scene_path, rotate_key(keys[Vector3.BACK]), rotate_key(keys[Vector3.RIGHT]), rotate_key(keys[Vector3.FORWARD]), rotate_key(keys[Vector3.LEFT]), rotate_key(keys[Vector3.UP]), rotate_key(keys[Vector3.DOWN]), weight, rotate[rotation])
 
 # checks if the given string has a rotational suffix such as "_r" and changes it to "_f"
 static func rotate_key(key: String) -> String:
