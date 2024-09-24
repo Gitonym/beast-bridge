@@ -10,8 +10,8 @@ var cell_items: Array[CellItem] = []
 func _ready():
 	print("Time to create tiles: ", get_execution_time(create_tiles))
 	
-	wfc = WaveFunctionCollapseGrid.new(5, 2, 20, 4, cell_items)				# create a new grid with specified size, pass all items
-	wfc.set_seed(-8998448832981343625)
+	wfc = WaveFunctionCollapseGrid.new(5, 5, 5, 4, cell_items)				# create a new grid with specified size, pass all items
+	wfc.set_seed()
 	
 	print("Time to generate: ", get_execution_time(func ():
 		add_child(wfc)															# add it to the scene tree
@@ -32,9 +32,9 @@ func create_tiles() -> void:
 	
 	# paths
 	#cell_items.append(CellItem.new("path_cross", "res://wfc/tiles/path_cross.glb", "path", "path", "path", "path", "air", "ground", 0.1))
-	cell_items.append_array(CellItem.newMirrored("path_straight", "res://wfc/tiles/path_straight.glb", "path", "grass", "path", "grass", "air", "ground", 0.0))
+	#cell_items.append_array(CellItem.newMirrored("path_straight", "res://wfc/tiles/path_straight.glb", "path", "grass", "path", "grass", "air", "ground", 0.0))
 	#cell_items.append_array(CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground"))
-	cell_items.append_array(CellItem.newCardinal("path_bend", "res://wfc/tiles/path_bend.glb", "path", "path", "grass", "grass", "air", "ground", 0.0))
+	#cell_items.append_array(CellItem.newCardinal("path_bend", "res://wfc/tiles/path_bend.glb", "path", "path", "grass", "grass", "air", "ground", 0.0))
 	#cell_items.append_array(CellItem.newCardinal("path_t", "res://wfc/tiles/path_t.glb", "path", "path", "grass", "path", "air", "ground", 0.1))
 	
 	# slope
@@ -50,14 +50,14 @@ func create_tiles() -> void:
 	#cell_items.append_array(CellItem.newCardinal("slope_grass_corner_connector", "res://wfc/tiles/ground.glb", "slope_grass_connector", "slope_grass_connector", "grass", "grass", "slope_bottom_corner_r", "ground"))
 	
 	# walls
-	cell_items.append_array(CellItem.newCardinal("wall", "res://wfc/tiles/wall.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall"))
-	cell_items.append_array(CellItem.newCardinal("door", "res://wfc/tiles/door.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall"))
-	cell_items.append_array(CellItem.newCardinal("wall_inside_corner", "res://wfc/tiles/wall_inside_corner.glb", "air", "air", "wall_edge_f", "wall_edge_r", "air", "wall", 0.1))
+	#cell_items.append_array(CellItem.newCardinal("wall", "res://wfc/tiles/wall.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall"))
+	#cell_items.append_array(CellItem.newCardinal("door", "res://wfc/tiles/door.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall"))
+	#cell_items.append_array(CellItem.newCardinal("wall_inside_corner", "res://wfc/tiles/wall_inside_corner.glb", "air", "air", "wall_edge_f", "wall_edge_r", "air", "wall", 0.1))
 	#Better results without this item: cell_items.append_array(CellItem.newCardinal("wall_outside_corner", "res://wfc/tiles/wall_outside_corner.glb", "wall_edge_f", "wall_edge_r", "air", "air", "air", "wall"))
 	
-	cell_items.append_array(CellItem.newCardinal("foundation_edge", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_edge", "grass", "foundation_edge", "wall", "ground"))
-	cell_items.append_array(CellItem.newCardinal("foundation_corner", "res://wfc/tiles/ground.glb", "foundation_edge", "foundation_edge", "grass", "grass", "wall", "ground"))
-	cell_items.append(CellItem.new("foundation_inside", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_inside", "foundation_inside", "foundation_inside", "air", "ground"))
+	#cell_items.append_array(CellItem.newCardinal("foundation_edge", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_edge", "grass", "foundation_edge", "wall", "ground"))
+	#cell_items.append_array(CellItem.newCardinal("foundation_corner", "res://wfc/tiles/ground.glb", "foundation_edge", "foundation_edge", "grass", "grass", "wall", "ground"))
+	#cell_items.append(CellItem.new("foundation_inside", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_inside", "foundation_inside", "foundation_inside", "air", "ground"))
 
 # executes the callback and returns a float in seconds measuring how long the execution took
 func get_execution_time(callback: Callable) -> float:
