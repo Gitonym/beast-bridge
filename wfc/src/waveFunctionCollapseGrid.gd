@@ -34,11 +34,11 @@ func _init(p_x_size: int, p_y_size: int, p_z_size: int, p_cell_size: float, p_ce
 # inits a 3d array with all cellItems
 func init_grid() -> void:
 	grid = []
-	#var _ground_item = get_item_by_name("ground")
+	var ground_item = get_item_by_name("ground")
 	var grass_item = get_item_by_name("grass")
 	var air_item = get_item_by_name("air")
 	#var _path_straight_item = get_item_by_name("path_straight_x")
-	var path_end_items = CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground")
+	#var path_end_items = CellItem.newCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground")
 	
 	var grid_size = get_1d_index(size - Vector3.ONE) + 1
 	for i in range(grid_size):
@@ -62,10 +62,10 @@ func init_grid() -> void:
 			set_cell(i, grass_item)
 			
 		# sets two paths that need to be connected
-		if i_3d == Vector3(0, 0, 1):
-			set_cell(i, path_end_items[0])
-		if i_3d == Vector3(size.x-1, 0, size.z-2):
-			set_cell(i, path_end_items[2])
+		#if i_3d == Vector3(0, 0, 1):
+		#	set_cell(i, path_end_items[0])
+		#if i_3d == Vector3(size.x-1, 0, size.z-2):
+		#	set_cell(i, path_end_items[2])
 	#set_cell(get_1d_index(Vector3(5, 1, 5)), get_item_by_name("wall_r"))
 
 
