@@ -12,6 +12,7 @@ func _ready():
 	
 	wfc = WaveFunctionCollapseGrid.new(15, 6, 15, 4, cell_items)				# create a new grid with specified size, pass all items
 	wfc.set_seed()										# -8998448832981343625
+	wfc.set_state(-100963415562136908)
 	
 	print("Time to generate: ", get_execution_time(func ():
 		add_child(wfc)															# add it to the scene tree

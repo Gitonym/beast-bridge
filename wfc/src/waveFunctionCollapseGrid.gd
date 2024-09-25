@@ -15,12 +15,12 @@ var modified_stack: Array[int] = []					# keeps track of which cells have been m
 
 var last_print_time = 0.0							# keeps track of when the last progress bar was printed
 var rng = RandomNumberGenerator.new()				# to make random choiced and have them be reproducible through a seed
+var state_used: int									# keeps track of the state at the beginning of a generation
 
-var iterations = 0
-var max_iterations = 1000
-var start_time
-var time_out = 8000
-var state_used: int
+var max_iterations = 1000							# the maximum number of iterations a generation can take
+var iterations = 0									# keeps track of the current number of iterations
+var time_out = 8000									# the amount of time one generation can take at most in milliseconds
+var start_time										# keeps track of when the generation started
 
 
 func _init(p_x_size: int, p_y_size: int, p_z_size: int, p_cell_size: float, p_cell_items: Array[CellItem]):
@@ -370,6 +370,7 @@ func set_seed(p_seed: int = -1) -> void:
 	print("set seed to: ", p_seed)
 	rng.seed = p_seed
 
+# sets the state for the next generation
 func set_state(state: int) -> void:
 	rng.state = state
 
@@ -379,7 +380,7 @@ func randomize_seed() -> void:
 	rng.randomize()
 	print("Random Seed: ", rng.seed)
 
-
+# restarts the generation
 func retry() -> void:
 	last_print_time = 0
 	print_rich("[color=orange]Retrying[/color] after ", iterations, " iterations and ", Time.get_ticks_msec() - start_time ," milliseconds")
