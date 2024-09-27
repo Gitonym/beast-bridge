@@ -11,7 +11,7 @@ func _ready():
 	return
 	print("Time to create tiles: ", get_execution_time(create_tiles))
 	
-	wfc = WaveFunctionCollapseGrid.new(15, 6, 15, 4, cell_items)				# create a new grid with specified size, pass all items
+	wfc = WaveFunctionCollapseGrid.new(25, 10, 25, 4, cell_items)				# create a new grid with specified size, pass all items
 	wfc.set_seed()										# -8998448832981343625
 	wfc.set_state(-100963415562136908)
 	

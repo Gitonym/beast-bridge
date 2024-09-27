@@ -50,7 +50,7 @@ func init_grid() -> void:
 		#	set_cell(i, ground_item)
 		
 		# TODO: this causes problems
-		if i_3d == Vector3(7, 4, 7):
+		if i_3d == Vector3(12, 8, 12):
 			set_cell(i, grass_item)
 			
 		# set top to air

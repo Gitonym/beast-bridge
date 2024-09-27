@@ -11,7 +11,7 @@ public partial class wfcs : Node3D {
 	{
 		CreateTiles();
 		wfc = new WFC(new Vector3I(25, 10, 25), 4.0f, cellItems);
-		wfc.SetSeed();
+		wfc.SetState(1241228531241263396);
 		AddChild(wfc);
 		wfc.CollapseGrid();
 		wfc.SpawnItems();

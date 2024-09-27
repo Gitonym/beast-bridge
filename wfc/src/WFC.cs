@@ -111,12 +111,32 @@ public partial class WFC : Node3D
 
 	private void InitGrid()
 	{
+		CellItem grassItem = GetItemByName("grass");
+		CellItem airItem = GetItemByName("air");
+
 		int gridSize = Get1DIndex(size - Vector3I.One) + 1;
 		grid = new List<CellItem>[gridSize];
 
 		for (int i = 0; i < gridSize; i++)
 		{
+			Vector3I i3d = Get3DIndex(i);
 			grid[i] = new List<CellItem>(cellItems);
+
+			// Set the top to be air
+			if (i3d.Y == size.Y-1)
+			{
+				SetCell(i, airItem);
+			}
+			// Set ring at the bottom to be grass
+			if (i3d.Y == 0 && (i3d.X == 0 || i3d.X == size.X-1 || i3d.Z == 0 || i3d.Z == size.Z-1))
+			{
+				SetCell(i, grassItem);
+			}
+			// Set middle top to be grass
+			if (i3d == new Vector3I(12, 8, 12))
+			{
+				SetCell(i, grassItem);
+			}
 		}
 	}
 
@@ -263,6 +283,8 @@ public partial class WFC : Node3D
 			weights[i] = item.weight;
 			i =+ 1;
 		}
+
+		//this is required in case all the weights of the cell are = 0 then RandWeighted would return -1
 		int res = (int)rng.RandWeighted(weights);
 		if (res == -1 && items.Count > 0)
 		{
@@ -343,7 +365,6 @@ public partial class WFC : Node3D
 		rng.Randomize();
 		GD.Print("Random Seed: ", rng.Seed);
 	}
-
 }
 
 struct HistoryItem {
