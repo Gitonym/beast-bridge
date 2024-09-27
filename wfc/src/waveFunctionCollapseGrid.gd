@@ -228,7 +228,7 @@ func spawn_items() -> void:
 		if current_item.scene_path == &"":
 			continue
 		var instance = load(current_item.scene_path).instantiate()
-		instance.position = Vector3(get_3d_index(i)) * cell_size
+		instance.position = get_3d_index(i) * cell_size
 		if current_item.rotation == Vector3.FORWARD:
 			instance.rotate(Vector3.UP, deg_to_rad(90))
 		elif current_item.rotation == Vector3.LEFT:

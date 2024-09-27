@@ -1,9 +1,10 @@
-[gd_scene load_steps=16 format=3 uid="uid://bp045uran4rix"]
+[gd_scene load_steps=17 format=3 uid="uid://bp045uran4rix"]
 
 [ext_resource type="PackedScene" uid="uid://dreebj84dlmv7" path="res://assets/player/player.tscn" id="1_tpetr"]
 [ext_resource type="Script" path="res://wfc/example/wfc.gd" id="2_ebfmb"]
 [ext_resource type="PackedScene" uid="uid://bildd1sn8e8ct" path="res://wfc/tiles/grass_slope_bottom.glb" id="3_ifae8"]
 [ext_resource type="PackedScene" uid="uid://k0evs8yvg6m5" path="res://wfc/tiles/grass.glb" id="3_s4cww"]
+[ext_resource type="Script" path="res://wfc/example/wfcs.cs" id="3_yy45k"]
 [ext_resource type="PackedScene" uid="uid://v7ilw5mrku2" path="res://wfc/tiles/grass_slope_top.glb" id="5_3r3kg"]
 [ext_resource type="PackedScene" uid="uid://iyk46cl0tao1" path="res://wfc/tiles/ground.glb" id="6_mbc3o"]
 [ext_resource type="PackedScene" uid="uid://bjdtspt55wq6r" path="res://wfc/tiles/grass_slope_top_corner.glb" id="7_pvfqd"]
@@ -22,15 +23,18 @@
 transform = Transform3D(0.804168, 0.423317, -0.417272, 0, 0.702004, 0.712173, 0.594402, -0.572707, 0.564529, 0, 7.02775, 0)
 
 [node name="Player" parent="." instance=ExtResource("1_tpetr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.14154, 10.5348, 24.5088)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.04937, 40.1569, 62.6426)
 gravity_strength = 35
 jump_strength = 35
 
 [node name="WFC" type="Node3D" parent="."]
 script = ExtResource("2_ebfmb")
 
+[node name="WFCS" type="Node3D" parent="."]
+script = ExtResource("3_yy45k")
+
 [node name="Platform" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.00544, 9.3536, 24.5088)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.91327, 38.9757, 62.6426)
 use_collision = true
 size = Vector3(6.55316, 1.26074, 3.13818)
 

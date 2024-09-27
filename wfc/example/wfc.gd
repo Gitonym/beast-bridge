@@ -8,6 +8,7 @@ var cell_items: Array[CellItem] = []
 # verbindungen mit r werden zu f: r>f>l>b>r
 
 func _ready():
+	return
 	print("Time to create tiles: ", get_execution_time(create_tiles))
 	
 	wfc = WaveFunctionCollapseGrid.new(15, 6, 15, 4, cell_items)				# create a new grid with specified size, pass all items
