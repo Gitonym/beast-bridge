@@ -34,7 +34,7 @@ func _init(p_x_size: int, p_y_size: int, p_z_size: int, p_cell_size: float, p_ce
 # inits a 3d array with all cellItems
 func init_grid() -> void:
 	grid = []
-	var ground_item = get_item_by_name("ground")
+	var _ground_item = get_item_by_name("ground")
 	var grass_item = get_item_by_name("grass")
 	var air_item = get_item_by_name("air")
 	#var _path_straight_item = get_item_by_name("path_straight_x")
