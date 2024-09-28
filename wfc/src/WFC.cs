@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class WFC : Node3D
 {
@@ -17,7 +18,7 @@ public partial class WFC : Node3D
 	RandomNumberGenerator rng =  new RandomNumberGenerator();
 	ulong usedState;
 
-	const int maxIterations = 500;
+	const int maxIterations = 1500;
 	int iterations = 0;
 	const ulong timeOut = 0;
 	ulong startTime;
@@ -59,7 +60,7 @@ public partial class WFC : Node3D
 		while (!IsGridCollapsed())
 		{
 			iterations += 1;
-			//TODO: PrintCollapsedPercentage()
+			PrintProgressbar();
 			ulong t = Time.GetTicksMsec();
 			if (maxIterations > 0 && iterations >= maxIterations || timeOut > 0 && Time.GetTicksMsec() - startTime >= timeOut)
 			{
@@ -185,7 +186,7 @@ public partial class WFC : Node3D
 					if (!currentKeys.Contains(neighbour.keys[direction*(-1)]))
 					{
 						grid[neighbourIndex].Remove(neighbour);
-						history.Push(new HistoryItem("propagation", neighbourIndex, neighbour, null));
+						history.Push(new HistoryItem(HistoryitemVariant.propagation, neighbourIndex, neighbour, null));
 						if (!modified.Contains(neighbourIndex))
 						{
 							modified.Push(neighbourIndex);
@@ -221,7 +222,7 @@ public partial class WFC : Node3D
 		List<CellItem> removed = grid[cellIndex];
 		removed.Remove(choice);
 		grid[cellIndex] = new List<CellItem> {choice};
-		HistoryItem hi = new HistoryItem("assumption", cellIndex, choice, removed);
+		HistoryItem hi = new HistoryItem(HistoryitemVariant.assumption, cellIndex, choice, removed);
 		history.Push(hi);
 		modified.Push(cellIndex);
 	}
@@ -231,11 +232,11 @@ public partial class WFC : Node3D
 		while (history.Count > 0)
 		{
 			HistoryItem hi = history.Pop();
-			if (hi.type == "propagation")
+			if (hi.variant == HistoryitemVariant.propagation)
 			{
 				RestorePropagation(hi);
 			}
-			else if (hi.type == "assumption")
+			else if (hi.variant == HistoryitemVariant.assumption)
 			{
 				RestoreAssumption(hi);
 			}
@@ -246,7 +247,7 @@ public partial class WFC : Node3D
 
 	private void RestoreAssumption(HistoryItem hi)
 	{
-		history.Push(new HistoryItem("propagation", hi.index, hi.choice, null));
+		history.Push(new HistoryItem(HistoryitemVariant.propagation, hi.index, hi.choice, null));
 		grid[hi.index] = hi.removed;
 		if (hi.removed.Count == 1)
 		{
@@ -366,19 +367,91 @@ public partial class WFC : Node3D
 		rng.Randomize();
 		GD.Print("Random Seed: ", rng.Seed);
 	}
+
+	private void PrintProgressbar()
+	{
+		if (Time.GetTicksMsec() - lastPrintTime <= 100)
+		{
+			return;
+		}
+		int numberOfCells = grid.Count();
+		int collapsedCells = GetNumberOfCollapsedCells();
+		float collapsedFraction = (float)collapsedCells / (float)numberOfCells;
+		string collapsedProgressbar = FloatToProgressbar(collapsedFraction);
+
+		int totalOptions = numberOfCells * cellItems.Count();
+		int remainingOptions = GetNumberOfRemainingOptions();
+		float optionsFraction = (float)remainingOptions / (float)totalOptions;
+		string optionsProgressbar = FloatToProgressbar(optionsFraction);
+
+		GD.Print("Collapsed: ", collapsedProgressbar, " ", (int)(collapsedFraction * 100), "%", "\t\tOptions: ", optionsProgressbar, " ", (int)(optionsFraction * 100), "%");
+		lastPrintTime = Time.GetTicksMsec();
+	}
+
+	private string FloatToProgressbar(float fraction)
+	{
+		const char barFull = '▓';
+		const char barEmpty = '░';
+		const char barStart = '[';
+		const char barEnd = ']';
+		string progressBar = "";
+
+		for (float i = 0; i < 1; i += 0.1f)
+		{
+			if (fraction >= i)
+			{
+				progressBar += barFull;
+			}
+			else
+			{
+				progressBar += barEmpty;
+			}
+		}
+
+		return barStart + progressBar + barEnd;
+	}
+
+	private int GetNumberOfRemainingOptions()
+	{
+		int remainingOptions = 0;
+		foreach (List<CellItem> cell in grid)
+		{
+			remainingOptions += cell.Count();
+		}
+		return remainingOptions;
+	}
+
+	private int GetNumberOfCollapsedCells()
+	{
+		int numberOfCollapsedCells = 0;
+		foreach (List<CellItem> cell in grid)
+		{
+			if (cell.Count == 1)
+			{
+				numberOfCollapsedCells += 1;
+			}
+		}
+		return numberOfCollapsedCells;
+	}
 }
 
 struct HistoryItem {
-	public StringName type;
+	public HistoryitemVariant variant;
 	public int index;
 	public CellItem choice;
 	public List<CellItem> removed;
 
-	public HistoryItem(StringName type, int index, CellItem choice, List<CellItem> removed)
+	public HistoryItem(HistoryitemVariant variant, int index, CellItem choice, List<CellItem> removed)
 	{
-		this.type = type;
+		this.variant = variant;
 		this.index = index;
 		this.choice = choice;
 		this.removed = removed;
 	}
+}
+
+enum HistoryitemVariant
+{
+	assumption,
+	propagation
 }

@@ -10,9 +10,9 @@ public partial class wfcs : Node3D {
 	public override void _Ready()
 	{
 		CreateTiles();
-		wfc = new WFC(new Vector3I(20, 10, 20), 4.0f, cellItems);
+		wfc = new WFC(new Vector3I(60, 10, 60), 4.0f, cellItems);
 		//wfc.SetState(2011864834308092530);
-		wfc.SetSeed();	//8906376711118742456
+		wfc.SetSeed(16110029907191006272);	//16110029907191006272
 		AddChild(wfc);
 		wfc.CollapseGrid();
 		wfc.SpawnItems();
@@ -50,9 +50,9 @@ public partial class wfcs : Node3D {
 		cellItems.AddRange(CellItem.NewCardinal("wall_inside_corner", "res://wfc/tiles/wall_inside_corner.glb", "air", "air", "wall_edge_f", "wall_edge_r", "air", "wall", 2.0f));
 		cellItems.AddRange(CellItem.NewCardinal("wall_outside_corner", "res://wfc/tiles/wall_outside_corner.glb", "wall_edge_f", "wall_edge_r", "air", "air", "air", "wall", 0.5f));
 	
+		// socket
 		cellItems.AddRange(CellItem.NewCardinal("foundation_edge", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_edge", "grass", "foundation_edge", "wall", "ground", 2.0f));
 		cellItems.AddRange(CellItem.NewCardinal("foundation_corner", "res://wfc/tiles/ground.glb", "foundation_edge", "foundation_edge", "grass", "grass", "wall", "ground", 2.0f));
 		cellItems.Add(new CellItem("foundation_inside", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_inside", "foundation_inside", "foundation_inside", "air", "ground", 2.0f));
-
 	}
 }
