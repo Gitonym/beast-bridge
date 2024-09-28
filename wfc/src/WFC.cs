@@ -3,26 +3,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+// This class represent a 3D grid that contain items
+// The items have keys through which some neighbours are valid and some not
+// This class 'collapses' the grid so each cell has only one item and all neighbours are valid
+// Implementation of the Tiled Wave Function Collapse Algorythm
 public partial class WFC : Node3D
 {
-	Vector3I size;
-	float cellSize;
+	Vector3I size;													// Keeps track of the size of each dimension of the grid
+	float cellSize;													// The Edgelength of one cell or cellItem
 
-	List<CellItem>[] grid;
-	List<CellItem> cellItems;
+	List<CellItem>[] grid;											// The grid
+	List<CellItem> cellItems;										// All possible cellItems
 
-	Stack<HistoryItem> history;
-	Stack<int> modified;
+	Stack<HistoryItem> history;										// Keeps track of changes made for backtracking to past states
+	Stack<int> modified;											// Keeps track of which cells have been modified to propagate the changes
 
-	float lastPrintTime = 0.0f;
-	RandomNumberGenerator rng =  new RandomNumberGenerator();
+	RandomNumberGenerator rng =  new RandomNumberGenerator();		// Used to make the algorythm deterministic through seeds
 	ulong usedState;
 
-	const int maxIterations = 1500;
-	int iterations = 0;
-	const ulong timeOut = 0;
-	ulong startTime;
+	float lastPrintTime = 0.0f;										// Keeps track when the Progressbar was printed last
+	const int maxIterations = 1500;									// The max number of iterations before it restarts from scratch. Set to 0 for no restart because of iterations
+	int iterations = 0;												// The current number of iterations
+	const ulong timeOut = 0;										// The max number of Milliseconds before it restarts from scratch. The algorythm is no longer deterministic if this timeout is reached. Set to 0 for no restart because of timeout
+	ulong startTime;												// The time at which the current collapse started at
 
+	// Constructor
 	public WFC(Vector3I size, float cellSize, List<CellItem> cellItems)
 	{
 		RandomizeSeed();
@@ -34,6 +39,7 @@ public partial class WFC : Node3D
 		InitGrid();
 	}
 
+	// Sets the seed to the provided seed. SetSeed(0) does nothing.
 	public void SetSeed(ulong seed = 0)
 	{
 		if (seed == 0)
@@ -44,12 +50,17 @@ public partial class WFC : Node3D
 		rng.Seed = seed;
 	}
 
+	// Sets the state of the RandomNumberGenerator to state.
+	// Useful to regenerate results that were reached only after a retry
 	public void SetState(ulong state)
 	{
 		GD.Print("State has been set to: ", state);
 		rng.State = state;
 	}
 
+	// Collapses the grid so each cell of the grid contains only one cellItem
+	// and every CellItem only has valid neighbours (the keys of the two neighbouring CellItems match)
+	// This starts the Wave Function Collapse
 	public void CollapseGrid()
 	{
 		iterations = 0;
@@ -61,7 +72,7 @@ public partial class WFC : Node3D
 		{
 			iterations += 1;
 			PrintProgressbar();
-			ulong t = Time.GetTicksMsec();
+			// Check for timeout
 			if (maxIterations > 0 && iterations >= maxIterations || timeOut > 0 && Time.GetTicksMsec() - startTime >= timeOut)
 			{
 				Retry();
@@ -73,19 +84,27 @@ public partial class WFC : Node3D
 			}
 			Propagate();
 		}
+		// Prints some info after the collapse succeeded
 		GD.PrintRich("[color=green]Success[/color] after ", iterations, " iterations and ", Time.GetTicksMsec() - startTime, " milliseconds. Used state: ", usedState);
 	}
 
+
+	// Spawns the scenes of the cellItems at their location and rotation
+	// The grid has to be collapsed to spawn the items
 	public void SpawnItems()
 	{
+		// Check if grid is collapsed
 		if (!IsGridCollapsed())
 		{
-			GD.PrintErr("The items can only be spawned once the grid has been collapsed!");
+			GD.PrintErr("The items can only be spawned once the grid has been collapsed! Call 'WFC.CollapseGrid()'");
 			return;
 		}
+
+		// iterate over each cell of the grid
 		for (int i = 0; i < grid.GetLength(0); i++)
 		{
 			CellItem currentItem = grid[i][0];
+			// Skip any cellItem that has an empty scenePath (common for air)
 			if (currentItem.scenePath == "")
 			{
 				continue;
@@ -110,6 +129,8 @@ public partial class WFC : Node3D
 		}
 	}
 
+	// Adds all CellItems to all cell of the grid
+	// Sets constraints such as: Top cells are air, bottom cells are grass
 	private void InitGrid()
 	{
 		CellItem grassItem = GetItemByName("grass");
@@ -141,6 +162,8 @@ public partial class WFC : Node3D
 		}
 	}
 
+	// Resets variables fo the next attempt and starts that attempt
+	// Also prints some info of the last attempt
 	private void Retry()
 	{
 		lastPrintTime = 0.0f;
@@ -152,24 +175,35 @@ public partial class WFC : Node3D
 		CollapseGrid();
 	}
 
+	// Looks at the last modified cell and checks if the neighbouring cells need to be modified
+	// if so adds those cells indices to modified aswell
+	// initiates backstepping if it removed the last possible neighbour of a cell
 	private void Propagate()
 	{
+		// While a modified cell exists that has not been propagated yet
 		while (modified.Count > 0)
 		{
 			int current1DIndex = modified.Pop();
 			Vector3I current3DIndex = Get3DIndex(current1DIndex);
 
+			// Look at the neighbour in each cardinal direction of the current cell
 			foreach (Vector3I direction in new Vector3I[] {Vector3I.Right, Vector3I.Forward, Vector3I.Left, Vector3I.Back, Vector3I.Up, Vector3I.Down})
 			{
 				int neighbourIndex = Get1DIndex(current3DIndex + direction);
+
+				// Ignore neighbours outside of the grid
 				if (!IsValidIndex(neighbourIndex))
 				{
 					continue;
 				}
+
+				// Ignore cells that are not neighbours because they wrapped to the next line of the grid
 				if (!AreNeighbours(current1DIndex, neighbourIndex))
 				{
 					continue;
 				}
+
+				// Keep track of all valid keys in that direction
 				List<StringName> currentKeys = new List<StringName>();
 				foreach (CellItem currentItem in grid[current1DIndex])
 				{
@@ -179,10 +213,14 @@ public partial class WFC : Node3D
 					}
 				}
 
-				//foreach (CellItem neighbour in grid[neighbourIndex])
+				// Look at every CellItem in the neighbouring cell
 				for (int i = grid[neighbourIndex].Count-1; i >= 0; i--)
 				{
 					CellItem neighbour = grid[neighbourIndex][i];
+
+					// If the neighbouring CellItem has no fitting key, remove it
+					// also add neighbouring cell to modified
+					// also create an entry to the history
 					if (!currentKeys.Contains(neighbour.keys[direction*(-1)]))
 					{
 						grid[neighbourIndex].Remove(neighbour);
@@ -202,6 +240,7 @@ public partial class WFC : Node3D
 		}
 	}
 
+	// Returns true if all cells of the grid contain only one CellItem, false otherwise
 	private bool IsGridCollapsed()
 	{
 		for (int i = 0; i < grid.GetLength(0); i++)
@@ -214,6 +253,8 @@ public partial class WFC : Node3D
 		return true;
 	}
 
+	// Removes all CellItem from the given index except one
+	// The one item is chosen randomly taking the cellItem weights into account
 	private void CollapseCell(int cellIndex)
 	{
 		bool col = IsGridCollapsed();
@@ -227,6 +268,7 @@ public partial class WFC : Node3D
 		modified.Push(cellIndex);
 	}
 
+	// Restores older and older stated of the grid until an assumption has been restored
 	private void Backstep()
 	{
 		while (history.Count > 0)
@@ -241,10 +283,13 @@ public partial class WFC : Node3D
 				RestoreAssumption(hi);
 			}
 		}
+		// If the code reaches here then the inital state of the grid is wrong
 		GD.PrintErr("History empty, continuing from state which knowingly fails");
 		Retry();
 	}
 
+	// Takes an assumption and restores the grid to the state of before the assumption
+	// restores the state in such a way that the previous assumption cannot be made again
 	private void RestoreAssumption(HistoryItem hi)
 	{
 		history.Push(new HistoryItem(HistoryitemVariant.propagation, hi.index, hi.choice, null));
@@ -255,6 +300,7 @@ public partial class WFC : Node3D
 		}
 	}
 
+	// Takes a propagation and restores the state of the grid as it was before the propagation
 	private void RestorePropagation(HistoryItem hi)
 	{
 		if (modified.Count > 0 && modified.Peek() == hi.index)
@@ -264,6 +310,7 @@ public partial class WFC : Node3D
 		grid[hi.index].Add(hi.choice);
 	}
 
+	// Returns true if the two given indices are neighbours, false otherwise
 	private bool AreNeighbours(int i1, int i2)
 	{
 		Vector3I i13d = Get3DIndex(i1);
@@ -271,13 +318,17 @@ public partial class WFC : Node3D
 		return (i13d - i23d).Length() <= 1;
 	}
 
+	// Returns true if the given 1D index is a valid index for the grid, false otherwise
 	private bool IsValidIndex(int index)
 	{
 		return index >= 0 && index < grid.GetLength(0);
 	}
 
+	// Takes a list of CellItems and returns a random index corresponsing to one CellItem of that list
+	// Takes the weights of the CellItems into account
 	private int GetWeightedRandomIndex(List<CellItem> items)
 	{
+		// Collect the weights of all CellItems into an array
 		float[] weights = new float[items.Count];
 		int i = 0;
 		foreach (CellItem item in items)
@@ -286,8 +337,10 @@ public partial class WFC : Node3D
 			i =+ 1;
 		}
 
-		//this is required in case all the weights of the cell are = 0 then RandWeighted would return -1
+		// generate the random index based on weights. This returns -1 if no weights or all weights are 0
 		int res = (int)rng.RandWeighted(weights);
+		// this is required in case all the weights of the cell are = 0 then RandWeighted would return -1
+		// in that case just choose a random index where all indices are equally likely
 		if (res == -1 && items.Count > 0)
 		{
 			res = rng.RandiRange(0, items.Count-1);
@@ -295,6 +348,9 @@ public partial class WFC : Node3D
 		return res;
 	}
 
+	// Returns the index of the cell with the lowest entropy
+	// entropy = sum of reciprocals of the weight for each cellItem in that cell
+	// ignores collapsed cells
 	private int GetMinEntropy()
 	{
 		float minEntropy = -1.0f;
@@ -302,11 +358,13 @@ public partial class WFC : Node3D
 
 		for (int i = 0; i < grid.GetLength(0); i++)
 		{
+			// skip if the cell is already collapsed
 			if (grid[i].Count <= 1)
 			{
 				continue;
 			}
 			float entropy = GetEntropy(i);
+			// keep track of this cell if it has the lowest or equally low entropy
 			if (entropy < minEntropy || minEntropy < 0.0f)
 			{
 				minEntropy = entropy;
@@ -316,9 +374,11 @@ public partial class WFC : Node3D
 				minCells.Add(i);
 			}
 		}
+		// return a random cell from the ones with the lowest entropy
 		return minCells[rng.RandiRange(0, minCells.Count-1)];
 	}
 
+	// Returns the entropy of the cell with the given index
 	private float GetEntropy(int index)
 	{
 		float entropy = 0.0f;
@@ -329,12 +389,15 @@ public partial class WFC : Node3D
 		return entropy;
 	}
 
+	// Sets a cell to a specific CellItem
 	private void SetCell(int index, CellItem item)
 	{
 		grid[index] = new List<CellItem> {item};
 		modified.Push(index);
 	}
 
+	// Searches the CellItems for an item with the given name and returns it
+	// returns null if no item with that name was found
 	private CellItem GetItemByName(StringName name)
 	{
 		foreach (CellItem item in cellItems)
@@ -344,16 +407,17 @@ public partial class WFC : Node3D
 				return item;
 			}
 		}
-		// TODO: throw an error
 		GD.PrintErr("No CellItem with the name '" + name + "' has been found");
 		return null;
 	}
 
+	// Returns a 1D index calculated from the 3D index
 	private int Get1DIndex(Vector3I index)
 	{
 		return index.X + index.Y * size.X + index.Z * size.X * size.Y;
 	}
 
+	// Returns a 3D index calculated from the 1D index
 	private Vector3I Get3DIndex(int index)
 	{
 		int x = index % size.X;
@@ -362,12 +426,14 @@ public partial class WFC : Node3D
 		return new Vector3I(x, y, z);
 	}
 
+	// Sets the seed to a random one
 	private void RandomizeSeed()
 	{
 		rng.Randomize();
 		GD.Print("Random Seed: ", rng.Seed);
 	}
 
+	// Prints the progress of the grids collapse
 	private void PrintProgressbar()
 	{
 		if (Time.GetTicksMsec() - lastPrintTime <= 100)
@@ -388,6 +454,7 @@ public partial class WFC : Node3D
 		lastPrintTime = Time.GetTicksMsec();
 	}
 
+	// Returns a string of a progressbar. The progressbar is full if fraction=1.0 and empty if fraction = 0.0. Behaves as expected for values inbetween 0.0 and 1.0.
 	private string FloatToProgressbar(float fraction)
 	{
 		const char barFull = '▓';
@@ -411,6 +478,7 @@ public partial class WFC : Node3D
 		return barStart + progressBar + barEnd;
 	}
 
+	// Returns how many CellItems can still be chosen in teh entire grid
 	private int GetNumberOfRemainingOptions()
 	{
 		int remainingOptions = 0;
@@ -421,6 +489,7 @@ public partial class WFC : Node3D
 		return remainingOptions;
 	}
 
+	// Returns the number of collapsed (cell with exactly one Cellitem) cells
 	private int GetNumberOfCollapsedCells()
 	{
 		int numberOfCollapsedCells = 0;
@@ -435,12 +504,14 @@ public partial class WFC : Node3D
 	}
 }
 
+// This sctruct represents a modification made to the grid so it can be used later to restore the grid to before the modification
 struct HistoryItem {
-	public HistoryitemVariant variant;
-	public int index;
-	public CellItem choice;
-	public List<CellItem> removed;
+	public HistoryitemVariant variant;		// Type of modification made assumption/propagation
+	public int index;						// The index of the grid where the modification was made
+	public CellItem choice;					// assumption: the cellItem that was randomly chosen to keep, propagation: The CellItem that was removed because of mismatchin keys
+	public List<CellItem> removed;			// assumption: the cellItems that were not chosen and removed, propagation: null
 
+	// Constructor
 	public HistoryItem(HistoryitemVariant variant, int index, CellItem choice, List<CellItem> removed)
 	{
 		this.variant = variant;
@@ -450,8 +521,9 @@ struct HistoryItem {
 	}
 }
 
+// The two types of HistoryItem
 enum HistoryitemVariant
 {
-	assumption,
-	propagation
+	assumption,		// Is when a cell needs to be collapsed and one of multiple valid CellItems is chosen at random
+	propagation		// Is when a neighbour is removed because of mismatching keys
 }

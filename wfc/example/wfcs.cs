@@ -2,32 +2,37 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
+// This is an example of how to use the WFC and CellItem classes to use the Wave Function Collapse algorythm for cool maps
 public partial class wfcs : Node3D {
 
-	WFC wfc;
-	List<CellItem> cellItems = new List<CellItem>();
+	WFC wfc;											// WFC instance
+	List<CellItem> cellItems = new List<CellItem>();	// Keeps track of all different CellItems
 	
 	public override void _Ready()
 	{
-		CreateTiles();
-		wfc = new WFC(new Vector3I(60, 10, 60), 4.0f, cellItems);
-		//wfc.SetState(2011864834308092530);
-		wfc.SetSeed(16110029907191006272);	//16110029907191006272
-		AddChild(wfc);
-		wfc.CollapseGrid();
-		wfc.SpawnItems();
+		CreateTiles();												// create the tiles and add them to cellItems
+		wfc = new WFC(new Vector3I(25, 10, 25), 4.0f, cellItems);	// create the WFC instance, specifiy the size and give it the cellItems
+		wfc.SetSeed(16110029907191006272);	//16110029907191006272  // optionally set a seed. SetSeed(0) does nothing so the random seed is used
+		//wfc.SetState(2011864834308092530);						// optionally set a state. Only use states that were printed to the console
+		AddChild(wfc);												// add wfc to the scene tree
+		wfc.CollapseGrid();											// run the algorythm (this can take a long time)
+		wfc.SpawnItems();											// after the grid collapsed spawn the chosen cellItems and add them to the scene tree
 	}
 
+	// This function creates all differenct CellItems and adds them to the cellItems list
 	private void CreateTiles()
 	{
 		// base
+		// Create a CellItem that has no rotations through the Cellitem constructor
 		cellItems.Add(new CellItem("air", "", "air", "air", "air", "air", "air", "air", 1.0f));
 		cellItems.Add(new CellItem("ground", "res://wfc/tiles/ground.glb", "ground", "ground", "ground", "ground", "ground", "ground", 1.0f));
 		cellItems.Add(new CellItem("grass", "res://wfc/tiles/grass.glb", "grass", "grass", "grass", "grass", "air", "ground", 1.0f));
 		
 		// paths
 		cellItems.Add(new CellItem("path_cross", "res://wfc/tiles/path_cross.glb", "path", "path", "path", "path", "air", "ground", 0.0f));
+		// NewMirrored automatically creates two identical CellItems rotated by 90 degrees
 		cellItems.AddRange(CellItem.NewMirrored("path_straight", "res://wfc/tiles/path_straight.glb", "path", "grass", "path", "grass", "air", "ground", 0.0f));
+		// NewCardinal automatically creates four identical CellItems each rotated by 90 degrees
 		cellItems.AddRange(CellItem.NewCardinal("path_bend", "res://wfc/tiles/path_bend.glb", "path", "path", "grass", "grass", "air", "ground", 0.0f));
 		cellItems.AddRange(CellItem.NewCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground", 0.1f));
 		cellItems.AddRange(CellItem.NewCardinal("path_t", "res://wfc/tiles/path_t.glb", "path", "path", "grass", "path", "air", "ground", 0.0f));
