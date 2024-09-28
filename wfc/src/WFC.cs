@@ -17,9 +17,9 @@ public partial class WFC : Node3D
 	RandomNumberGenerator rng =  new RandomNumberGenerator();
 	ulong usedState;
 
-	const int maxIterations = 1000;
+	const int maxIterations = 500;
 	int iterations = 0;
-	const ulong timeOut = 8000;
+	const ulong timeOut = 0;
 	ulong startTime;
 
 	public WFC(Vector3I size, float cellSize, List<CellItem> cellItems)
@@ -61,7 +61,7 @@ public partial class WFC : Node3D
 			iterations += 1;
 			//TODO: PrintCollapsedPercentage()
 			ulong t = Time.GetTicksMsec();
-			if (iterations >= maxIterations || Time.GetTicksMsec() - startTime >= timeOut)
+			if (maxIterations > 0 && iterations >= maxIterations || timeOut > 0 && Time.GetTicksMsec() - startTime >= timeOut)
 			{
 				Retry();
 				return;
@@ -123,20 +123,20 @@ public partial class WFC : Node3D
 			grid[i] = new List<CellItem>(cellItems);
 
 			// Set the top to be air
-			if (i3d.Y == size.Y-1)
-			{
-				SetCell(i, airItem);
-			}
+			//if (i3d.Y == size.Y-1)
+			//{
+			//	SetCell(i, airItem);
+			//}
 			// Set ring at the bottom to be grass
 			if (i3d.Y == 0 && (i3d.X == 0 || i3d.X == size.X-1 || i3d.Z == 0 || i3d.Z == size.Z-1))
 			{
 				SetCell(i, grassItem);
 			}
 			// Set middle top to be grass
-			if (i3d == new Vector3I(12, 8, 12))
-			{
-				SetCell(i, grassItem);
-			}
+			//if (i3d == new Vector3I(12, 8, 12))
+			//{
+			//	SetCell(i, grassItem);
+			//}
 		}
 	}
 
@@ -241,6 +241,7 @@ public partial class WFC : Node3D
 			}
 		}
 		GD.PrintErr("History empty, continuing from state which knowingly fails");
+		Retry();
 	}
 
 	private void RestoreAssumption(HistoryItem hi)
