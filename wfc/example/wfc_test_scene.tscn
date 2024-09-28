@@ -1,7 +1,6 @@
-[gd_scene load_steps=17 format=3 uid="uid://bp045uran4rix"]
+[gd_scene load_steps=16 format=3 uid="uid://bp045uran4rix"]
 
 [ext_resource type="PackedScene" uid="uid://dreebj84dlmv7" path="res://assets/player/player.tscn" id="1_tpetr"]
-[ext_resource type="Script" path="res://wfc/example/wfc.gd" id="2_ebfmb"]
 [ext_resource type="PackedScene" uid="uid://bildd1sn8e8ct" path="res://wfc/tiles/grass_slope_bottom.glb" id="3_ifae8"]
 [ext_resource type="PackedScene" uid="uid://k0evs8yvg6m5" path="res://wfc/tiles/grass.glb" id="3_s4cww"]
 [ext_resource type="Script" path="res://wfc/example/wfcs.cs" id="3_yy45k"]
@@ -26,9 +25,6 @@ transform = Transform3D(0.804168, 0.423317, -0.417272, 0, 0.702004, 0.712173, 0.
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.04937, 20.998, 62.6426)
 gravity_strength = 35
 jump_strength = 35
-
-[node name="WFC" type="Node3D" parent="."]
-script = ExtResource("2_ebfmb")
 
 [node name="WFCS" type="Node3D" parent="."]
 script = ExtResource("3_yy45k")
