@@ -10,14 +10,14 @@ public partial class wfcs : Node3D {
 	
 	public override void _Ready()
 	{
-		CreateTiles();																// create the tiles and add them to cellItems
-		wfc = new WFC(new Vector3I(25, 10, 25), 4.0f, cellItems);					// create the WFC instance, specifiy the size and give it the cellItems
-		wfc.SetSeed(16110029907191006272);	//16110029907191006272  				// optionally set a seed. SetSeed(0) does nothing so the random seed is used
-		//wfc.SetState(2011864834308092530);										// optionally set a state. Only use states that were printed to the console
-		AddChild(wfc);																// add wfc to the scene tree
-		wfc.CollapseGrid();															// run the algorythm (this can take a long time)
-		wfc.SpawnItems();															// after the grid collapsed spawn the chosen cellItems and add them to the scene tree
-		GD.Print(GetDictString(wfc.CountCellItemAppearances("grass_slope_top")));	// counts how often a CellItem and its rotations occur, usfeul for debugging
+		CreateTiles();																					// create the tiles and add them to cellItems
+		wfc = new WFC(new Vector3I(25, 10, 25), 4.0f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
+		wfc.SetSeed(16110029907191006272);							  									// optionally set a seed. SetSeed(0) does nothing so the random seed is used
+		//wfc.SetState(2011864834308092530);															// optionally set a state. Only use states that were printed to the console
+		AddChild(wfc);																					// add wfc to the scene tree
+		GD.Print("Time to collapse: ", GetExecutionTimeUsec(wfc.CollapseGrid)/1000000.0, " Seconds");	// run the algorythm (this can take a long time)
+		GD.Print("Time to spawn:    ", GetExecutionTimeUsec(wfc.SpawnItems)/1000000.0, " Seconds");		// after the grid collapsed spawn the chosen cellItems and add them to the scene tree
+		GD.Print(GetDictString(wfc.CountCellItemAppearances("grass_slope_top")));						// counts how often a CellItem and its rotations occur, usfeul for debugging
 	}
 
 	// This function creates all differenct CellItems and adds them to the cellItems list
@@ -60,6 +60,15 @@ public partial class wfcs : Node3D {
 		cellItems.AddRange(CellItem.NewCardinal("foundation_edge", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_edge", "grass", "foundation_edge", "wall", "ground", 2.0f));
 		cellItems.AddRange(CellItem.NewCardinal("foundation_corner", "res://wfc/tiles/ground.glb", "foundation_edge", "foundation_edge", "grass", "grass", "wall", "ground", 2.0f));
 		cellItems.Add(new CellItem("foundation_inside", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_inside", "foundation_inside", "foundation_inside", "air", "ground", 2.0f));
+	}
+
+	// Executes the function and returns the time it took to execute in microseconds (1/1000000 Seconds)
+	private ulong GetExecutionTimeUsec(Action function)
+	{
+		ulong startTime = Time.GetTicksUsec();
+		function();
+		ulong endTime = Time.GetTicksUsec();
+		return endTime - startTime;
 	}
 
 	// Konverts a Dict<StringName, int> to a string and returns it
