@@ -17,6 +17,7 @@ public partial class wfcs : Node3D {
 		AddChild(wfc);												// add wfc to the scene tree
 		wfc.CollapseGrid();											// run the algorythm (this can take a long time)
 		wfc.SpawnItems();											// after the grid collapsed spawn the chosen cellItems and add them to the scene tree
+		GD.Print(GetDictString(wfc.CountCellItemAppearances("grass_slope_top")));
 	}
 
 	// This function creates all differenct CellItems and adds them to the cellItems list
@@ -55,9 +56,19 @@ public partial class wfcs : Node3D {
 		cellItems.AddRange(CellItem.NewCardinal("wall_inside_corner", "res://wfc/tiles/wall_inside_corner.glb", "air", "air", "wall_edge_f", "wall_edge_r", "air", "wall", 2.0f));
 		cellItems.AddRange(CellItem.NewCardinal("wall_outside_corner", "res://wfc/tiles/wall_outside_corner.glb", "wall_edge_f", "wall_edge_r", "air", "air", "air", "wall", 0.5f));
 	
-		// socket
+		// foundation
 		cellItems.AddRange(CellItem.NewCardinal("foundation_edge", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_edge", "grass", "foundation_edge", "wall", "ground", 2.0f));
 		cellItems.AddRange(CellItem.NewCardinal("foundation_corner", "res://wfc/tiles/ground.glb", "foundation_edge", "foundation_edge", "grass", "grass", "wall", "ground", 2.0f));
 		cellItems.Add(new CellItem("foundation_inside", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_inside", "foundation_inside", "foundation_inside", "air", "ground", 2.0f));
+	}
+
+	private string GetDictString(Dictionary<StringName, int> dict)
+	{
+		string result = "";
+    	foreach (KeyValuePair<StringName, int> kvp in dict)
+		{
+    		result += kvp.Key + ": " + kvp.Value + ", ";
+		}
+		return result;
 	}
 }

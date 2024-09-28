@@ -129,6 +129,43 @@ public partial class WFC : Node3D
 		}
 	}
 
+	// Counts the number of times a CellItem appears in a collapsed grid. Also counts all of the CellItems rotations.
+	// Returns a dict in this format: {"all": 0, "name": 0, "name_x": 0, ...}
+	public Dictionary<StringName, int> CountCellItemAppearances(StringName name)
+	{
+		if (!IsGridCollapsed())
+		{
+			GD.PrintErr("Occurences of CellItems can only be counted in a fully collapsed grid");
+			return null;
+		}
+
+		StringName[] possibleNames = new StringName[] {name, name + "_x", name + "_z", name + "_r", name + "_f", name + "_l", name + "_b"};
+		Dictionary<StringName, int> appearances = new Dictionary<StringName, int>
+		{
+			{"all", 0},
+			{possibleNames[0], 0},
+			{possibleNames[1], 0},
+			{possibleNames[2], 0},
+			{possibleNames[3], 0},
+			{possibleNames[4], 0},
+			{possibleNames[5], 0},
+			{possibleNames[6], 0}
+		};
+
+		foreach (List<CellItem> cell in grid)
+		{
+			foreach (StringName currentName in possibleNames)
+			{
+				if (cell[0].name == currentName)
+				{
+					appearances[currentName] += 1;
+					appearances["all"] += 1;
+				}
+			}
+		}
+		return appearances;
+	}
+
 	// Adds all CellItems to all cell of the grid
 	// Sets constraints such as: Top cells are air, bottom cells are grass
 	private void InitGrid()
