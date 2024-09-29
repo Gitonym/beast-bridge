@@ -13,7 +13,7 @@ public partial class wfcs : Node3D {
 		CreateTiles();																					// create the tiles and add them to cellItems
 		wfc = new WFC(new Vector3I(15, 10, 15), 4.0f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
 		wfc.SetSeed();							  														// optionally set a seed. SetSeed(0) does nothing so the random seed is used
-		wfc.SetState(1779216593388916843);															// optionally set a state. Only use states that were printed to the console
+		//wfc.SetState(11831293351422091059);															// optionally set a state. Only use states that were printed to the console
 		AddChild(wfc);																					// add wfc to the scene tree
 		GD.Print("Time to collapse: ", GetExecutionTimeUsec(wfc.CollapseGrid)/1000000.0, " Seconds");	// run the algorythm (this can take a long time)
 		GD.Print("Time to spawn:    ", GetExecutionTimeUsec(wfc.SpawnItems)/1000000.0, " Seconds");		// after the grid collapsed spawn the chosen cellItems and add them to the scene tree
@@ -54,7 +54,7 @@ public partial class wfcs : Node3D {
 		cellItems.AddRange(CellItem.NewCardinal("wall", "res://wfc/tiles/wall.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall", 1.0f));
 		cellItems.AddRange(CellItem.NewCardinal("door", "res://wfc/tiles/door.glb", "air", "wall_edge_r", "air", "wall_edge_r", "air", "wall", 0.5f));
 		cellItems.AddRange(CellItem.NewCardinal("wall_inside_corner", "res://wfc/tiles/wall_inside_corner.glb", "air", "air", "wall_edge_f", "wall_edge_r", "air", "wall", 1.0f));
-		cellItems.AddRange(CellItem.NewCardinal("wall_outside_corner", "res://wfc/tiles/wall_outside_corner.glb", "wall_edge_f", "wall_edge_r", "air", "air", "air", "wall", 0.5f));
+		//cellItems.AddRange(CellItem.NewCardinal("wall_outside_corner", "res://wfc/tiles/wall_outside_corner.glb", "wall_edge_f", "wall_edge_r", "air", "air", "air", "wall", 0.5f));
 	
 		// foundation
 		cellItems.AddRange(CellItem.NewCardinal("foundation_edge", "res://wfc/tiles/ground.glb", "foundation_inside", "foundation_edge", "grass", "foundation_edge", "wall", "ground", 1.0f));

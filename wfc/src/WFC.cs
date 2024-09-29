@@ -280,6 +280,7 @@ public partial class WFC : Node3D
 						{
 							modified.Push(neighbourIndex);
 						}
+
 						if (grid[neighbourIndex].Count == 0)
 						{
 							Backstep();
@@ -308,7 +309,6 @@ public partial class WFC : Node3D
 	// The one item is chosen randomly taking the cellItem weights into account
 	private void CollapseCell(int cellIndex)
 	{
-		bool col = IsGridCollapsed();
 		int choiceIndex = GetWeightedRandomIndex(grid[cellIndex]);
 		CellItem choice = grid[cellIndex][choiceIndex];
 		List<CellItem> removed = grid[cellIndex];
@@ -385,7 +385,7 @@ public partial class WFC : Node3D
 		foreach (CellItem item in items)
 		{
 			weights[i] = item.weight;
-			i =+ 1;
+			i += 1;
 		}
 
 		// generate the random index based on weights. This returns -1 if no weights or all weights are 0
