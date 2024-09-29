@@ -22,7 +22,7 @@ public partial class WFC : Node3D
 	ulong usedState;
 
 	float lastPrintTime = 0.0f;										// Keeps track when the Progressbar was printed last
-	const int maxIterations = 1500;									// The max number of iterations before it restarts from scratch. Set to 0 for no restart because of iterations
+	const int maxIterations = 500;									// The max number of iterations before it restarts from scratch. Set to 0 for no restart because of iterations
 	int iterations = 0;												// The current number of iterations
 	const ulong timeOut = 0;										// The max number of Milliseconds before it restarts from scratch. The algorythm is no longer deterministic if this timeout is reached. Set to 0 for no restart because of timeout
 	ulong startTime;												// The time at which the current collapse started at
@@ -172,6 +172,8 @@ public partial class WFC : Node3D
 	{
 		CellItem grassItem = GetItemByName("grass");
 		CellItem airItem = GetItemByName("air");
+		CellItem path_straight_item = GetItemByName("path_straight_x");
+		CellItem[] path_end_items = CellItem.NewCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground");
 
 		int gridSize = Get1DIndex(size - Vector3I.One) + 1;
 		grid = new List<CellItem>[gridSize];
@@ -182,20 +184,32 @@ public partial class WFC : Node3D
 			grid[i] = new List<CellItem>(cellItems);
 
 			// Set the top to be air
-			//if (i3d.Y == size.Y-1)
-			//{
-			//	SetCell(i, airItem);
-			//}
+			if (i3d.Y == size.Y-1)
+			{
+				SetCell(i, airItem);
+			}
+
 			// Set ring at the bottom to be grass
 			if (i3d.Y == 0 && (i3d.X == 0 || i3d.X == size.X-1 || i3d.Z == 0 || i3d.Z == size.Z-1))
 			{
 				SetCell(i, grassItem);
 			}
+
 			// Set middle top to be grass
-			//if (i3d == new Vector3I(12, 8, 12))
-			//{
-			//	SetCell(i, grassItem);
-			//}
+			if (i3d == new Vector3I(7, 8, 7))
+			{
+				SetCell(i, grassItem);
+			}
+
+			// sets two paths that need to be connected
+			if (i3d == new Vector3I(0, 0, 1))
+			{
+				SetCell(i, path_end_items[0]);
+			}
+			if (i3d == new Vector3I(size.X-1, 0, size.Z-2))
+			{
+				SetCell(i, path_end_items[2]);
+			}
 		}
 	}
 
@@ -266,6 +280,7 @@ public partial class WFC : Node3D
 						{
 							modified.Push(neighbourIndex);
 						}
+
 						if (grid[neighbourIndex].Count == 0)
 						{
 							Backstep();
@@ -294,7 +309,6 @@ public partial class WFC : Node3D
 	// The one item is chosen randomly taking the cellItem weights into account
 	private void CollapseCell(int cellIndex)
 	{
-		bool col = IsGridCollapsed();
 		int choiceIndex = GetWeightedRandomIndex(grid[cellIndex]);
 		CellItem choice = grid[cellIndex][choiceIndex];
 		List<CellItem> removed = grid[cellIndex];
@@ -371,7 +385,7 @@ public partial class WFC : Node3D
 		foreach (CellItem item in items)
 		{
 			weights[i] = item.weight;
-			i =+ 1;
+			i += 1;
 		}
 
 		// generate the random index based on weights. This returns -1 if no weights or all weights are 0
