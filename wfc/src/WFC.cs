@@ -9,11 +9,13 @@ using System.Linq;
 // Implementation of the Tiled Wave Function Collapse Algorythm
 public partial class WFC : Node3D
 {
-	Vector3I size;													// Keeps track of the size of each dimension of the grid
+	public Vector3I size;													// Keeps track of the size of each dimension of the grid
 	float cellSize;													// The Edgelength of one cell or cellItem
 
 	List<CellItem>[] grid;											// The grid
 	List<CellItem> cellItems;										// All possible cellItems
+	List<CellItem>[] constrainedGrid;								// A copy of the grid post constraints applied so they dont have to be recalculated in case of retry
+	Action ConstrainGrid = null;									// The function that is called to constrain the grid
 
 	Stack<HistoryItem> history;										// Keeps track of changes made for backtracking to past states
 	Stack<int> modified;											// Keeps track of which cells have been modified to propagate the changes
@@ -22,7 +24,7 @@ public partial class WFC : Node3D
 	ulong usedState;
 
 	float lastPrintTime = 0.0f;										// Keeps track when the Progressbar was printed last
-	const int maxIterations = 500;									// The max number of iterations before it restarts from scratch. Set to 0 for no restart because of iterations
+	const int maxIterations = 200;									// The max number of iterations before it restarts from scratch. Set to 0 for no restart because of iterations
 	int iterations = 0;												// The current number of iterations
 	const ulong timeOut = 0;										// The max number of Milliseconds before it restarts from scratch. The algorythm is no longer deterministic if this timeout is reached. Set to 0 for no restart because of timeout
 	ulong startTime;												// The time at which the current collapse started at
@@ -37,6 +39,48 @@ public partial class WFC : Node3D
 		this.modified = new Stack<int>();
 		this.history = new Stack<HistoryItem>();
 		InitGrid();
+	}
+
+	// Returns a 1D index calculated from the 3D index
+	public int Get1DIndex(Vector3I index)
+	{
+		return index.X + index.Y * size.X + index.Z * size.X * size.Y;
+	}
+
+	// Returns a 3D index calculated from the 1D index
+	public Vector3I Get3DIndex(int index)
+	{
+		int x = index % size.X;
+		int y = (index % (size.X * size.Y)) / size.X;
+		int z = index / (size.X * size.Y);
+		return new Vector3I(x, y, z);
+	}
+
+	public void SetConstrainGrid(Action func)
+	{
+		ConstrainGrid = func;
+	}
+
+	// Sets a cell to a specific CellItem
+	public void SetCell(int index, CellItem item)
+	{
+		grid[index] = new List<CellItem> {item};
+		modified.Push(index);
+	}
+
+	// Searches the CellItems for an item with the given name and returns it
+	// returns null if no item with that name was found
+	public CellItem GetItemByName(StringName name)
+	{
+		foreach (CellItem item in cellItems)
+		{
+			if (item.name == name)
+			{
+				return item;
+			}
+		}
+		GD.PrintErr("No CellItem with the name '" + name + "' has been found");
+		return null;
 	}
 
 	// Sets the seed to the provided seed. SetSeed(0) does nothing.
@@ -63,6 +107,8 @@ public partial class WFC : Node3D
 	// This starts the Wave Function Collapse
 	public void CollapseGrid()
 	{
+		RestoreConstrainedGrid();
+		ConstrainGridAndSave();
 		iterations = 0;
 		startTime = Time.GetTicksMsec();
 		usedState = rng.State;
@@ -166,50 +212,42 @@ public partial class WFC : Node3D
 		return appearances;
 	}
 
+	private void RestoreConstrainedGrid()
+	{
+		if (constrainedGrid != null && ConstrainGrid != null)
+		{
+			for (int i = 0; i < grid.Count(); i++)
+			{
+				grid[i] = constrainedGrid[i].ToList();
+			}
+		}
+	}
+
+	// If ConstrainGrid was set and no constrainedGrid was yet saved: calculates and saves the constrained grid
+	private void ConstrainGridAndSave()
+	{
+		if (constrainedGrid == null && ConstrainGrid != null)
+		{
+			ConstrainGrid();
+			Propagate();
+			constrainedGrid = new List<CellItem>[grid.Count()];
+			for (int i = 0; i < grid.Count(); i++)
+			{
+				constrainedGrid[i] = grid[i].ToList();
+			}
+		}
+	}
+
 	// Adds all CellItems to all cell of the grid
 	// Sets constraints such as: Top cells are air, bottom cells are grass
 	private void InitGrid()
 	{
-		CellItem grassItem = GetItemByName("grass");
-		CellItem airItem = GetItemByName("air");
-		CellItem path_straight_item = GetItemByName("path_straight_x");
-		CellItem[] path_end_items = CellItem.NewCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground");
-
 		int gridSize = Get1DIndex(size - Vector3I.One) + 1;
 		grid = new List<CellItem>[gridSize];
 
 		for (int i = 0; i < gridSize; i++)
 		{
-			Vector3I i3d = Get3DIndex(i);
 			grid[i] = new List<CellItem>(cellItems);
-
-			// Set the top to be air
-			if (i3d.Y == size.Y-1)
-			{
-				SetCell(i, airItem);
-			}
-
-			// Set ring at the bottom to be grass
-			if (i3d.Y == 0 && (i3d.X == 0 || i3d.X == size.X-1 || i3d.Z == 0 || i3d.Z == size.Z-1))
-			{
-				SetCell(i, grassItem);
-			}
-
-			// Set middle top to be grass
-			if (i3d == new Vector3I(7, 8, 7))
-			{
-				SetCell(i, grassItem);
-			}
-
-			// sets two paths that need to be connected
-			if (i3d == new Vector3I(0, 0, 1))
-			{
-				SetCell(i, path_end_items[0]);
-			}
-			if (i3d == new Vector3I(size.X-1, 0, size.Z-2))
-			{
-				SetCell(i, path_end_items[2]);
-			}
 		}
 	}
 
@@ -335,7 +373,7 @@ public partial class WFC : Node3D
 			}
 		}
 		// If the code reaches here then the inital state of the grid is wrong
-		GD.PrintErr("History empty, continuing from state which knowingly fails");
+		GD.Print("History empty");
 		Retry();
 	}
 
@@ -438,43 +476,6 @@ public partial class WFC : Node3D
 			entropy += 1/item.weight;
 		}
 		return entropy;
-	}
-
-	// Sets a cell to a specific CellItem
-	private void SetCell(int index, CellItem item)
-	{
-		grid[index] = new List<CellItem> {item};
-		modified.Push(index);
-	}
-
-	// Searches the CellItems for an item with the given name and returns it
-	// returns null if no item with that name was found
-	private CellItem GetItemByName(StringName name)
-	{
-		foreach (CellItem item in cellItems)
-		{
-			if (item.name == name)
-			{
-				return item;
-			}
-		}
-		GD.PrintErr("No CellItem with the name '" + name + "' has been found");
-		return null;
-	}
-
-	// Returns a 1D index calculated from the 3D index
-	private int Get1DIndex(Vector3I index)
-	{
-		return index.X + index.Y * size.X + index.Z * size.X * size.Y;
-	}
-
-	// Returns a 3D index calculated from the 1D index
-	private Vector3I Get3DIndex(int index)
-	{
-		int x = index % size.X;
-		int y = (index % (size.X * size.Y)) / size.X;
-		int z = index / (size.X * size.Y);
-		return new Vector3I(x, y, z);
 	}
 
 	// Sets the seed to a random one
