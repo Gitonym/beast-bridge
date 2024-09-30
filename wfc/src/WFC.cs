@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 // This class represent a 3D grid that contain items
@@ -105,10 +106,11 @@ public partial class WFC : Node3D
 	// Collapses the grid so each cell of the grid contains only one cellItem
 	// and every CellItem only has valid neighbours (the keys of the two neighbouring CellItems match)
 	// This starts the Wave Function Collapse
-	public void CollapseGrid()
+	public bool CollapseGrid()
 	{
-		RestoreConstrainedGrid();
-		ConstrainGridAndSave();
+		LoadConstrainedGrid();
+		ConstrainGridAndPropagate();
+		SaveConstrainedGrid();
 		iterations = 0;
 		startTime = Time.GetTicksMsec();
 		usedState = rng.State;
@@ -118,20 +120,24 @@ public partial class WFC : Node3D
 		{
 			iterations += 1;
 			PrintProgressbar();
+
 			// Check for timeout
 			if (maxIterations > 0 && iterations >= maxIterations || timeOut > 0 && Time.GetTicksMsec() - startTime >= timeOut)
 			{
-				Retry();
-				return;
+				return false;
 			}
 			if (modified.Count == 0)
 			{
 				CollapseCell(GetMinEntropy());
 			}
-			Propagate();
+			if (!Propagate())
+			{
+				return false;
+			}
 		}
 		// Prints some info after the collapse succeeded
 		GD.PrintRich("[color=green]Success[/color] after ", iterations, " iterations and ", Time.GetTicksMsec() - startTime, " milliseconds. Used state: ", usedState);
+		return true;
 	}
 
 
@@ -212,9 +218,66 @@ public partial class WFC : Node3D
 		return appearances;
 	}
 
-	private void RestoreConstrainedGrid()
+	// Moves all items to the left and regenerates the right edge
+	public void SlideRightAndGenerate(int edgeWidth)
 	{
-		if (constrainedGrid != null && ConstrainGrid != null)
+		// Delete all spawned CellItem scenes
+		foreach (Node child in GetChildren())
+		{
+			RemoveChild(child);
+			child.QueueFree();
+		}
+
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int y = 0; y < size.Y; y++)
+			{
+				for (int x = 1; x < size.X; x++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					Vector3I newIndex3d = new Vector3I(x-1, y, z);
+					int newIndex = Get1DIndex(newIndex3d);
+					// Move grid to the left by one
+					if (size.X - x >= edgeWidth)
+					{
+						grid[newIndex] = grid[index];
+					}
+					// put all CellItems into the right edge
+					if (size.X - index3d.X <= edgeWidth)
+					{
+						grid[index] = cellItems.ToList();
+					}
+					// put last cells before border into modified
+					if (size.X - index3d.X == edgeWidth+1)
+					{
+						modified.Push(index);
+					}
+				}
+			}
+		}
+		// propagate the border
+		Propagate();
+
+		// Save the grid post propogation
+		SaveConstrainedGrid();
+
+		// Recollapse
+		while (!CollapseGrid())
+		{
+			Retry();
+		}
+
+		Position += Vector3.Right * cellSize;
+
+		// Spawn Items
+		SpawnItems();
+	}
+
+	// Restores the constrained grid as the grid
+	private void LoadConstrainedGrid()
+	{
+		if (constrainedGrid != null)
 		{
 			for (int i = 0; i < grid.Count(); i++)
 			{
@@ -223,18 +286,23 @@ public partial class WFC : Node3D
 		}
 	}
 
+	// Saves the current grid as a constrained grid
+	private void SaveConstrainedGrid()
+	{
+		constrainedGrid = new List<CellItem>[grid.Count()];
+		for (int i = 0; i < grid.Count(); i++)
+		{
+			constrainedGrid[i] = grid[i].ToList();
+		}
+	}
+
 	// If ConstrainGrid was set and no constrainedGrid was yet saved: calculates and saves the constrained grid
-	private void ConstrainGridAndSave()
+	private void ConstrainGridAndPropagate()
 	{
 		if (constrainedGrid == null && ConstrainGrid != null)
 		{
 			ConstrainGrid();
 			Propagate();
-			constrainedGrid = new List<CellItem>[grid.Count()];
-			for (int i = 0; i < grid.Count(); i++)
-			{
-				constrainedGrid[i] = grid[i].ToList();
-			}
 		}
 	}
 
@@ -253,21 +321,19 @@ public partial class WFC : Node3D
 
 	// Resets variables fo the next attempt and starts that attempt
 	// Also prints some info of the last attempt
-	private void Retry()
+	public void Retry()
 	{
 		lastPrintTime = 0.0f;
 		GD.PrintRich("[color=orange]Retrying[/color] after ", iterations, " iterations and ", Time.GetTicksMsec() - startTime ," milliseconds");
 		iterations = 0;
 		history = new Stack<HistoryItem>();
 		modified = new Stack<int>();
-		InitGrid();
-		CollapseGrid();
 	}
 
 	// Looks at the last modified cell and checks if the neighbouring cells need to be modified
 	// if so adds those cells indices to modified aswell
 	// initiates backstepping if it removed the last possible neighbour of a cell
-	private void Propagate()
+	private bool Propagate()
 	{
 		// While a modified cell exists that has not been propagated yet
 		while (modified.Count > 0)
@@ -321,13 +387,13 @@ public partial class WFC : Node3D
 
 						if (grid[neighbourIndex].Count == 0)
 						{
-							Backstep();
-							return;
+							return Backstep();
 						}
 					}
 				}
 			}
 		}
+		return true;
 	}
 
 	// Returns true if all cells of the grid contain only one CellItem, false otherwise
@@ -358,7 +424,7 @@ public partial class WFC : Node3D
 	}
 
 	// Restores older and older stated of the grid until an assumption has been restored
-	private void Backstep()
+	private bool Backstep()
 	{
 		while (history.Count > 0)
 		{
@@ -370,11 +436,12 @@ public partial class WFC : Node3D
 			else if (hi.variant == HistoryitemVariant.assumption)
 			{
 				RestoreAssumption(hi);
+				return true;
 			}
 		}
 		// If the code reaches here then the inital state of the grid is wrong
 		GD.Print("History empty");
-		Retry();
+		return false;
 	}
 
 	// Takes an assumption and restores the grid to the state of before the assumption
@@ -405,6 +472,12 @@ public partial class WFC : Node3D
 		Vector3I i13d = Get3DIndex(i1);
 		Vector3I i23d = Get3DIndex(i2);
 		return (i13d - i23d).Length() <= 1;
+	}
+
+	// Returns true if the given index is valid (the grid is big enough to have that index), false otherwise
+	private bool IsValid3DIndex(Vector3I index)
+	{
+		return index.X >= 0 && index.X < size.X && index.Y >= 0 && index.Y < size.Y && index.Z >= 0 && index.Z < size.Z; 
 	}
 
 	// Returns true if the given 1D index is a valid index for the grid, false otherwise
