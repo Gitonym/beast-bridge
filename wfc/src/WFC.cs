@@ -187,6 +187,7 @@ public partial class WFC : Node3D
 		instanceGrid[index] = instance;
 	}
 
+	// Removes an instance
 	private void DespawnInstance(int index)
 	{
 		if (instanceGrid[index] == null)
@@ -198,7 +199,8 @@ public partial class WFC : Node3D
 		instanceGrid[index] = null;		
 	}
 
-	public void MoveInstance(int from, int to)
+	// Moves an instance from -> to
+	private void MoveInstance(int from, int to)
 	{
 		if (instanceGrid[to] != null)
 		{
@@ -254,13 +256,6 @@ public partial class WFC : Node3D
 	// Moves all items to the left and regenerates the right edge
 	public void SlideLeftAndGenerate(int edgeWidth)
 	{
-		// Delete all spawned CellItem scenes
-		foreach (Node child in GetChildren())
-		{
-			RemoveChild(child);
-			child.QueueFree();
-		}
-
 		for (int z = 0; z < size.Z; z++)
 		{
 			for (int y = 0; y < size.Y; y++)
@@ -271,16 +266,21 @@ public partial class WFC : Node3D
 					int index = Get1DIndex(index3d);
 					Vector3I newIndex3d = new Vector3I(x-1, y, z);
 					int newIndex = Get1DIndex(newIndex3d);
+
 					// Move grid to the left by one
 					if (size.X - x >= edgeWidth)
 					{
 						grid[newIndex] = grid[index];
+						MoveInstance(index, newIndex);
 					}
+
 					// put all CellItems into the right edge
 					if (size.X - index3d.X <= edgeWidth)
 					{
 						grid[index] = cellItems.ToList();
+						DespawnInstance(index);
 					}
+					
 					// put last cells before border into modified
 					if (size.X - index3d.X == edgeWidth+1)
 					{
@@ -301,7 +301,22 @@ public partial class WFC : Node3D
 		Position += Vector3.Right * cellSize;
 
 		// Spawn Items
-		SpawnItems();
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int y = 0; y < size.Y; y++)
+			{
+				for (int x = 1; x < size.X; x++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					
+					if (size.X - index3d.X <= edgeWidth)
+					{
+						SpawnCell(index);
+					}
+				}
+			}
+		}
 	}
 
 	// Prepares self to be ready for a new collapse
