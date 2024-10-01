@@ -285,7 +285,8 @@ public partial class WFC : Node3D
 		{
 			instance.Rotate(Vector3.Up, Mathf.DegToRad(-90));
 		}
-		AddChild(instance);
+		//AddChild(instance);
+		this.CallDeferred("add_child", instance);
 		//DespawnInstance(index);
 		instanceGrid[index] = instance;
 	}
