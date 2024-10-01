@@ -153,32 +153,34 @@ public partial class WFC : Node3D
 		}
 
 		// iterate over each cell of the grid
-		for (int i = 0; i < grid.GetLength(0); i++)
+		for (int index = 0; index < grid.GetLength(0); index++)
 		{
-			CellItem currentItem = grid[i][0];
-			// Skip any cellItem that has an empty scenePath (common for air)
-			if (currentItem.scenePath == "")
-			{
-				continue;
-			}
-			Node3D instance = (Node3D)GD.Load<PackedScene>(currentItem.scenePath).Instantiate();
-			Vector3I i3d = Get3DIndex(i);
-			instance.Position = new Vector3(i3d.X, i3d.Y, i3d.Z) * cellSize;
-
-			if (currentItem.rotation == Vector3I.Forward)
-			{
-				instance.Rotate(Vector3.Up, Mathf.DegToRad(90));
-			}
-			else if (currentItem.rotation == Vector3I.Left)
-			{
-				instance.Rotate(Vector3.Up, Mathf.DegToRad(180));
-			}
-			if (currentItem.rotation == Vector3I.Back)
-			{
-				instance.Rotate(Vector3.Up, Mathf.DegToRad(-90));
-			}
-			AddChild(instance);
+			SpawnCell(index);
 		}
+	}
+
+	private void SpawnCell(int index)
+	{
+		
+		CellItem currentItem = grid[index][0];
+		// Skip any cellItem that has an empty scenePath (common for air)
+		if (currentItem.scenePath == "") return;
+		Node3D instance = (Node3D)GD.Load<PackedScene>(currentItem.scenePath).Instantiate();
+		Vector3I i3d = Get3DIndex(index);
+		instance.Position = new Vector3(i3d.X, i3d.Y, i3d.Z) * cellSize;
+		if (currentItem.rotation == Vector3I.Forward)
+		{
+			instance.Rotate(Vector3.Up, Mathf.DegToRad(90));
+		}
+		else if (currentItem.rotation == Vector3I.Left)
+		{
+			instance.Rotate(Vector3.Up, Mathf.DegToRad(180));
+		}
+		if (currentItem.rotation == Vector3I.Back)
+		{
+			instance.Rotate(Vector3.Up, Mathf.DegToRad(-90));
+		}
+		AddChild(instance);
 	}
 
 	// Counts the number of times a CellItem appears in a collapsed grid. Also counts all of the CellItems rotations.
