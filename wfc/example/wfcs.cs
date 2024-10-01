@@ -30,11 +30,6 @@ public partial class wfcs : Node3D {
 			GD.Print("Sliding");
 			wfc.SlideLeftAndGenerate(3);
 		}
-        if (Input.IsActionJustPressed("left"))
-		{
-			GD.Print("Switching");
-			wfc.MoveInstance(wfc.Get1DIndex(new Vector3I(1, 1, 1)), 0);
-		}
     }
 
     // This function creates all different CellItems and adds them to the cellItems list

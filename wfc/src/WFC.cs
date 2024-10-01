@@ -160,62 +160,6 @@ public partial class WFC : Node3D
 		}
 	}
 
-	// Spawns the scene belonging to the first CellItem in grid[index]
-	private void SpawnCell(int index)
-	{
-		CellItem currentItem = grid[index][0];
-		// Skip any cellItem that has an empty scenePath (common for air)
-		if (currentItem.scenePath == "") return;
-
-		Node3D instance = (Node3D)GD.Load<PackedScene>(currentItem.scenePath).Instantiate();
-		Vector3I i3d = Get3DIndex(index);
-		instance.Position = new Vector3(i3d.X, i3d.Y, i3d.Z) * cellSize;
-		if (currentItem.rotation == Vector3I.Forward)
-		{
-			instance.Rotate(Vector3.Up, Mathf.DegToRad(90));
-		}
-		else if (currentItem.rotation == Vector3I.Left)
-		{
-			instance.Rotate(Vector3.Up, Mathf.DegToRad(180));
-		}
-		else if (currentItem.rotation == Vector3I.Back)
-		{
-			instance.Rotate(Vector3.Up, Mathf.DegToRad(-90));
-		}
-		AddChild(instance);
-		//DespawnInstance(index);
-		instanceGrid[index] = instance;
-	}
-
-	// Removes an instance
-	private void DespawnInstance(int index)
-	{
-		if (instanceGrid[index] == null)
-		{
-			return;
-		}
-		RemoveChild(instanceGrid[index]);
-		instanceGrid[index].QueueFree();
-		instanceGrid[index] = null;		
-	}
-
-	// Moves an instance from -> to
-	private void MoveInstance(int from, int to)
-	{
-		if (instanceGrid[to] != null)
-		{
-			DespawnInstance(to);
-		}
-		if (instanceGrid[from] != null) {
-			Vector3 from3d = Get3DIndex(from);
-			Vector3 to3d = Get3DIndex(to);
-			Vector3 diff = to3d - from3d;
-			instanceGrid[to] = instanceGrid[from];
-			instanceGrid[from] = null;
-			instanceGrid[to].Position += diff * cellSize;
-		}
-	}
-
 	// Counts the number of times a CellItem appears in a collapsed grid. Also counts all of the CellItems rotations.
 	// Returns a dict in this format: {"all": 0, "name": 0, "name_x": 0, ...}
 	public Dictionary<StringName, int> CountCellItemAppearances(StringName name)
@@ -319,6 +263,62 @@ public partial class WFC : Node3D
 		}
 	}
 
+	// Spawns the scene belonging to the first CellItem in grid[index]
+	private void SpawnCell(int index)
+	{
+		CellItem currentItem = grid[index][0];
+		// Skip any cellItem that has an empty scenePath (common for air)
+		if (currentItem.scenePath == "") return;
+
+		Node3D instance = (Node3D)GD.Load<PackedScene>(currentItem.scenePath).Instantiate();
+		Vector3I i3d = Get3DIndex(index);
+		instance.Position = new Vector3(i3d.X, i3d.Y, i3d.Z) * cellSize;
+		if (currentItem.rotation == Vector3I.Forward)
+		{
+			instance.Rotate(Vector3.Up, Mathf.DegToRad(90));
+		}
+		else if (currentItem.rotation == Vector3I.Left)
+		{
+			instance.Rotate(Vector3.Up, Mathf.DegToRad(180));
+		}
+		else if (currentItem.rotation == Vector3I.Back)
+		{
+			instance.Rotate(Vector3.Up, Mathf.DegToRad(-90));
+		}
+		AddChild(instance);
+		//DespawnInstance(index);
+		instanceGrid[index] = instance;
+	}
+
+	// Removes an instance
+	private void DespawnInstance(int index)
+	{
+		if (instanceGrid[index] == null)
+		{
+			return;
+		}
+		RemoveChild(instanceGrid[index]);
+		instanceGrid[index].QueueFree();
+		instanceGrid[index] = null;		
+	}
+
+	// Moves an instance from -> to
+	private void MoveInstance(int from, int to)
+	{
+		if (instanceGrid[to] != null)
+		{
+			DespawnInstance(to);
+		}
+		if (instanceGrid[from] != null) {
+			Vector3 from3d = Get3DIndex(from);
+			Vector3 to3d = Get3DIndex(to);
+			Vector3 diff = to3d - from3d;
+			instanceGrid[to] = instanceGrid[from];
+			instanceGrid[from] = null;
+			instanceGrid[to].Position += diff * cellSize;
+		}
+	}
+	
 	// Prepares self to be ready for a new collapse
 	private void PrepareCollapse()
 	{
