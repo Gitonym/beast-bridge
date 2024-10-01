@@ -11,12 +11,10 @@ public partial class wfcs : Node3D {
 	public override void _Ready()
 	{
 		CreateTiles();																					// create the tiles and add them to cellItems
-		wfc = new WFC(new Vector3I(20, 8, 20), 4.0f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
-		//wfc.SetSeed(11460831621312820871);							  								// optionally set a seed. SetSeed(0) does nothing so the random seed is used
+		wfc = new WFC(new Vector3I(20, 10, 20), 4.0f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
+		//wfc.SetSeed(754751920050143);							  										// optionally set a seed. SetSeed(0) does nothing so the random seed is used
 		//wfc.SetState(16882791597447876989);															// optionally set a state. Only use states that were printed to the console
-		//wfc.SetState(17378066798266435689);															// (20, 10, 20) borderless
-		//wfc.SetState(454193403711517885);																// (35, 10, 35) rules
-		wfc.SetConstrainGrid(ConstrainGrid);															// give the function that constrains the grid
+		//wfc.SetConstrainGrid(ConstrainGrid);															// give the function that constrains the grid
 		AddChild(wfc);																					// add wfc to the scene tree
 		while (!wfc.CollapseGrid())
 		{
