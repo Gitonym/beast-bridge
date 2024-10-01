@@ -14,12 +14,9 @@ public partial class wfcs : Node3D {
 		wfc = new WFC(new Vector3I(10, 10, 10), 4.0f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
 		//wfc.SetSeed(754751920050143);							  										// optionally set a seed. SetSeed(0) does nothing so the random seed is used
 		//wfc.SetState(16882791597447876989);															// optionally set a state. Only use states that were printed to the console
-		//wfc.SetConstrainGrid(ConstrainGrid);															// give the function that constrains the grid
+		wfc.SetConstrainGrid(ConstrainGrid);															// give the function that constrains the grid
 		AddChild(wfc);																					// add wfc to the scene tree
-		while (!wfc.CollapseGrid())
-		{
-			wfc.Retry();
-		}
+		while (!wfc.CollapseGrid()) {}
 		//GD.Print("Time to collapse: ", GetExecutionTimeUsec(wfc.CollapseGrid)/1000000.0, " Seconds");	// run the algorythm (this can take a long time)
 		GD.Print("Time to spawn:    ", GetExecutionTimeUsec(wfc.SpawnItems)/1000000.0, " Seconds");		// after the grid collapsed spawn the chosen cellItems and add them to the scene tree
 		GD.Print(GetDictString(wfc.CountCellItemAppearances("wall")));									// counts how often a CellItem and its rotations occur, usfeul for debugging
@@ -31,7 +28,12 @@ public partial class wfcs : Node3D {
         if (Input.IsActionJustPressed("right"))
 		{
 			GD.Print("Sliding");
-			wfc.SlideRightAndGenerate(3);
+			wfc.SlideLeftAndGenerate(3);
+		}
+        if (Input.IsActionJustPressed("left"))
+		{
+			GD.Print("Switching");
+			wfc.MoveInstance(wfc.Get1DIndex(new Vector3I(1, 1, 1)), 0);
 		}
     }
 

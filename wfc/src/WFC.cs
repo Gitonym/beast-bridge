@@ -15,6 +15,7 @@ public partial class WFC : Node3D
 
 	List<CellItem>[] grid;											// The grid
 	List<CellItem> cellItems;										// All possible cellItems
+	Node3D[] instanceGrid;											// Keeps track of all spawned instances
 	List<CellItem>[] constrainedGrid;								// A copy of the grid post constraints applied so they dont have to be recalculated in case of retry
 	Action ConstrainGrid = null;									// The function that is called to constrain the grid
 
@@ -108,13 +109,7 @@ public partial class WFC : Node3D
 	// This starts the Wave Function Collapse
 	public bool CollapseGrid()
 	{
-		LoadConstrainedGrid();
-		ConstrainGridAndPropagate();
-		SaveConstrainedGrid();
-		iterations = 0;
-		startTime = Time.GetTicksMsec();
-		usedState = rng.State;
-		GD.Print("State: ", rng.State);
+		PrepareCollapse();
 
 		while (!IsGridCollapsed())
 		{
@@ -124,6 +119,7 @@ public partial class WFC : Node3D
 			// Check for timeout
 			if (maxIterations > 0 && iterations >= maxIterations || timeOut > 0 && Time.GetTicksMsec() - startTime >= timeOut)
 			{
+				GD.PrintRich("[color=yellow]Retrying[/color] after ", iterations, " iterations and ", Time.GetTicksMsec() - startTime ," milliseconds");
 				return false;
 			}
 			if (modified.Count == 0)
@@ -132,6 +128,7 @@ public partial class WFC : Node3D
 			}
 			if (!Propagate())
 			{
+				GD.PrintRich("[color=yellow]Retrying[/color] after ", iterations, " iterations and ", Time.GetTicksMsec() - startTime ," milliseconds");
 				return false;
 			}
 		}
@@ -139,7 +136,6 @@ public partial class WFC : Node3D
 		GD.PrintRich("[color=green]Success[/color] after ", iterations, " iterations and ", Time.GetTicksMsec() - startTime, " milliseconds. Used state: ", usedState);
 		return true;
 	}
-
 
 	// Spawns the scenes of the cellItems at their location and rotation
 	// The grid has to be collapsed to spawn the items
@@ -152,6 +148,11 @@ public partial class WFC : Node3D
 			return;
 		}
 
+		if (instanceGrid == null)
+		{
+			instanceGrid = new Node3D[grid.GetLength(0)];
+		}
+
 		// iterate over each cell of the grid
 		for (int index = 0; index < grid.GetLength(0); index++)
 		{
@@ -159,12 +160,13 @@ public partial class WFC : Node3D
 		}
 	}
 
+	// Spawns the scene belonging to the first CellItem in grid[index]
 	private void SpawnCell(int index)
 	{
-		
 		CellItem currentItem = grid[index][0];
 		// Skip any cellItem that has an empty scenePath (common for air)
 		if (currentItem.scenePath == "") return;
+
 		Node3D instance = (Node3D)GD.Load<PackedScene>(currentItem.scenePath).Instantiate();
 		Vector3I i3d = Get3DIndex(index);
 		instance.Position = new Vector3(i3d.X, i3d.Y, i3d.Z) * cellSize;
@@ -176,11 +178,39 @@ public partial class WFC : Node3D
 		{
 			instance.Rotate(Vector3.Up, Mathf.DegToRad(180));
 		}
-		if (currentItem.rotation == Vector3I.Back)
+		else if (currentItem.rotation == Vector3I.Back)
 		{
 			instance.Rotate(Vector3.Up, Mathf.DegToRad(-90));
 		}
 		AddChild(instance);
+		instanceGrid[index] = instance;
+	}
+
+	private void DespawnInstance(int index)
+	{
+		if (instanceGrid[index] == null)
+		{
+			return;
+		}
+		RemoveChild(instanceGrid[index]);
+		instanceGrid[index].QueueFree();
+		instanceGrid[index] = null;		
+	}
+
+	public void MoveInstance(int from, int to)
+	{
+		if (instanceGrid[to] != null)
+		{
+			DespawnInstance(to);
+		}
+		if (instanceGrid[from] != null) {
+			Vector3 from3d = Get3DIndex(from);
+			Vector3 to3d = Get3DIndex(to);
+			Vector3 diff = to3d - from3d;
+			instanceGrid[to] = instanceGrid[from];
+			instanceGrid[from] = null;
+			instanceGrid[to].Position += diff * cellSize;
+		}
 	}
 
 	// Counts the number of times a CellItem appears in a collapsed grid. Also counts all of the CellItems rotations.
@@ -221,7 +251,7 @@ public partial class WFC : Node3D
 	}
 
 	// Moves all items to the left and regenerates the right edge
-	public void SlideRightAndGenerate(int edgeWidth)
+	public void SlideLeftAndGenerate(int edgeWidth)
 	{
 		// Delete all spawned CellItem scenes
 		foreach (Node child in GetChildren())
@@ -265,15 +295,27 @@ public partial class WFC : Node3D
 		SaveConstrainedGrid();
 
 		// Recollapse
-		while (!CollapseGrid())
-		{
-			Retry();
-		}
+		while (!CollapseGrid()) {}
 
 		Position += Vector3.Right * cellSize;
 
 		// Spawn Items
 		SpawnItems();
+	}
+
+	// Prepares self to be ready for a new collapse
+	private void PrepareCollapse()
+	{
+		LoadConstrainedGrid();
+		ConstrainGridAndPropagate();
+		SaveConstrainedGrid();
+		iterations = 0;
+		lastPrintTime = 0;
+		history = new Stack<HistoryItem>();
+		modified = new Stack<int>();
+		startTime = Time.GetTicksMsec();
+		usedState = rng.State;
+		GD.Print("State: ", rng.State);
 	}
 
 	// Restores the constrained grid as the grid
@@ -319,17 +361,6 @@ public partial class WFC : Node3D
 		{
 			grid[i] = new List<CellItem>(cellItems);
 		}
-	}
-
-	// Resets variables fo the next attempt and starts that attempt
-	// Also prints some info of the last attempt
-	public void Retry()
-	{
-		lastPrintTime = 0.0f;
-		GD.PrintRich("[color=orange]Retrying[/color] after ", iterations, " iterations and ", Time.GetTicksMsec() - startTime ," milliseconds");
-		iterations = 0;
-		history = new Stack<HistoryItem>();
-		modified = new Stack<int>();
 	}
 
 	// Looks at the last modified cell and checks if the neighbouring cells need to be modified
@@ -563,7 +594,7 @@ public partial class WFC : Node3D
 	// Prints the progress of the grids collapse
 	private void PrintProgressbar()
 	{
-		if (Time.GetTicksMsec() - lastPrintTime <= 100)
+		if (Time.GetTicksMsec() - lastPrintTime <= 250)
 		{
 			return;
 		}
