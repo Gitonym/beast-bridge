@@ -227,6 +227,20 @@ public partial class WFC : Node3D
 				SlideBackAndGenerate(edgeWidth);
 			}).Start();
 		}
+		else if (direction == Vector3.Up)
+		{
+			new Thread(() => {
+				Thread.CurrentThread.IsBackground = true;
+				SlideUpAndGenerate(edgeWidth);
+			}).Start();
+		}
+		else if (direction == Vector3.Down)
+		{
+			new Thread(() => {
+				Thread.CurrentThread.IsBackground = true;
+				SlideDownAndGenerate(edgeWidth);
+			}).Start();
+		}
 	}
 
 	// Moves all items to the left and regenerates the right edge
@@ -258,7 +272,7 @@ public partial class WFC : Node3D
 					}
 					
 					// put last cells before border into modified
-					if (x >= size.X - edgeWidth + 1)
+					if (x == size.X - (edgeWidth + 1))
 					{
 						modified.Push(index);
 					}
@@ -380,7 +394,7 @@ public partial class WFC : Node3D
 					}
 					
 					// put last cells before border into modified
-					if (z >= size.Z - edgeWidth + 1)
+					if (z == size.Z - (edgeWidth + 1))
 					{
 						modified.Push(index);
 					}
@@ -464,6 +478,128 @@ public partial class WFC : Node3D
 			for (int y = 0; y < size.Y; y++)
 			{
 				for (int z = 0; z < edgeWidth; z++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					SpawnCell(index);
+				}
+			}
+		}
+	}
+
+	// Moves all items to the right and regenerates the left edge
+	private void SlideUpAndGenerate(int edgeWidth)
+	{
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int x = 0; x < size.X; x++)
+			{
+				for (int y = size.Y-2; y >= 0; y--)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					Vector3I newIndex3d = new Vector3I(x, y+1, z);
+					int newIndex = Get1DIndex(newIndex3d);
+
+					// Move grid to the right by one
+					if (y >= edgeWidth-1)
+					{
+						grid[newIndex] = grid[index];
+						MoveInstance(index, newIndex);
+					}
+
+					// put all CellItems into the left edge
+					if (y < edgeWidth)
+					{
+						grid[index] = cellItems.ToList();
+						DespawnInstance(index);
+					}
+					
+					// put last cells before border into modified
+					if (y == edgeWidth)
+					{
+						modified.Push(index);
+					}
+				}
+			}
+		}
+
+		// Update the grid position
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Down * cellSize);
+		// propagate the border
+		Propagate();
+		// Save the grid post propogation
+		SaveConstrainedGrid();
+		// Recollapse
+		while (!CollapseGrid()) {}
+
+		// Spawn Items
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int x = 0; x < size.X; x++)
+			{
+				for (int y = 0; y < edgeWidth; y++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					SpawnCell(index);
+				}
+			}
+		}
+	}
+
+	// Moves all items to the left and regenerates the right edge
+	private void SlideDownAndGenerate(int edgeWidth)
+	{
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int x = 0; x < size.X; x++)
+			{
+				for (int y = 1; y < size.Y; y++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					Vector3I newIndex3d = new Vector3I(x, y-1, z);
+					int newIndex = Get1DIndex(newIndex3d);
+
+					// Move grid to the left by one
+					if (y <= size.Y - edgeWidth)
+					{
+						grid[newIndex] = grid[index];
+						MoveInstance(index, newIndex);
+					}
+
+					// put all CellItems into the right edge
+					if (y >= size.Y - edgeWidth)
+					{
+						grid[index] = cellItems.ToList();
+						DespawnInstance(index);
+					}
+					
+					// put last cells before border into modified
+					if (y == size.Y - (edgeWidth + 1))
+					{
+						modified.Push(index);
+					}
+				}
+			}
+		}
+
+		// Move the grid
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Up * cellSize);
+		// propagate the border
+		Propagate();
+		// Save the grid post propogation
+		SaveConstrainedGrid();
+		// Recollapse
+		while (!CollapseGrid()) {}
+
+		// Spawn Items
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int x = 0; x < size.X; x++)
+			{
+				for (int y = size.Y - edgeWidth; y < size.Y; y++)
 				{
 					Vector3I index3d = new Vector3I(x, y, z);
 					int index = Get1DIndex(index3d);
