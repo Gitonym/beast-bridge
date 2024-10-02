@@ -11,21 +11,48 @@ public partial class wfcs : Node3D {
 	public override void _Ready()
 	{
 		CreateTiles();																					// create the tiles and add them to cellItems
-		wfc = new WFC(new Vector3I(15, 8, 15), 4.0f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
-		//wfc.SetSeed(11460831621312820871);							  								// optionally set a seed. SetSeed(0) does nothing so the random seed is used
-		//wfc.SetState(16882791597447876989);															// optionally set a state. Only use states that were printed to the console
-		//wfc.SetState(14334292840751245840);															// (20, 10, 20) borderless
-		//wfc.SetState(454193403711517885);																// (35, 10, 35) rules
-		//wfc.SetConstrainGrid(ConstrainGrid);															// give the function that constrains the grid
+		wfc = new WFC(new Vector3I(8, 8, 8), 4.1f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
+		//wfc.SetSeed(754751920050143);							  										// optionally set a seed. SetSeed(0) does nothing so the random seed is used
+		//wfc.SetState(17855032261213824483);															// optionally set a state. Only use states that were printed to the console
+		wfc.SetConstrainGrid(ConstrainGrid);															// give the function that constrains the grid
 		AddChild(wfc);																					// add wfc to the scene tree
-		GD.Print("Time to collapse: ", GetExecutionTimeUsec(wfc.CollapseGrid)/1000000.0, " Seconds");	// run the algorythm (this can take a long time)
+		while (!wfc.CollapseGrid()) {}
+		//GD.Print("Time to collapse: ", GetExecutionTimeUsec(wfc.CollapseGrid)/1000000.0, " Seconds");	// run the algorythm (this can take a long time)
 		GD.Print("Time to spawn:    ", GetExecutionTimeUsec(wfc.SpawnItems)/1000000.0, " Seconds");		// after the grid collapsed spawn the chosen cellItems and add them to the scene tree
 		GD.Print(GetDictString(wfc.CountCellItemAppearances("wall")));									// counts how often a CellItem and its rotations occur, usfeul for debugging
 		GD.Print(GetDictString(wfc.CountCellItemAppearances("door")));
 	}
 
-	// This function creates all different CellItems and adds them to the cellItems list
-	private void CreateTiles()
+    public override void _Process(double delta)
+    {
+        if (Input.IsActionJustPressed("right"))
+		{
+			wfc.SlideAndGenerate(Vector3.Left, 3);
+		}
+        if (Input.IsActionJustPressed("left"))
+		{
+			wfc.SlideAndGenerate(Vector3.Right, 3);
+		}
+        if (Input.IsActionJustPressed("back"))
+		{
+			wfc.SlideAndGenerate(Vector3.Forward, 3);
+		}
+        if (Input.IsActionJustPressed("forward"))
+		{
+			wfc.SlideAndGenerate(Vector3.Back, 3);
+		}
+        if (Input.IsActionJustPressed("down"))
+		{
+			wfc.SlideAndGenerate(Vector3.Up, 3);
+		}
+        if (Input.IsActionJustPressed("up"))
+		{
+			wfc.SlideAndGenerate(Vector3.Down, 3);
+		}
+    }
+
+    // This function creates all different CellItems and adds them to the cellItems list
+    private void CreateTiles()
 	{
 		// base
 		// Create a CellItem that has no rotations through the Cellitem constructor
