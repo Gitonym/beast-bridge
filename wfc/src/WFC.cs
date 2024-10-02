@@ -1,7 +1,6 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 
 // This class represent a 3D grid that contain items
@@ -10,7 +9,7 @@ using System.Linq;
 // Implementation of the Tiled Wave Function Collapse Algorythm
 public partial class WFC : Node3D
 {
-	public Vector3I size;													// Keeps track of the size of each dimension of the grid
+	public Vector3I size;											// Keeps track of the size of each dimension of the grid
 	float cellSize;													// The Edgelength of one cell or cellItem
 
 	List<CellItem>[] grid;											// The grid
@@ -233,6 +232,9 @@ public partial class WFC : Node3D
 				}
 			}
 		}
+		
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Right * cellSize);
+
 		// propagate the border
 		Propagate();
 
@@ -242,7 +244,6 @@ public partial class WFC : Node3D
 		// Recollapse
 		while (!CollapseGrid()) {}
 
-		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Right * cellSize);
 
 		// Spawn Items
 		for (int z = 0; z < size.Z; z++)
@@ -317,7 +318,6 @@ public partial class WFC : Node3D
 			Vector3 diff = to3d - from3d;
 			instanceGrid[to] = instanceGrid[from];
 			instanceGrid[from] = null;
-			//instanceGrid[to].Position += diff * cellSize;
 			CallDeferred(nameof(UpdatePositionDeferred), instanceGrid[to], diff * cellSize);
 		}
 	}
