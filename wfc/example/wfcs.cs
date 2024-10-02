@@ -11,7 +11,7 @@ public partial class wfcs : Node3D {
 	public override void _Ready()
 	{
 		CreateTiles();																					// create the tiles and add them to cellItems
-		wfc = new WFC(new Vector3I(8, 8, 8), 4.1f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
+		wfc = new WFC(new Vector3I(15, 10, 15), 4.1f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
 		//wfc.SetSeed(754751920050143);							  										// optionally set a seed. SetSeed(0) does nothing so the random seed is used
 		//wfc.SetState(17855032261213824483);															// optionally set a state. Only use states that were printed to the console
 		wfc.SetConstrainGrid(ConstrainGrid);															// give the function that constrains the grid
