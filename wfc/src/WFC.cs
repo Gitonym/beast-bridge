@@ -1,8 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
+using System.Threading;
 
 // This class represent a 3D grid that contain items
 // The items have keys through which some neighbours are valid and some not
@@ -10,7 +10,7 @@ using System.Linq;
 // Implementation of the Tiled Wave Function Collapse Algorythm
 public partial class WFC : Node3D
 {
-	public Vector3I size;													// Keeps track of the size of each dimension of the grid
+	public Vector3I size;											// Keeps track of the size of each dimension of the grid
 	float cellSize;													// The Edgelength of one cell or cellItem
 
 	List<CellItem>[] grid;											// The grid
@@ -197,8 +197,54 @@ public partial class WFC : Node3D
 		return appearances;
 	}
 
+	public void SlideAndGenerate(Vector3 direction, int edgeWidth)
+	{
+		if (direction == Vector3.Left)
+		{
+			new Thread(() => {
+				Thread.CurrentThread.IsBackground = true;
+				SlideLeftAndGenerate(edgeWidth);
+			}).Start();
+		}
+		else if (direction == Vector3.Right)
+		{
+			new Thread(() => {
+				Thread.CurrentThread.IsBackground = true;
+				SlideRightAndGenerate(edgeWidth);
+			}).Start();
+		}
+		else if (direction == Vector3.Forward)
+		{
+			new Thread(() => {
+				Thread.CurrentThread.IsBackground = true;
+				SlideForwardAndGenerate(edgeWidth);
+			}).Start();
+		}
+		else if (direction == Vector3.Back)
+		{
+			new Thread(() => {
+				Thread.CurrentThread.IsBackground = true;
+				SlideBackAndGenerate(edgeWidth);
+			}).Start();
+		}
+		else if (direction == Vector3.Up)
+		{
+			new Thread(() => {
+				Thread.CurrentThread.IsBackground = true;
+				SlideUpAndGenerate(edgeWidth);
+			}).Start();
+		}
+		else if (direction == Vector3.Down)
+		{
+			new Thread(() => {
+				Thread.CurrentThread.IsBackground = true;
+				SlideDownAndGenerate(edgeWidth);
+			}).Start();
+		}
+	}
+
 	// Moves all items to the left and regenerates the right edge
-	public void SlideLeftAndGenerate(int edgeWidth)
+	private void SlideLeftAndGenerate(int edgeWidth)
 	{
 		for (int z = 0; z < size.Z; z++)
 		{
@@ -212,52 +258,352 @@ public partial class WFC : Node3D
 					int newIndex = Get1DIndex(newIndex3d);
 
 					// Move grid to the left by one
-					if (size.X - x >= edgeWidth)
+					if (x <= size.X - edgeWidth)
 					{
 						grid[newIndex] = grid[index];
 						MoveInstance(index, newIndex);
 					}
 
 					// put all CellItems into the right edge
-					if (size.X - index3d.X <= edgeWidth)
+					if (x >= size.X - edgeWidth)
 					{
 						grid[index] = cellItems.ToList();
 						DespawnInstance(index);
 					}
 					
 					// put last cells before border into modified
-					if (size.X - index3d.X == edgeWidth+1)
+					if (x == size.X - (edgeWidth + 1))
 					{
 						modified.Push(index);
 					}
 				}
 			}
 		}
+
+		// Move the grid
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Right * cellSize);
 		// propagate the border
 		Propagate();
-
 		// Save the grid post propogation
 		SaveConstrainedGrid();
-
 		// Recollapse
 		while (!CollapseGrid()) {}
-
-		Position += Vector3.Right * cellSize;
 
 		// Spawn Items
 		for (int z = 0; z < size.Z; z++)
 		{
 			for (int y = 0; y < size.Y; y++)
 			{
-				for (int x = 1; x < size.X; x++)
+				for (int x = size.X - edgeWidth; x < size.X; x++)
 				{
 					Vector3I index3d = new Vector3I(x, y, z);
 					int index = Get1DIndex(index3d);
-					
-					if (size.X - index3d.X <= edgeWidth)
+					SpawnCell(index);
+				}
+			}
+		}
+	}
+
+	// Moves all items to the right and regenerates the left edge
+	private void SlideRightAndGenerate(int edgeWidth)
+	{
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int y = 0; y < size.Y; y++)
+			{
+				for (int x = size.X-2; x >= 0; x--)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					Vector3I newIndex3d = new Vector3I(x+1, y, z);
+					int newIndex = Get1DIndex(newIndex3d);
+
+					// Move grid to the right by one
+					if (x >= edgeWidth-1)
 					{
-						SpawnCell(index);
+						grid[newIndex] = grid[index];
+						MoveInstance(index, newIndex);
 					}
+
+					// put all CellItems into the left edge
+					if (x < edgeWidth)
+					{
+						grid[index] = cellItems.ToList();
+						DespawnInstance(index);
+					}
+					
+					// put last cells before border into modified
+					if (x == edgeWidth)
+					{
+						modified.Push(index);
+					}
+				}
+			}
+		}
+
+		// Update the grid position
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Left * cellSize);
+		// propagate the border
+		Propagate();
+		// Save the grid post propogation
+		SaveConstrainedGrid();
+		// Recollapse
+		while (!CollapseGrid()) {}
+
+		// Spawn Items
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int y = 0; y < size.Y; y++)
+			{
+				for (int x = 0; x < edgeWidth; x++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					SpawnCell(index);
+				}
+			}
+		}
+	}
+
+	// Moves all items forward and regenerates the right edge
+	private void SlideForwardAndGenerate(int edgeWidth)
+	{
+		for (int x = 0; x < size.X; x++)
+		{
+			for (int y = 0; y < size.Y; y++)
+			{
+				for (int z = 1; z < size.Z; z++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					Vector3I newIndex3d = new Vector3I(x, y, z-1);
+					int newIndex = Get1DIndex(newIndex3d);
+
+					// Move grid to the left by one
+					if (z <= size.Z - edgeWidth)
+					{
+						grid[newIndex] = grid[index];
+						MoveInstance(index, newIndex);
+					}
+
+					// put all CellItems into the right edge
+					if (z >= size.Z - edgeWidth)
+					{
+						grid[index] = cellItems.ToList();
+						DespawnInstance(index);
+					}
+					
+					// put last cells before border into modified
+					if (z == size.Z - (edgeWidth + 1))
+					{
+						modified.Push(index);
+					}
+				}
+			}
+		}
+
+		// Move the grid
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Back * cellSize);
+		// propagate the border
+		Propagate();
+		// Save the grid post propogation
+		SaveConstrainedGrid();
+		// Recollapse
+		while (!CollapseGrid()) {}
+
+		// Spawn Items
+		for (int x = 0; x < size.X; x++)
+		{
+			for (int y = 0; y < size.Y; y++)
+			{
+				for (int z = size.Z - edgeWidth; z < size.Z; z++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					SpawnCell(index);
+				}
+			}
+		}
+	}
+
+	// Moves all items back and regenerates the left edge
+	private void SlideBackAndGenerate(int edgeWidth)
+	{
+		for (int x = 0; x < size.X; x++)
+		{
+			for (int y = 0; y < size.Y; y++)
+			{
+				for (int z = size.Z-2; z >= 0; z--)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					Vector3I newIndex3d = new Vector3I(x, y, z+1);
+					int newIndex = Get1DIndex(newIndex3d);
+
+					// Move grid to the right by one
+					if (z >= edgeWidth-1)
+					{
+						grid[newIndex] = grid[index];
+						MoveInstance(index, newIndex);
+					}
+
+					// put all CellItems into the left edge
+					if (z < edgeWidth)
+					{
+						grid[index] = cellItems.ToList();
+						DespawnInstance(index);
+					}
+					
+					// put last cells before border into modified
+					if (z == edgeWidth)
+					{
+						modified.Push(index);
+					}
+				}
+			}
+		}
+
+		// Update the grid position
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Forward * cellSize);
+		// propagate the border
+		Propagate();
+		// Save the grid post propogation
+		SaveConstrainedGrid();
+		// Recollapse
+		while (!CollapseGrid()) {}
+
+		// Spawn Items
+		for (int x = 0; x < size.X; x++)
+		{
+			for (int y = 0; y < size.Y; y++)
+			{
+				for (int z = 0; z < edgeWidth; z++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					SpawnCell(index);
+				}
+			}
+		}
+	}
+
+	// Moves all items to the right and regenerates the left edge
+	private void SlideUpAndGenerate(int edgeWidth)
+	{
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int x = 0; x < size.X; x++)
+			{
+				for (int y = size.Y-2; y >= 0; y--)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					Vector3I newIndex3d = new Vector3I(x, y+1, z);
+					int newIndex = Get1DIndex(newIndex3d);
+
+					// Move grid to the right by one
+					if (y >= edgeWidth-1)
+					{
+						grid[newIndex] = grid[index];
+						MoveInstance(index, newIndex);
+					}
+
+					// put all CellItems into the left edge
+					if (y < edgeWidth)
+					{
+						grid[index] = cellItems.ToList();
+						DespawnInstance(index);
+					}
+					
+					// put last cells before border into modified
+					if (y == edgeWidth)
+					{
+						modified.Push(index);
+					}
+				}
+			}
+		}
+
+		// Update the grid position
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Down * cellSize);
+		// propagate the border
+		Propagate();
+		// Save the grid post propogation
+		SaveConstrainedGrid();
+		// Recollapse
+		while (!CollapseGrid()) {}
+
+		// Spawn Items
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int x = 0; x < size.X; x++)
+			{
+				for (int y = 0; y < edgeWidth; y++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					SpawnCell(index);
+				}
+			}
+		}
+	}
+
+	// Moves all items to the left and regenerates the right edge
+	private void SlideDownAndGenerate(int edgeWidth)
+	{
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int x = 0; x < size.X; x++)
+			{
+				for (int y = 1; y < size.Y; y++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					Vector3I newIndex3d = new Vector3I(x, y-1, z);
+					int newIndex = Get1DIndex(newIndex3d);
+
+					// Move grid to the left by one
+					if (y <= size.Y - edgeWidth)
+					{
+						grid[newIndex] = grid[index];
+						MoveInstance(index, newIndex);
+					}
+
+					// put all CellItems into the right edge
+					if (y >= size.Y - edgeWidth)
+					{
+						grid[index] = cellItems.ToList();
+						DespawnInstance(index);
+					}
+					
+					// put last cells before border into modified
+					if (y == size.Y - (edgeWidth + 1))
+					{
+						modified.Push(index);
+					}
+				}
+			}
+		}
+
+		// Move the grid
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Up * cellSize);
+		// propagate the border
+		Propagate();
+		// Save the grid post propogation
+		SaveConstrainedGrid();
+		// Recollapse
+		while (!CollapseGrid()) {}
+
+		// Spawn Items
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int x = 0; x < size.X; x++)
+			{
+				for (int y = size.Y - edgeWidth; y < size.Y; y++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					SpawnCell(index);
 				}
 			}
 		}
@@ -285,7 +631,8 @@ public partial class WFC : Node3D
 		{
 			instance.Rotate(Vector3.Up, Mathf.DegToRad(-90));
 		}
-		AddChild(instance);
+		//AddChild(instance);
+		CallDeferred("add_child", instance);
 		//DespawnInstance(index);
 		instanceGrid[index] = instance;
 	}
@@ -297,7 +644,8 @@ public partial class WFC : Node3D
 		{
 			return;
 		}
-		RemoveChild(instanceGrid[index]);
+		CallDeferred("remove_child", instanceGrid[index]);
+		//RemoveChild(instanceGrid[index]);
 		instanceGrid[index].QueueFree();
 		instanceGrid[index] = null;		
 	}
@@ -315,8 +663,16 @@ public partial class WFC : Node3D
 			Vector3 diff = to3d - from3d;
 			instanceGrid[to] = instanceGrid[from];
 			instanceGrid[from] = null;
-			instanceGrid[to].Position += diff * cellSize;
+			CallDeferred(nameof(UpdatePositionDeferred), instanceGrid[to], diff * cellSize);
 		}
+	}
+
+	// Method to be deferred that handles the position update
+	private void UpdatePositionDeferred(Node3D instance, Vector3 positionDiff)
+	{
+	    Vector3 currentPosition = instance.GetPosition();
+	    Vector3 newPosition = currentPosition + positionDiff;
+	    instance.SetPosition(newPosition);
 	}
 	
 	// Prepares self to be ready for a new collapse
