@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 // This class represent a 3D grid that contain items
 // The items have keys through which some neighbours are valid and some not
@@ -196,8 +197,26 @@ public partial class WFC : Node3D
 		return appearances;
 	}
 
+	public void SlideAndGenerate(Vector3 direction, int edgeWidth)
+	{
+		if (direction == Vector3.Left)
+		{
+			new Thread(() => {
+				Thread.CurrentThread.IsBackground = true;
+				SlideLeftAndGenerate(edgeWidth);
+			}).Start();
+		}
+		else if (direction == Vector3.Right)
+		{
+			new Thread(() => {
+				Thread.CurrentThread.IsBackground = true;
+				SlideRightAndGenerate(edgeWidth);
+			}).Start();
+		}
+	}
+
 	// Moves all items to the left and regenerates the right edge
-	public void SlideLeftAndGenerate(int edgeWidth)
+	private void SlideLeftAndGenerate(int edgeWidth)
 	{
 		for (int z = 0; z < size.Z; z++)
 		{
@@ -232,7 +251,7 @@ public partial class WFC : Node3D
 				}
 			}
 		}
-		
+
 		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Right * cellSize);
 
 		// propagate the border
@@ -259,6 +278,70 @@ public partial class WFC : Node3D
 					{
 						SpawnCell(index);
 					}
+				}
+			}
+		}
+	}
+
+	// Moves all items to the left and regenerates the right edge
+	private void SlideRightAndGenerate(int edgeWidth)
+	{
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int y = 0; y < size.Y; y++)
+			{
+				for (int x = size.X-2; x >= 0; x--)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					Vector3I newIndex3d = new Vector3I(x+1, y, z);
+					int newIndex = Get1DIndex(newIndex3d);
+
+					// Move grid to the right by one
+					if (x >= edgeWidth-1)
+					{
+						grid[newIndex] = grid[index];
+						MoveInstance(index, newIndex);
+					}
+
+					// put all CellItems into the left edge
+					if (x < edgeWidth)
+					{
+						grid[index] = cellItems.ToList();
+						DespawnInstance(index);
+					}
+					
+					// put last cells before border into modified
+					if (x == edgeWidth)
+					{
+						modified.Push(index);
+					}
+				}
+			}
+		}
+
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Left * cellSize);
+
+		// propagate the border
+		Propagate();
+
+		// Save the grid post propogation
+		SaveConstrainedGrid();
+
+		// Recollapse
+		while (!CollapseGrid()) {}
+
+
+		// Spawn Items
+		for (int z = 0; z < size.Z; z++)
+		{
+			for (int y = 0; y < size.Y; y++)
+			{
+				for (int x = 0; x < edgeWidth; x++)
+				{
+					Vector3I index3d = new Vector3I(x, y, z);
+					int index = Get1DIndex(index3d);
+					SpawnCell(index);
 				}
 			}
 		}

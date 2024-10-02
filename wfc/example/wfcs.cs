@@ -1,7 +1,6 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 // This is an example of how to use the WFC and CellItem classes to use the Wave Function Collapse algorythm for cool maps
 public partial class wfcs : Node3D {
@@ -12,7 +11,7 @@ public partial class wfcs : Node3D {
 	public override void _Ready()
 	{
 		CreateTiles();																					// create the tiles and add them to cellItems
-		wfc = new WFC(new Vector3I(10, 10, 10), 4.0f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
+		wfc = new WFC(new Vector3I(15, 8, 15), 4.0f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
 		//wfc.SetSeed(754751920050143);							  										// optionally set a seed. SetSeed(0) does nothing so the random seed is used
 		//wfc.SetState(16882791597447876989);															// optionally set a state. Only use states that were printed to the console
 		wfc.SetConstrainGrid(ConstrainGrid);															// give the function that constrains the grid
@@ -28,12 +27,11 @@ public partial class wfcs : Node3D {
     {
         if (Input.IsActionJustPressed("right"))
 		{
-			GD.Print("Sliding");
-			new Thread(() => {
-				Thread.CurrentThread.IsBackground = true;
-				wfc.SlideLeftAndGenerate(3);
-			}).Start();
-			//wfc.SlideLeftAndGenerate(3);
+			wfc.SlideAndGenerate(Vector3.Left, 3);
+		}
+        if (Input.IsActionJustPressed("left"))
+		{
+			wfc.SlideAndGenerate(Vector3.Right, 3);
 		}
     }
 
