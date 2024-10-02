@@ -242,7 +242,7 @@ public partial class WFC : Node3D
 		// Recollapse
 		while (!CollapseGrid()) {}
 
-		Position += Vector3.Right * cellSize;
+		CallDeferred(nameof(UpdatePositionDeferred), this, Vector3.Right * cellSize);
 
 		// Spawn Items
 		for (int z = 0; z < size.Z; z++)
@@ -286,7 +286,7 @@ public partial class WFC : Node3D
 			instance.Rotate(Vector3.Up, Mathf.DegToRad(-90));
 		}
 		//AddChild(instance);
-		this.CallDeferred("add_child", instance);
+		CallDeferred("add_child", instance);
 		//DespawnInstance(index);
 		instanceGrid[index] = instance;
 	}
@@ -298,7 +298,8 @@ public partial class WFC : Node3D
 		{
 			return;
 		}
-		RemoveChild(instanceGrid[index]);
+		CallDeferred("remove_child", instanceGrid[index]);
+		//RemoveChild(instanceGrid[index]);
 		instanceGrid[index].QueueFree();
 		instanceGrid[index] = null;		
 	}
@@ -316,8 +317,17 @@ public partial class WFC : Node3D
 			Vector3 diff = to3d - from3d;
 			instanceGrid[to] = instanceGrid[from];
 			instanceGrid[from] = null;
-			instanceGrid[to].Position += diff * cellSize;
+			//instanceGrid[to].Position += diff * cellSize;
+			CallDeferred(nameof(UpdatePositionDeferred), instanceGrid[to], diff * cellSize);
 		}
+	}
+
+	// Method to be deferred that handles the position update
+	private void UpdatePositionDeferred(Node3D instance, Vector3 positionDiff)
+	{
+	    Vector3 currentPosition = instance.GetPosition();
+	    Vector3 newPosition = currentPosition + positionDiff;
+	    instance.SetPosition(newPosition);
 	}
 	
 	// Prepares self to be ready for a new collapse
