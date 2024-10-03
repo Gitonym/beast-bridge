@@ -7,17 +7,21 @@ public partial class wfcs : Node3D {
 
 	WFC wfc;											// WFC instance
 	List<CellItem> cellItems = new List<CellItem>();	// Keeps track of all different CellItems
+	Node3D player;
+	float cellSize = 4.0f;
+	Vector3I gridSize = new Vector3I(40, 8, 40);
 	
 	public override void _Ready()
 	{
+		player = GetNode<Node3D>("%Player");
 		CreateTiles();																					// create the tiles and add them to cellItems
-		wfc = new WFC(new Vector3I(15, 10, 15), 4.1f, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
+		wfc = new WFC(gridSize, cellSize, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
+		PutInMiddleOfGrid(player);
 		//wfc.SetSeed(754751920050143);							  										// optionally set a seed. SetSeed(0) does nothing so the random seed is used
 		//wfc.SetState(17855032261213824483);															// optionally set a state. Only use states that were printed to the console
 		wfc.SetConstrainGrid(ConstrainGrid);															// give the function that constrains the grid
 		AddChild(wfc);																					// add wfc to the scene tree
 		while (!wfc.CollapseGrid()) {}
-		//GD.Print("Time to collapse: ", GetExecutionTimeUsec(wfc.CollapseGrid)/1000000.0, " Seconds");	// run the algorythm (this can take a long time)
 		GD.Print("Time to spawn:    ", GetExecutionTimeUsec(wfc.SpawnItems)/1000000.0, " Seconds");		// after the grid collapsed spawn the chosen cellItems and add them to the scene tree
 		GD.Print(GetDictString(wfc.CountCellItemAppearances("wall")));									// counts how often a CellItem and its rotations occur, usfeul for debugging
 		GD.Print(GetDictString(wfc.CountCellItemAppearances("door")));
@@ -25,6 +29,21 @@ public partial class wfcs : Node3D {
 
     public override void _Process(double delta)
     {
+		GenerateMap();
+		ManuallyGenerate();
+    }
+
+	private void PutInMiddleOfGrid(Node3D node)
+	{
+		node.Position = new Vector3(
+			(wfc.Position.X + (gridSize.X * cellSize)/2) - cellSize/2,
+			wfc.Position.Y + gridSize.Y * cellSize,
+			(wfc.Position.Z + (gridSize.Z * cellSize)/2) - cellSize/2
+		);
+	}
+
+	private void ManuallyGenerate()
+	{
         if (Input.IsActionJustPressed("right"))
 		{
 			wfc.SlideAndGenerate(Vector3.Left, 3);
@@ -49,7 +68,35 @@ public partial class wfcs : Node3D {
 		{
 			wfc.SlideAndGenerate(Vector3.Down, 3);
 		}
-    }
+	}
+
+	private void GenerateMap()
+	{
+		int borderWidth = 3;
+		int borderDistance = ((Mathf.Min(gridSize.X, gridSize.Z) - 1)/2) - borderWidth;
+		Vector3 relativePlayerPosition = player.Position - wfc.Position;
+		float leftBorder = (borderWidth + borderDistance) * cellSize;
+		float forwardBorder = (borderWidth + borderDistance) * cellSize;
+		float rightBorder = ((gridSize.X - 1) * cellSize) - leftBorder;
+		float backBorder = ((gridSize.Z - 1) * cellSize) - forwardBorder;
+
+		if (relativePlayerPosition.X < leftBorder)
+		{
+			wfc.SlideAndGenerate(Vector3.Right, borderWidth);
+		}
+		else if (relativePlayerPosition.X > rightBorder)
+		{
+			wfc.SlideAndGenerate(Vector3.Left, borderWidth);
+		}
+		else if (relativePlayerPosition.Z < forwardBorder)
+		{
+			wfc.SlideAndGenerate(Vector3.Back, borderWidth);
+		}
+		else if (relativePlayerPosition.Z > backBorder)
+		{
+			wfc.SlideAndGenerate(Vector3.Forward, borderWidth);
+		}
+	}
 
     // This function creates all different CellItems and adds them to the cellItems list
     private void CreateTiles()
