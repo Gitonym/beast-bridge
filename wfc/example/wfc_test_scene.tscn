@@ -1,7 +1,29 @@
-[gd_scene load_steps=3 format=3 uid="uid://bp045uran4rix"]
+[gd_scene load_steps=6 format=3 uid="uid://bp045uran4rix"]
 
 [ext_resource type="PackedScene" uid="uid://dreebj84dlmv7" path="res://assets/player/player.tscn" id="1_tpetr"]
 [ext_resource type="Script" path="res://wfc/example/wfcs.cs" id="3_yy45k"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gjk0e"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_m2wfw"]
+material = SubResource("ShaderMaterial_gjk0e")
+size = Vector3(10, 10, 10)
+
+[sub_resource type="GDScript" id="GDScript_8x2cs"]
+script/source = "extends MeshInstance3D
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(_delta):
+	var material : ShaderMaterial = get_active_material(0)
+	#material.set_shader_param(\"apex\", $\"../Player\".global_position)
+	#material.set_shader_param(\"base\", $Player/Camera3D.global_position)
+	#material.set_shader_param(\"base_radius\", 5)
+	
+	material.set(\"shader_parameter/apex\", $\"../Player\".global_position)
+	material.set(\"shader_parameter/base\", $\"../Player/Camera3D\".global_position)
+	material.set(\"shader_parameter/base_radius\", 1)
+"
 
 [node name="World" type="Node3D"]
 
@@ -16,3 +38,7 @@ jump_strength = 35
 
 [node name="WFCS" type="Node3D" parent="."]
 script = ExtResource("3_yy45k")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_m2wfw")
+script = SubResource("GDScript_8x2cs")
