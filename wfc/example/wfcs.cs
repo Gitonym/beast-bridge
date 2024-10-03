@@ -30,7 +30,6 @@ public partial class wfcs : Node3D {
     public override void _Process(double delta)
     {
 		GenerateMap();
-		ManuallyGenerate();
     }
 
 	private void PutInMiddleOfGrid(Node3D node)
@@ -40,34 +39,6 @@ public partial class wfcs : Node3D {
 			wfc.Position.Y + gridSize.Y * cellSize,
 			(wfc.Position.Z + (gridSize.Z * cellSize)/2) - cellSize/2
 		);
-	}
-
-	private void ManuallyGenerate()
-	{
-        if (Input.IsActionJustPressed("right"))
-		{
-			wfc.SlideAndGenerate(Vector3.Left, 3);
-		}
-        if (Input.IsActionJustPressed("left"))
-		{
-			wfc.SlideAndGenerate(Vector3.Right, 3);
-		}
-        if (Input.IsActionJustPressed("back"))
-		{
-			wfc.SlideAndGenerate(Vector3.Forward, 3);
-		}
-        if (Input.IsActionJustPressed("forward"))
-		{
-			wfc.SlideAndGenerate(Vector3.Back, 3);
-		}
-        if (Input.IsActionJustPressed("down"))
-		{
-			wfc.SlideAndGenerate(Vector3.Up, 3);
-		}
-        if (Input.IsActionJustPressed("up"))
-		{
-			wfc.SlideAndGenerate(Vector3.Down, 3);
-		}
 	}
 
 	private void GenerateMap()
