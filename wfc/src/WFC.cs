@@ -12,6 +12,7 @@ public partial class WFC : Node3D
 {
 	public Vector3I size;											// Keeps track of the size of each dimension of the grid
 	float cellSize;													// The Edgelength of one cell or cellItem
+	bool sliding = false;
 
 	List<CellItem>[] grid;											// The grid
 	List<CellItem> cellItems;										// All possible cellItems
@@ -26,7 +27,7 @@ public partial class WFC : Node3D
 	ulong usedState;
 
 	float lastPrintTime = 0.0f;										// Keeps track when the Progressbar was printed last
-	const int maxIterations = 200;									// The max number of iterations before it restarts from scratch. Set to 0 for no restart because of iterations
+	const int maxIterations = 400;									// The max number of iterations before it restarts from scratch. Set to 0 for no restart because of iterations
 	int iterations = 0;												// The current number of iterations
 	const ulong timeOut = 0;										// The max number of Milliseconds before it restarts from scratch. The algorythm is no longer deterministic if this timeout is reached. Set to 0 for no restart because of timeout
 	ulong startTime;												// The time at which the current collapse started at
@@ -199,6 +200,11 @@ public partial class WFC : Node3D
 
 	public void SlideAndGenerate(Vector3 direction, int edgeWidth)
 	{
+		if (sliding)
+		{
+			return;
+		}
+		sliding = true;
 		if (direction == Vector3.Left)
 		{
 			new Thread(() => {
@@ -302,6 +308,7 @@ public partial class WFC : Node3D
 				}
 			}
 		}
+		sliding = false;
 	}
 
 	// Moves all items to the right and regenerates the left edge
@@ -363,6 +370,7 @@ public partial class WFC : Node3D
 				}
 			}
 		}
+		sliding = false;
 	}
 
 	// Moves all items forward and regenerates the right edge
@@ -424,6 +432,7 @@ public partial class WFC : Node3D
 				}
 			}
 		}
+		sliding = false;
 	}
 
 	// Moves all items back and regenerates the left edge
@@ -485,6 +494,7 @@ public partial class WFC : Node3D
 				}
 			}
 		}
+		sliding = false;
 	}
 
 	// Moves all items to the right and regenerates the left edge
@@ -546,6 +556,7 @@ public partial class WFC : Node3D
 				}
 			}
 		}
+		sliding = false;
 	}
 
 	// Moves all items to the left and regenerates the right edge
@@ -607,6 +618,7 @@ public partial class WFC : Node3D
 				}
 			}
 		}
+		sliding = false;
 	}
 
 	// Spawns the scene belonging to the first CellItem in grid[index]
