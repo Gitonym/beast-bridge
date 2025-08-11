@@ -15,7 +15,7 @@ public partial class wfcs : Node3D {
 	{
 		player = GetNode<Node3D>("%Player");
 		CreateTiles();																					// create the tiles and add them to cellItems
-		wfc = new WFC(gridSize, cellSize, cellItems);										// create the WFC instance, specifiy the size and give it the cellItems
+		wfc = new WFC(gridSize, cellSize, cellItems);													// create the WFC instance, specifiy the size and give it the cellItems
 		PutInMiddleOfGrid(player);
 		//wfc.SetSeed(754751920050143);							  										// optionally set a seed. SetSeed(0) does nothing so the random seed is used
 		//wfc.SetState(17855032261213824483);															// optionally set a state. Only use states that were printed to the console
@@ -79,13 +79,13 @@ public partial class wfcs : Node3D {
 		cellItems.Add(new CellItem("grass", "res://wfc/tiles/grass.glb", "grass", "grass", "grass", "grass", "air", "ground", 1.0f));
 		
 		// paths
-		//cellItems.Add(new CellItem("path_cross", "res://wfc/tiles/path_cross.glb", "path", "path", "path", "path", "air", "ground", 0.0f));
+		cellItems.Add(new CellItem("path_cross", "res://wfc/tiles/path_cross.glb", "path", "path", "path", "path", "air", "ground", 0.0f));
 		// NewMirrored automatically creates two identical CellItems rotated by 90 degrees
-		//cellItems.AddRange(CellItem.NewMirrored("path_straight", "res://wfc/tiles/path_straight.glb", "path", "grass", "path", "grass", "air", "ground", 0.0f));
+		cellItems.AddRange(CellItem.NewMirrored("path_straight", "res://wfc/tiles/path_straight.glb", "path", "grass", "path", "grass", "air", "ground", 0.0f));
 		// NewCardinal automatically creates four identical CellItems each rotated by 90 degrees
-		//cellItems.AddRange(CellItem.NewCardinal("path_bend", "res://wfc/tiles/path_bend.glb", "path", "path", "grass", "grass", "air", "ground", 0.0f));
-		//cellItems.AddRange(CellItem.NewCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground", 0.1f));
-		//cellItems.AddRange(CellItem.NewCardinal("path_t", "res://wfc/tiles/path_t.glb", "path", "path", "grass", "path", "air", "ground", 0.0f));
+		cellItems.AddRange(CellItem.NewCardinal("path_bend", "res://wfc/tiles/path_bend.glb", "path", "path", "grass", "grass", "air", "ground", 0.0f));
+		cellItems.AddRange(CellItem.NewCardinal("path_end", "res://wfc/tiles/path_end.glb", "path", "grass", "grass", "grass", "air", "ground", 0.1f));
+		cellItems.AddRange(CellItem.NewCardinal("path_t", "res://wfc/tiles/path_t.glb", "path", "path", "grass", "path", "air", "ground", 0.0f));
 
 		// slope
 		cellItems.AddRange(CellItem.NewCardinal("grass_slope_top", "res://wfc/tiles/grass_slope_top.glb", "grass", "slope_top_r", "air", "slope_top_r", "air", "edge_r", 0.0f));
