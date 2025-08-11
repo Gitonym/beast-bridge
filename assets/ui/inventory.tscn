@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://22jjsn581ct"]
 
-[ext_resource type="Script" path="res://assets/ui/inventory.gd" id="1_4q5v6"]
-[ext_resource type="Script" path="res://assets/ui/inventory_item.gd" id="2_5h83c"]
+[ext_resource type="Script" uid="uid://c2avm67dvv7oi" path="res://assets/ui/inventory.gd" id="1_4q5v6"]
+[ext_resource type="Script" uid="uid://c53kuvg0w8jhf" path="res://assets/ui/inventory_item.gd" id="2_5h83c"]
 [ext_resource type="ButtonGroup" uid="uid://dsekvjm7vw4j" path="res://assets/ui/buttons/inventoryItem_button_group.tres" id="2_6l48v"]
 [ext_resource type="PackedScene" uid="uid://c2ih0g8mw5kpq" path="res://assets/furniture/chest.tscn" id="3_dsbgd"]
 [ext_resource type="PackedScene" uid="uid://d1k6ax3ta46l8" path="res://assets/furniture/pillar.tscn" id="4_ha7i6"]

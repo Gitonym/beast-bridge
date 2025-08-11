@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://b8vitso277nmd"]
 
 [ext_resource type="ButtonGroup" uid="uid://cfwgh7bji5g3s" path="res://wfc/ui/WFCButtonGroup.tres" id="1_g7kya"]
-[ext_resource type="Script" path="res://wfc/ui/wfc_button.gd" id="1_os540"]
+[ext_resource type="Script" uid="uid://dd82rarkxg8lk" path="res://wfc/ui/wfc_button.gd" id="1_os540"]
 [ext_resource type="Texture2D" uid="uid://d1h3ee72tjb2m" path="res://assets/ui/buttons/Default.png" id="3_p21ew"]
 [ext_resource type="Texture2D" uid="uid://bmr2k7ncs0is0" path="res://assets/ui/buttons/Hover.png" id="4_8njwg"]
 

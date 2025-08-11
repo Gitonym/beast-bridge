@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://cy631uhq88tso"]
 
-[ext_resource type="Script" path="res://assets/ui/inventory_item.gd" id="1_75wrs"]
+[ext_resource type="Script" uid="uid://c53kuvg0w8jhf" path="res://assets/ui/inventory_item.gd" id="1_75wrs"]
 [ext_resource type="Texture2D" uid="uid://bmr2k7ncs0is0" path="res://assets/ui/buttons/Hover.png" id="1_ieoki"]
 [ext_resource type="Texture2D" uid="uid://d1h3ee72tjb2m" path="res://assets/ui/buttons/Default.png" id="2_fllji"]
 [ext_resource type="ButtonGroup" uid="uid://dsekvjm7vw4j" path="res://assets/ui/buttons/inventoryItem_button_group.tres" id="2_im8ek"]

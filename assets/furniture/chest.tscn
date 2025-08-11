@@ -1,7 +1,7 @@
 [gd_scene load_steps=12 format=4 uid="uid://c2ih0g8mw5kpq"]
 
 [ext_resource type="Texture2D" uid="uid://dmfsofcrqjcb8" path="res://assets/furniture/dungeon_texture.png" id="1_gxqy2"]
-[ext_resource type="Script" path="res://assets/furniture/interact.gd" id="2_qpyom"]
+[ext_resource type="Script" uid="uid://drv03xwt1kdyg" path="res://assets/furniture/interact.gd" id="2_qpyom"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sil2f"]
 resource_name = "texture"
@@ -108,8 +108,8 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_s0u23"]
 _data = {
-"RESET": SubResource("Animation_xkva6"),
-"open": SubResource("Animation_x4w5b")
+&"RESET": SubResource("Animation_xkva6"),
+&"open": SubResource("Animation_x4w5b")
 }
 
 [node name="Chest" type="Node3D"]

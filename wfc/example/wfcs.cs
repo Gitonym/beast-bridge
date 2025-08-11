@@ -9,7 +9,7 @@ public partial class wfcs : Node3D {
 	List<CellItem> cellItems = new List<CellItem>();	// Keeps track of all different CellItems
 	Node3D player;
 	float cellSize = 4.0f;
-	Vector3I gridSize = new Vector3I(40, 8, 40);
+	Vector3I gridSize = new Vector3I(30, 8, 30);
 	
 	public override void _Ready()
 	{

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://b46wiqf5cygwv"]
 
-[ext_resource type="Script" path="res://wfc/ui/wfcui.gd" id="1_he0k1"]
+[ext_resource type="Script" uid="uid://bnnquloygetay" path="res://wfc/ui/wfcui.gd" id="1_he0k1"]
 
 [node name="Wfcui" type="Control"]
 layout_mode = 3
