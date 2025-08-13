@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://fedyf2g133nb"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jxaat"]
+albedo_color = Color(0.207843, 0.207843, 0.207843, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_pp3vq"]
+material = SubResource("StandardMaterial3D_jxaat")
+
+[sub_resource type="BoxMesh" id="BoxMesh_jxaat"]
+size = Vector3(1, 0.1, 0.1)
+
+[node name="HillFoundationCorner" type="MeshInstance3D"]
+mesh = SubResource("BoxMesh_pp3vq")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -0.433202, 0.55179, -0.0158449)
+mesh = SubResource("BoxMesh_jxaat")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0.0144194, 0.55179, 0.421202)
+mesh = SubResource("BoxMesh_jxaat")

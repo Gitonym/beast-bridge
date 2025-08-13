@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://dy5c7bu1pxbl7"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vfoa1"]
+albedo_color = Color(0.431373, 0.247059, 0.133333, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vfoa1"]
+material = SubResource("StandardMaterial3D_vfoa1")
+size = Vector3(1, 1, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wnsib"]
+albedo_color = Color(0.431373, 0.247059, 0.133333, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wnsib"]
+material = SubResource("StandardMaterial3D_wnsib")
+size = Vector3(1, 1, 0.1)
+
+[node name="WallCorner" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -0.433202, 0.55179, -0.0158449)
+mesh = SubResource("BoxMesh_vfoa1")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0.0144194, 0.55179, 0.421202)
+mesh = SubResource("BoxMesh_wnsib")
+skeleton = NodePath("")

@@ -1,8 +1,8 @@
 extends CharacterBody3D
 
-@export var movement_speed = 5
-@export var running_speed = 8
-@export var movement_acceleration = 5
+@export var movement_speed = 20
+@export var running_speed = 50
+@export var movement_acceleration = 10
 @export var movement_friction = 4
 @export var gravity_strength = 20
 @export var jump_strength = 15
@@ -33,8 +33,8 @@ func _process(_delta):
 func _physics_process(delta):
 	accelerate(delta)
 	friction(delta)
-	jump()
-	gravity(delta)
+	#jump()
+	#gravity(delta)
 	interact()
 	move_and_slide()
 
@@ -55,6 +55,10 @@ func get_movement_direction():
 		movement_direction += Vector3(-1, 0, 0)
 	if Input.is_action_pressed("move_right"):
 		movement_direction += Vector3(1, 0, 0)
+	if Input.is_action_pressed("jump"):
+		movement_direction += Vector3(0, 1, 0)
+	if Input.is_action_pressed("crouch"):
+		movement_direction += Vector3(0, -1, 0)
 	movement_direction = movement_direction.normalized()
 
 
