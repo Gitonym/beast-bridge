@@ -23,3 +23,4 @@ mono_crash.*.json
 *.tres
 *.tmp
 exports/
+addons/
