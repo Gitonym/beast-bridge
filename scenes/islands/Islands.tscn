@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://68lokcku3eii"]
+
+[ext_resource type="Script" uid="uid://074ms8ej674u" path="res://source/wfc/IslandKeeper.cs" id="1_flhmn"]
+[ext_resource type="PackedScene" uid="uid://dreebj84dlmv7" path="res://scenes/player/player.tscn" id="2_sjn60"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7iv18"]
+albedo_color = Color(0, 0.25098, 1, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_flhmn"]
+material = SubResource("StandardMaterial3D_7iv18")
+size = Vector2(10000, 10000)
+
+[node name="Islands" type="Node3D"]
+script = ExtResource("1_flhmn")
+
+[node name="Player" parent="." instance=ExtResource("2_sjn60")]
+unique_name_in_owner = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.804168, 0.423317, -0.417272, 0, 0.702004, 0.712173, 0.594402, -0.572707, 0.564529, 0, 7.02775, 0)
+
+[node name="Water" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.108327, -0.0111241, 0.0661039)
+mesh = SubResource("QuadMesh_flhmn")

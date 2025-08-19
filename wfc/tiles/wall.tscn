@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://b86rvml31f6ht"]
 
 [ext_resource type="PackedScene" uid="uid://bbemjwrap5qrg" path="res://wfc/tiles/wall.glb" id="1_o3p1i"]
-[ext_resource type="Script" uid="uid://dsoickeeqve4x" path="res://assets/scripts/hole_shader.gd" id="2_d0quq"]
+[ext_resource type="Script" path="res://assets/scripts/hole_shader.gd" id="2_d0quq"]
 
 [node name="wall" type="Node3D"]
 

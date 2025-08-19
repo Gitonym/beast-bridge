@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://bp045uran4rix"]
+
+[ext_resource type="PackedScene" uid="uid://dreebj84dlmv7" path="res://scenes/player/player.tscn" id="1_tpetr"]
+[ext_resource type="Script" uid="uid://dwdo24lmjxy3h" path="res://scenes/test_scene/wfcs.cs" id="3_yy45k"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5wrhi"]
+albedo_color = Color(0, 0.25098, 1, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_7iv18"]
+material = SubResource("StandardMaterial3D_5wrhi")
+size = Vector2(10000, 10000)
+
+[node name="World" type="Node3D"]
+script = ExtResource("3_yy45k")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.804168, 0.423317, -0.417272, 0, 0.702004, 0.712173, 0.594402, -0.572707, 0.564529, 0, 7.02775, 0)
+
+[node name="Player" parent="." instance=ExtResource("1_tpetr")]
+unique_name_in_owner = true
+gravity_strength = 35
+jump_strength = 35
+
+[node name="Water" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("QuadMesh_7iv18")
