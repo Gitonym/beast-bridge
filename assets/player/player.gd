@@ -66,7 +66,8 @@ func interpolate_player_rotation():
 		#interpolate rotation
 		var current_rotation = mage.rotation
 		var current_quat = Quaternion(mage.transform.basis)
-		if not is_equal_approx(velocity.length(), 0.0) and (global_position - velocity) != Vector3.FORWARD and (global_position - velocity) != Vector3.BACK:
+			
+		if not (global_position - velocity).cross(Vector3.UP).is_zero_approx() and velocity.length() > 0.01:
 			mage.look_at(global_position - velocity, Vector3.UP)
 		mage.rotation.x = current_rotation.x
 		var target_quat = Quaternion(mage.transform.basis)
