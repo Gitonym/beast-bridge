@@ -1,7 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://bp045uran4rix"]
+[gd_scene load_steps=5 format=3 uid="uid://bp045uran4rix"]
 
 [ext_resource type="PackedScene" uid="uid://dreebj84dlmv7" path="res://assets/player/player.tscn" id="1_tpetr"]
 [ext_resource type="Script" uid="uid://dwdo24lmjxy3h" path="res://wfc/example/wfcs.cs" id="3_yy45k"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7iv18"]
+albedo_color = Color(0, 0.25098, 1, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_7iv18"]
+material = SubResource("StandardMaterial3D_7iv18")
+size = Vector2(10000, 10000)
 
 [node name="World" type="Node3D"]
 
@@ -16,3 +23,7 @@ jump_strength = 35
 
 [node name="WFCS" type="Node3D" parent="."]
 script = ExtResource("3_yy45k")
+
+[node name="Water" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("QuadMesh_7iv18")

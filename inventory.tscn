@@ -1,6 +1,20 @@
-[gd_scene load_steps=2 format=3 uid="uid://cu6wd57awbwwf"]
+[gd_scene load_steps=2 format=3 uid="uid://oqvba0d57ycr"]
 
-[ext_resource type="Script" uid="uid://c7o7l42px4tlc" path="res://inventory.gd" id="1_rrkwc"]
+[sub_resource type="GDScript" id="GDScript_c0rdb"]
+script/source = "extends Node2D
+
+var items = []
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	pass
+"
 
 [node name="Inventory" type="Node2D"]
-script = ExtResource("1_rrkwc")
+script = SubResource("GDScript_c0rdb")

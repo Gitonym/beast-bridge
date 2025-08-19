@@ -9,8 +9,6 @@ extends CharacterBody3D
 
 @onready var mage = $Mage
 @onready var animationPlayer = $Mage/AnimationPlayer
-@onready var grid = $"../ObjectGrid"
-@onready var inventory = $"../Inventory"
 @onready var interactRay = $Mage/InteractRay
 
 var click_event: bool = false
@@ -68,7 +66,8 @@ func interpolate_player_rotation():
 		#interpolate rotation
 		var current_rotation = mage.rotation
 		var current_quat = Quaternion(mage.transform.basis)
-		mage.look_at(global_position - velocity, Vector3.UP)
+		if not is_equal_approx(velocity.length(), 0.0) and (global_position - velocity) != Vector3.FORWARD and (global_position - velocity) != Vector3.BACK:
+			mage.look_at(global_position - velocity, Vector3.UP)
 		mage.rotation.x = current_rotation.x
 		var target_quat = Quaternion(mage.transform.basis)
 		mage.rotation = current_rotation
@@ -115,51 +114,6 @@ func play_animations():
 	
 	if state == "interact":
 		animationPlayer.play("Interact")
-
-
-func select_cell():
-	#get 3d mouse position
-	var viewport := get_viewport()
-	var mouse_position := viewport.get_mouse_position()
-	var camera := viewport.get_camera_3d()
-	var origin := camera.project_ray_origin(mouse_position)
-	var direction := camera.project_ray_normal(mouse_position)
-	var ray_length := camera.far
-	var end := origin + direction * ray_length
-	var space_state := get_world_3d().direct_space_state
-	var query := PhysicsRayQueryParameters3D.create(origin, end)
-	var result := space_state.intersect_ray(query)
-	var mouse_position_3D:Vector3 = result.get("position", end)
-	#mouse position to cell
-	var cell_index = grid.coordinates_to_index(int(mouse_position_3D.x), int(mouse_position_3D.z))
-	#select the cell
-	grid.select(cell_index.x, cell_index.y)
-
-
-func on_click_event():
-	if click_event:
-		click_event = false
-		select_cell()
-
-
-func on_alt_click_event():
-	if alt_click_event:
-		alt_click_event = false
-		spawn_item()
-
-
-func spawn_item():
-	var selected_x = grid.selected_x
-	var selected_y = grid.selected_y
-	var cell_size = grid.cell_size
-	var selected_scene = inventory.selected_scene
-	
-	if selected_scene != null and selected_x != null and selected_y != null:
-		var selected_instance = selected_scene.instantiate()
-		selected_instance.position.x = selected_x * cell_size
-		selected_instance.position.z = selected_y * cell_size
-		selected_instance.position.y = 0
-		grid.add_child(selected_instance)
 
 
 func jump():
